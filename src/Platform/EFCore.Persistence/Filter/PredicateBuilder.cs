@@ -1,20 +1,19 @@
 ﻿using System.Linq.Expressions;
 
-namespace EFCore.Persistence.Filter
-{
-    public class PredicateBuilder<T> : IPredicateBuilder<T> where T : class
-    {
-        public Expression<Func<T, bool>>? Statement { get; private set; }
+namespace EFCore.Persistence.Filter;
 
-        public IPredicateBuilder<T> Empty()
-        {
+public class PredicateBuilder<T> : IPredicateBuilder<T> where T : class
+{
+    public Expression<Func<T, bool>>? Statement { get; private set; }
+
+    public IPredicateBuilder<T> Empty()
+    {
+        Statement = q => true;
+        return this;
+    }
+    public IPredicateBuilder<T> Where(Expression<Func<T, bool>> predicate)
+    {
             Statement = q => true;
-            return this;
-        }
-        public IPredicateBuilder<T> Where(Expression<Func<T, bool>> predicate)
-        {
-                Statement = q => true;
-            return this;
-        }
+        return this;
     }
 }

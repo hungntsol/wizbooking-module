@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace EFCore.Persistence.Abstracts
 {
-    internal interface IAsyncBaseRepository<T> where T : class
+    public interface IAsyncBaseRepository<T> where T : class
     {
         #region Insert
 
