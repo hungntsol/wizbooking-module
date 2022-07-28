@@ -7,10 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DependencyInjection\" />
     <Folder Include="Abstracts\" />
+    <Folder Include="DependencyInjection\" />
     <Folder Include="Data\" />
-    <Folder Include="Filter\" />
   </ItemGroup>
 
   <ItemGroup>
