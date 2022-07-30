@@ -10,8 +10,12 @@ public static class InfrastructureServicesExtension
     public static IServiceCollection AddInfrastructureService(this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddDbContext<MeetingDataContext>(options => 
-            options.UseSqlServer(configuration.GetValue<string>("MeetingDataContext:ConnectionString"))
+        services.AddDbContext<MeetingDataContext>(options =>
+            {
+                options.UseSqlServer(
+                    configuration.GetValue<string>("MeetingDataContext:ConnectionString"),
+                    action => action.MigrationsAssembly("Meeting.Infrastructure"));
+            }
         );
 
         services.AddUnitOfWork<MeetingDataContext>();

@@ -27,33 +27,41 @@ public class AppUser : EntityBase<ulong>
     public string? LastLoginIpv4 { get; set; }
     public string? LastLoginIpv6 { get; set; }
 
+    public virtual ICollection<AppUserService> Services { get; set; } = new List<AppUserService>();
+    public virtual ICollection<Booking> MeetingsWithGuest { get; set; } = new List<Booking>();
+    public virtual ICollection<Booking> MeetingsWithHost { get; set; } = new List<Booking>();
+    public virtual ICollection<ProvidedUrl> InviteServiceUrls { get; set; } = new List<ProvidedUrl>();
+
     public AppUser(string email,
-        string rawPassword,
+        string normalizeEmail,
         string firstName,
         string lastName,
-        string? bio = null,
-        DateTime? dateOfBirth = null,
-        string? phoneNumber = null,
-        string? address = null,
-        UserGender gender = default,
-        string? imageUrl = null,
-        bool isEmailVerified = false,
-        DateTime? lastLogin = null,
-        string? lastLoginIpv4 = null,
-        string? lastLoginIpv6 = null) : this(email, rawPassword, firstName, lastName, gender)
+        string? bio,
+        DateTime? dateOfBirth,
+        string? phoneNumber,
+        string? address,
+        string gender,
+        string? imageUrl,
+        DateTime? lastLogin,
+        string? lastLoginIpv4,
+        string? lastLoginIpv6)
     {
+        Email = email;
+        NormalizeEmail = normalizeEmail;
+        FirstName = firstName;
+        LastName = lastName;
         Bio = bio;
         DateOfBirth = dateOfBirth;
         PhoneNumber = phoneNumber;
         Address = address;
+        Gender = gender;
         ImageUrl = imageUrl;
-        IsEmailVerified = isEmailVerified;
         LastLogin = lastLogin;
         LastLoginIpv4 = lastLoginIpv4;
         LastLoginIpv6 = lastLoginIpv6;
     }
 
-    public AppUser(string email, string rawPassword, string firstName, string lastName, UserGender gender)
+    public AppUser Create(string email, string rawPassword, string firstName, string lastName, UserGender gender)
     {
         Email = email;
         NormalizeEmail = email.ToUpper();
@@ -61,6 +69,8 @@ public class AppUser : EntityBase<ulong>
         LastName = lastName;
         this.SetPassword(rawPassword);
         Gender = gender.Mapping();
+
+        return this;
     }
 
     public string Fullname => string.Format("{0} {1}", this.FirstName, this.LastName);
@@ -85,6 +95,12 @@ public class AppUser : EntityBase<ulong>
         var verify = new PasswordHasher<AppUser>().VerifyHashedPassword(this, this.HashPassword, raw);
         return verify == PasswordVerificationResult.Success;
     }
+
+    /// <summary>
+    /// Whether this account is valid for enduser
+    /// </summary>
+    /// <returns></returns>
+    public bool IsValid() => this.IsEmailVerified && this.IsActive && !this.IsLocked;
 }
 
 public enum UserGender
