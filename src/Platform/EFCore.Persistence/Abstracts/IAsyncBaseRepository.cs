@@ -35,8 +35,21 @@ public interface IAsyncBaseRepository<TEntity, TKey>
 
     #region Update
 
+    /// <summary>
+    /// Update an entity
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     Task<bool> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Update only one field of record
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="update"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     Task<bool> UpdateOneFieldAsync(
         TEntity entity,
         Expression<Func<TEntity, object>> update,
@@ -45,11 +58,18 @@ public interface IAsyncBaseRepository<TEntity, TKey>
     #endregion
 
     #region Upsert
+
+    /// <summary>
+    /// Update or insert an entity
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     Task<bool> Upsert(TEntity entity, CancellationToken cancellationToken = default);
 
-        #endregion
+    #endregion
 
-        #region Delete
+    #region Delete
 
     /// <summary>
     /// Delete entity async
@@ -71,14 +91,6 @@ public interface IAsyncBaseRepository<TEntity, TKey>
     #endregion
 
     #region Find and delete
-
-    /// <summary>
-    /// Find and delete entity
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<TEntity?> FindAndDelete(TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Find and delete entity with predication definition

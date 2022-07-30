@@ -13,17 +13,20 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
     where TEntity : class, IEntityIdBase<TKey>
 {
     protected readonly DbSet<TEntity> dbSet;
-    protected readonly TContext context;
+    protected readonly TContext dbContext;
 
     public AsyncRepository(DbSet<TEntity> dbSet, TContext context)
     {
         this.dbSet = dbSet;
-        this.context = context;
+        this.dbContext = context;
     }
 
-    public Task<bool> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+    #region Delete
+
+    public async Task<bool> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        this.dbSet.Attach(entity).State = EntityState.Deleted;
+        return await this.dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 
     public Task<bool> DeleteBatchAsync(IPredicateDefinition<TEntity> predicateDefinition, CancellationToken cancellationToken = default)
@@ -31,51 +34,64 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
         throw new NotImplementedException();
     }
 
+    #endregion
+
     #region Find
 
-    public Task<TEntity?> FindAndDelete(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> FindAndDelete(IPredicateDefinition<TEntity> predicateDefinition, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var entry = await this.FindOneAsync(predicateDefinition, cancellationToken);
+        if (entry is null)
+            return null;
+
+        await this.DeleteAsync(entry, cancellationToken);
+
+        return entry;
     }
 
-    public Task<TEntity?> FindAndDelete(IPredicateDefinition<TEntity> predicateDefinition, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> FindOneAsync(object?[]? keyValues, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<TEntity?> FindOneAsync(object?[]? keyValues, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        var entities = await this.dbSet.FindAsync(keyValues, cancellationToken)
+            .ConfigureAwait(false);
+        return entities;
     }
 
     public Task<TEntity?> FindOneAsync(IPredicateDefinition<TEntity> predicateDefinition, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    => FindOneAsync(predicateDefinition.Statement, cancellationToken);
 
     public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    => FindOneAsync(predicate, default, cancellationToken);
 
-    public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate,
+        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include,
+        CancellationToken cancellationToken = default)
+    => FindOneAsync(predicate, include, default, cancellationToken);
 
-    public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include, bool asTracking, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate,
+        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include,
+        bool asTracking,
+        CancellationToken cancellationToken = default)
+    => FindOneAsync(predicate, include, asTracking, default, cancellationToken);
 
-    public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include, bool asTracking, bool ignoreQueryFilters = true, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate,
+        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include,
+        bool asTracking,
+        bool ignoreQueryFilters = true,
+        CancellationToken cancellationToken = default)
+    => FindOneAsync(predicate, p => p, include, asTracking, ignoreQueryFilters, cancellationToken);
 
-    public Task<TProject?> FindOneAsync<TProject>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TProject>> selector, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include, bool asTracking, bool ignoreQueryFilters = true, CancellationToken cancellationToken = default)
+    public async Task<TProject?> FindOneAsync<TProject>(Expression<Func<TEntity, bool>> predicate,
+        Expression<Func<TEntity, TProject>> selector,
+        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include,
+        bool asTracking,
+        bool ignoreQueryFilters = true,
+        CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await BuildIQueryable(this.dbSet, include, asTracking, ignoreQueryFilters)
+            .Where(predicate)
+            .Select(selector)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     #endregion
@@ -85,7 +101,7 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
     public async Task<TEntity?> InsertAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         await this.dbSet.AddAsync(entity, cancellationToken);
-        var saves = await this.context.SaveChangesAsync(cancellationToken);
+        var saves = await this.dbContext.SaveChangesAsync(cancellationToken);
 
         if (saves > 0)
             return entity;
@@ -96,7 +112,7 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
     public async Task<TProject?> InsertAsync<TProject>(TEntity entity, CancellationToken cancellationToken = default) where TProject : class
     {
         await this.dbSet.AddAsync(entity, cancellationToken);
-        var saves = await this.context.SaveChangesAsync(cancellationToken);
+        var saves = await this.dbContext.SaveChangesAsync(cancellationToken);
 
         if (saves > 0)
         {
@@ -109,7 +125,7 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
     public async Task<bool> InsertBatchAsync(IEnumerable<TEntity> entities)
     {
         await this.dbSet.AddRangeAsync(entities);
-        var saves = await this.context.SaveChangesAsync();
+        var saves = await this.dbContext.SaveChangesAsync();
 
         return saves > 0;
     }
@@ -120,7 +136,7 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
     public async Task<bool> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         this.dbSet.Attach(entity).State = EntityState.Modified;
-        var save = await this.context.SaveChangesAsync(cancellationToken);
+        var save = await this.dbContext.SaveChangesAsync(cancellationToken);
 
         return save > 0;
     }
@@ -128,7 +144,7 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
     public async Task<bool> UpdateOneFieldAsync(TEntity entity, Expression<Func<TEntity, object>> update, CancellationToken cancellationToken = default)
     {
         this.dbSet.Attach(entity).Property(update).IsModified = true;
-        var save = await this.context.SaveChangesAsync(cancellationToken);
+        var save = await this.dbContext.SaveChangesAsync(cancellationToken);
 
         return save > 0;
     }
@@ -140,18 +156,18 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
         if (entity is null)
             return false;
 
-        var entry = this.context.Entry(entity);
+        var entry = this.dbContext.Entry(entity);
         var leaveStates = new[] { EntityState.Modified, EntityState.Unchanged, EntityState.Deleted };
         if (leaveStates.Contains(entry.State))
             return false;
 
         #endregion
 
-        var entityKey = this.context.GetEntityKey(entity);
+        var entityKey = this.dbContext.GetEntityKey(entity);
         if (entityKey is null)
         {
             entry.State = EntityState.Unchanged;
-            entityKey = this.context.GetEntityKey(entity);
+            entityKey = this.dbContext.GetEntityKey(entity);
         }
 
         if (entityKey?.EntityKeyValues is null ||
@@ -160,10 +176,34 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
             entry.State = EntityState.Added;
         }
 
-        var save = await this.context.SaveChangesAsync(cancellationToken);
+        var save = await this.dbContext.SaveChangesAsync(cancellationToken);
         return save > 0;
     }
 
     #endregion
+
+    private static IQueryable<TEntity> BuildIQueryable(
+        IQueryable<TEntity> queryable,
+        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include,
+        bool asTracking,
+        bool ignoreFilter
+        )
+    {
+        // tracking
+        if (!asTracking)
+            queryable = queryable.AsNoTracking();
+
+        // include
+        if (include is not null)
+            queryable = include(queryable);
+
+        // ignoreFilter
+        if (ignoreFilter)
+        {
+            queryable = queryable.IgnoreQueryFilters();
+        }
+
+        return queryable;
+    }
 }
 
