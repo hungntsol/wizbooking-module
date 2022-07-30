@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 namespace EFCore.Persistence.Abstracts;
 
 public interface IAsyncReadRepository<TEntity, TKey> 
-    where TEntity : class, IEntityIdBase<TKey>
+    where TEntity : class, IEntityBase<TKey>
 {
     #region Find one
 

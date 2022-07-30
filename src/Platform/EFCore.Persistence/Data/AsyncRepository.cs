@@ -10,7 +10,7 @@ namespace EFCore.Persistence.Data;
 
 public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity, TKey>
     where TContext : DbContext
-    where TEntity : class, IEntityIdBase<TKey>
+    where TEntity : class, IEntityBase<TKey>
 {
     protected readonly DbSet<TEntity> dbSet;
     protected readonly TContext dbContext;
@@ -29,9 +29,10 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
         return await this.dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 
-    public Task<bool> DeleteBatchAsync(IPredicateDefinition<TEntity> predicateDefinition, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteBatchAsync(IPredicateDefinition<TEntity> predicateDefinition, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        this.dbSet.RemoveRange(this.dbSet.Where(predicateDefinition.Statement).ToList());
+        return await this.dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 
     #endregion

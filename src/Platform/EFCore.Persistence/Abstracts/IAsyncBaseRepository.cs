@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 namespace EFCore.Persistence.Abstracts;
 
 public interface IAsyncBaseRepository<TEntity, TKey> 
-    where TEntity : class, IEntityIdBase<TKey>
+    where TEntity : class, IEntityBase<TKey>
 {
     #region Insert
 

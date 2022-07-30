@@ -5,7 +5,7 @@ namespace EFCore.Persistence.Filter;
 
 // TODO: use this options for query
 
-public class QueryableOptions<T> where T : class, IEntityIdBase<T>
+public class QueryableOptions<T> where T : class, IEntityBase<T>
 {
     public bool AsTracking { get; set; }
 
