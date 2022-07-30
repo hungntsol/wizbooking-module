@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Meeting.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharedCommon.Domain;
 using System.Reflection;
@@ -8,6 +8,11 @@ namespace Meeting.Infrastructure.Persistence;
 public class MeetingDataContext : DbContext
 {
     #region dbset
+
+    public DbSet<AppUser> AppUsers { get; set; } = null!;
+    public DbSet<AppUserService> AppUserServices { get; set; } = null!;
+    public DbSet<Booking> Bookings { get; set; } = null!;
+    public DbSet<ProviderUrl> ProviderUrls { get; set; } = null!;
 
     #endregion
 
@@ -27,7 +32,7 @@ public class MeetingDataContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
-        
+
         optionsBuilder.UseLoggerFactory(_loggerFactory);
         optionsBuilder.UseSqlServer(connection => connection.MigrationsAssembly("Meeting.Infrastructure"));
     }
@@ -47,7 +52,7 @@ public class MeetingDataContext : DbContext
 
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
-        foreach(var entry in ChangeTracker.Entries<EntityBase<ulong>>())
+        foreach (var entry in ChangeTracker.Entries<EntityBase<ulong>>())
         {
             switch (entry.State)
             {
