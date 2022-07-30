@@ -1,8 +1,10 @@
-﻿namespace Meeting.Api.ServicesExtension;
+﻿using Meeting.Infrastructure.DependencyInjection;
+
+namespace Meeting.Api.ServicesExtension;
 
 public static class ApplicationConfigureExtension
 {
-    public static IServiceCollection Setup(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection Setup(this IServiceCollection services, ILogger logger, IConfiguration configuration)
     {
         // Add services to the container.
 
@@ -10,6 +12,8 @@ public static class ApplicationConfigureExtension
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
+
+        services.AddInfrastructureService(logger, configuration);
 
         return services;
     }

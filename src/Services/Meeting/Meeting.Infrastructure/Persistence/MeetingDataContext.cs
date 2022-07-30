@@ -16,7 +16,7 @@ public class MeetingDataContext : DbContext
 
     #endregion
 
-    private static readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(
+    private static readonly ILoggerFactory _loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
         (builder) =>
         {
             builder.AddFilter(DbLoggerCategory.Database.Command.Name, LogLevel.Information)

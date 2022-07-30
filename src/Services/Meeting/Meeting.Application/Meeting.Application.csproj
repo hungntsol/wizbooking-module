@@ -7,4 +7,9 @@
 	<LangVersion>10</LangVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Meeting.Domain\Meeting.Domain.csproj" />
+    <ProjectReference Include="..\Meeting.Infrastructure\Meeting.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

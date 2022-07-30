@@ -1,18 +1,14 @@
 ﻿using EFCore.Persistence.Abstracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Logging;
 
 namespace EFCore.Persistence.Data;
 
 public class UnitOfWork<TContext> : IUnitOfWork<TContext>
     where TContext : DbContext
 {
-    private readonly ILogger _logger;
-
-    public UnitOfWork(TContext context, ILogger logger)
+    public UnitOfWork(TContext context)
     {
-        _logger = logger;
         this.Context = context;
     }
 

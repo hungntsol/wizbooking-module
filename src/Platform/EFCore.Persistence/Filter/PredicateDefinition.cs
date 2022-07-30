@@ -6,7 +6,6 @@ namespace EFCore.Persistence.Filter;
 public class PredicateDefinition<T> : IPredicateDefinition<T> where T : class
 {
     private Expression<Func<T, bool>> _statement;
-    private IPredicateBuilder<T> _builder;
 
     #region Ctor
 
@@ -17,7 +16,6 @@ public class PredicateDefinition<T> : IPredicateDefinition<T> where T : class
 
     public PredicateDefinition(IPredicateBuilder<T> builder)
     {
-        this._builder = builder;
         this._statement = builder.Statement;
     }
 

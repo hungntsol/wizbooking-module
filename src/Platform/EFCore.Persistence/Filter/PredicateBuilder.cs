@@ -4,7 +4,7 @@ namespace EFCore.Persistence.Filter;
 
 public class PredicateBuilder<T> : IPredicateBuilder<T> where T : class
 {
-    public Expression<Func<T, bool>>? Statement { get; private set; }
+    public Expression<Func<T, bool>> Statement { get; private set; } = null!;
 
     public IPredicateBuilder<T> Empty()
     {
@@ -13,7 +13,7 @@ public class PredicateBuilder<T> : IPredicateBuilder<T> where T : class
     }
     public IPredicateBuilder<T> Where(Expression<Func<T, bool>> predicate)
     {
-            Statement = q => true;
+        Statement = q => true;
         return this;
     }
 }
