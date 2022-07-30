@@ -4,7 +4,7 @@ namespace Meeting.Api.ServicesExtension;
 
 public static class ApplicationConfigureExtension
 {
-    public static IServiceCollection Setup(this IServiceCollection services, ILogger logger, IConfiguration configuration)
+    public static IServiceCollection Setup(this IServiceCollection services, IConfiguration configuration)
     {
         // Add services to the container.
 
@@ -13,7 +13,7 @@ public static class ApplicationConfigureExtension
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-        services.AddInfrastructureService(logger, configuration);
+        services.AddInfrastructureService(configuration);
 
         return services;
     }
