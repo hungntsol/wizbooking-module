@@ -1,4 +1,6 @@
 ﻿using Meeting.Infrastructure.DependencyInjection;
+using Meeting.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Meeting.Api.ServicesExtension;
 
@@ -27,11 +29,31 @@ public static class ApplicationConfigureExtension
             app.UseSwaggerUI();
         }
 
+        app.MigrateAppDataContext();
+
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
 
         app.MapControllers();
+
+        return app;
+    }
+
+    /// <summary>
+	/// Migrate database to latest version if it is not yet updated.
+	/// </summary>
+	/// <param name="app"></param>
+	/// <returns></returns>
+	private static WebApplication MigrateAppDataContext(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        var dataContext = scope.ServiceProvider.GetRequiredService<MeetingDataContext>();
+
+        if (!dataContext.Database.CanConnect())
+        {
+            dataContext.Database.Migrate();
+        }
 
         return app;
     }

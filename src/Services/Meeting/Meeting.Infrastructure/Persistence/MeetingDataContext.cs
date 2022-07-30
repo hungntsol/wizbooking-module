@@ -34,7 +34,6 @@ public class MeetingDataContext : DbContext
         base.OnConfiguring(optionsBuilder);
 
         optionsBuilder.UseLoggerFactory(_loggerFactory);
-        //optionsBuilder.UseSqlServer(connection => connection.MigrationsAssembly("Meeting.Infrastructure"));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
