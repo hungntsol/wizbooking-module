@@ -24,7 +24,8 @@ public class AuthService : IAuthService
     {
         var claims = new List<Claim>()
         {
-            new(ClaimTypes.Email, userAccount.Email)
+            new(ClaimTypes.Email, userAccount.Email),
+            new(ClaimTypes.Role, userAccount.Role)
         };
 
         // credential
