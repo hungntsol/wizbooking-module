@@ -1,8 +1,9 @@
 ﻿using Identity.Domain.Common;
 using Identity.Infrastructure.Persistence;
+using SharedCommon.Commons;
 using SharedCommon.Exceptions.StatusCodes._500;
 
-namespace Identity.Application.Features.Register;
+namespace Identity.Application.Features.Commands.Register;
 internal sealed class RegisterNewAccountCommandHandler : IRequestHandler<RegisterNewAccountCommand, JsonHttpResponse<Unit>>
 {
     private readonly IUserAccountRepository _userAccountRepository;

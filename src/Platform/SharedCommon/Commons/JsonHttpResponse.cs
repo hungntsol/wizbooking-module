@@ -1,24 +1,24 @@
-﻿namespace Identity.Application.Commons;
+﻿namespace SharedCommon.Commons;
 public class JsonHttpResponse<T>
 {
-    public int Code { get; set; }
+    public int Status { get; set; }
     public bool IsSuccess { get; set; }
     public T? Data { get; set; }
     public string? Message { get; set; }
-    public object? Trace { get; set; }
+    public object? Errors { get; set; }
 
     public JsonHttpResponse()
     {
 
     }
 
-    public JsonHttpResponse(int code, bool isSuccess, T? data, string? message = null, object? trace = null)
+    public JsonHttpResponse(int status, bool isSuccess, T? data, string? message = null, object? errors = null)
     {
-        Code = code;
+        Status = status;
         IsSuccess = isSuccess;
         Data = data;
         Message = message;
-        Trace = trace;
+        Errors = errors;
     }
 
     public static JsonHttpResponse<T> Ok(T? data, string? message)

@@ -1,8 +1,13 @@
-﻿namespace Identity.Application.MappingProfile;
+﻿using Identity.Application.Features.Commands.UpdateProfile;
+using Identity.Application.Features.Queries.Profile;
 
-internal class MappingRegisterConfig : IRegister
+namespace Identity.Application.MappingProfile;
+
+public class MappingRegisterConfig : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
+        config.NewConfig<UserAccount, GetProfileResultView>();
+        config.NewConfig<UpdateProfileCommand, UserAccount>();
     }
 }

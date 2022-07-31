@@ -1,4 +1,6 @@
-﻿namespace Identity.Application.Features.Login;
+﻿using SharedCommon.Commons;
+
+namespace Identity.Application.Features.Commands.Login;
 
 public class LoginCommand : IRequest<JsonHttpResponse<LoginCommandViewResult>>
 {

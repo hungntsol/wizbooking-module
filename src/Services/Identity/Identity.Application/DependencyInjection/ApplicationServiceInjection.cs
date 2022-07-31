@@ -26,7 +26,12 @@ public static class ApplicationServiceInjection
 
     private static IServiceCollection AddMapster(this IServiceCollection services)
     {
-        var config = new TypeAdapterConfig();
+        var config = new TypeAdapterConfig()
+        {
+            RequireExplicitMapping = false,
+            RequireDestinationMemberSource = false,
+            Compiler = exp => exp.Compile()
+        };
 
         config.Scan();
 

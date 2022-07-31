@@ -9,6 +9,7 @@ internal static class ServicesInjection
     internal static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddTransient<IAuthService, AuthService>();
+        services.AddTransient<IAccountAccessorService, AccountAccessorService>();
 
         return services;
     }
