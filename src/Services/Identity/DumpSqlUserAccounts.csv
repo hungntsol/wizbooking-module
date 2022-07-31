@@ -1,0 +1,2 @@
+"Id","Email","NormalizeEmail","HashPassword","FirstName","LastName","Bio","DateOfBirth","PhoneNumber","Address","Gender","ImageUrl","IsEmailVerified","IsActive","IsLocked","Role","LastLogin","LastLoginIpv4","LastLoginIpv6","CreatedAt","ModifiedAt"
+"1","admin@mail.com","ADMIN@MAIL.COM","AQAAAAEAACcQAAAAENikY0b1eKgV4HqqxdW5kSDJi0/HEDMOZ+lHw+Yw+NZPwoH2ZQv07hpOj51aaSR18A==","Super","Admin",,,,,"MALE",,"0","0","0","NORMAL",,,,"31/7/2022 05:25:38.2226662","1/1/1 00:00:00"

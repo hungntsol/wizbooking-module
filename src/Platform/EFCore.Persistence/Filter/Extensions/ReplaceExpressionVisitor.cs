@@ -1,0 +1,30 @@
+﻿using System.Linq.Expressions;
+
+namespace EFCore.Persistence.Filter.Extensions;
+
+public class ReplaceExpressionVisitor : ExpressionVisitor
+{
+    private readonly Expression _oldValue;
+    private readonly Expression _newValue;
+
+    public ReplaceExpressionVisitor(Expression oldValue, Expression newValue)
+    {
+        _oldValue = oldValue;
+        _newValue = newValue;
+    }
+
+    public override Expression Visit(Expression? node)
+    {
+        if (node is null)
+        {
+            return _oldValue;
+        }
+
+        if (node == _oldValue)
+        {
+            return _newValue;
+        }
+
+        return base.Visit(node);
+    }
+}
