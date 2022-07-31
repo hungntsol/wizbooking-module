@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace EventMessageBus.Abstracts;
+namespace EventBusMessage.Abstracts;
 public interface IMessageBuilder
 {
     IServiceCollection ServiceCollection { get; }

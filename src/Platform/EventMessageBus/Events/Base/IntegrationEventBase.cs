@@ -1,4 +1,4 @@
-﻿namespace EventMessageBus.Events.Base;
+﻿namespace EventBusMessage.Events.Base;
 public abstract class IntegrationEventBase
 {
     public Guid Id { get; set; }

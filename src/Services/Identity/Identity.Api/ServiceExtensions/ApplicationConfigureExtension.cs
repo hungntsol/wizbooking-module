@@ -32,6 +32,8 @@ public static class ApplicationConfigureExtension
         services.InjectApplication(configuration);
         services.InjectAuthentication(configuration);
 
+        services.AddEventBus(configuration);
+
         return services;
     }
 

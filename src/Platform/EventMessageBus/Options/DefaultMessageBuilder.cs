@@ -1,7 +1,7 @@
-﻿using EventMessageBus.Abstracts;
+﻿using EventBusMessage.Abstracts;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventMessageBus.Options;
+namespace EventBusMessage.Options;
 public class DefaultMessageBuilder : IMessageBuilder
 {
     public IServiceCollection ServiceCollection { get; }
