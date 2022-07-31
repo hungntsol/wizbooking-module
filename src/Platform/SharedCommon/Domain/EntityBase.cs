@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SharedCommon.Domain;
 
-public abstract class EntityBase<TKey> : IEntityBase<TKey>
+public abstract class EntityBase<TKey> : IEntityBase<TKey> where TKey : new()
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

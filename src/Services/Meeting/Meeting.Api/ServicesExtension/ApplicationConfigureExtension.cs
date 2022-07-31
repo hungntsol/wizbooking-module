@@ -1,10 +1,12 @@
 ﻿using Meeting.Infrastructure.DependencyInjection;
+using Meeting.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Meeting.Api.ServicesExtension;
 
 public static class ApplicationConfigureExtension
 {
-    public static IServiceCollection Setup(this IServiceCollection services, ILogger logger, IConfiguration configuration)
+    public static IServiceCollection Setup(this IServiceCollection services, IConfiguration configuration)
     {
         // Add services to the container.
 
@@ -13,7 +15,7 @@ public static class ApplicationConfigureExtension
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-        services.AddInfrastructureService(logger, configuration);
+        services.AddInfrastructureService(configuration);
 
         return services;
     }
@@ -27,11 +29,31 @@ public static class ApplicationConfigureExtension
             app.UseSwaggerUI();
         }
 
+        app.MigrateAppDataContext();
+
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
 
         app.MapControllers();
+
+        return app;
+    }
+
+    /// <summary>
+	/// Migrate database to latest version if it is not yet updated.
+	/// </summary>
+	/// <param name="app"></param>
+	/// <returns></returns>
+	private static WebApplication MigrateAppDataContext(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        var dataContext = scope.ServiceProvider.GetRequiredService<MeetingDataContext>();
+
+        if (!dataContext.Database.CanConnect())
+        {
+            dataContext.Database.Migrate();
+        }
 
         return app;
     }

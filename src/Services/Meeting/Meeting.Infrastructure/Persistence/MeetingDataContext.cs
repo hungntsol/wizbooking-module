@@ -12,7 +12,7 @@ public class MeetingDataContext : DbContext
     public DbSet<AppUser> AppUsers { get; set; } = null!;
     public DbSet<AppUserService> AppUserServices { get; set; } = null!;
     public DbSet<Booking> Bookings { get; set; } = null!;
-    public DbSet<ProviderUrl> ProviderUrls { get; set; } = null!;
+    public DbSet<ProvidedUrl> ProviderUrls { get; set; } = null!;
 
     #endregion
 
@@ -34,7 +34,6 @@ public class MeetingDataContext : DbContext
         base.OnConfiguring(optionsBuilder);
 
         optionsBuilder.UseLoggerFactory(_loggerFactory);
-        optionsBuilder.UseSqlServer(connection => connection.MigrationsAssembly("Meeting.Infrastructure"));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
