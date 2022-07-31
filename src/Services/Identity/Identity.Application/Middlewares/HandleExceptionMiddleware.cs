@@ -5,7 +5,7 @@ using SharedCommon.Exceptions.StatusCodes;
 using System.Text.Json;
 
 namespace Identity.Application.Middlewares;
-public class HandleExceptionMiddleware : IMiddleware
+public sealed class HandleExceptionMiddleware : IMiddleware
 {
     private readonly ILogger<HandleExceptionMiddleware> _logger;
 

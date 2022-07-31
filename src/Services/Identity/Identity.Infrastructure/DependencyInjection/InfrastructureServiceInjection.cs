@@ -18,6 +18,8 @@ public static class InfrastructureServiceInjection
         services.AddUnitOfWork<IdentityDataContext>();
 
         services.AddRepositories();
+        services.AddServices(configuration);
+        services.AddAppSettingOptions(configuration);
 
         return services;
     }

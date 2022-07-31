@@ -3,7 +3,7 @@ using Identity.Infrastructure.Persistence;
 using SharedCommon.Exceptions.StatusCodes._500;
 
 namespace Identity.Application.Features.Register;
-public class RegisterNewAccountCommandHandler : IRequestHandler<RegisterNewAccountCommand, JsonHttpResponse<Unit>>
+internal sealed class RegisterNewAccountCommandHandler : IRequestHandler<RegisterNewAccountCommand, JsonHttpResponse<Unit>>
 {
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUnitOfWork<IdentityDataContext> _unitOfWork;

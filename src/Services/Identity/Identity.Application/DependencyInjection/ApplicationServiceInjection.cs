@@ -12,7 +12,8 @@ public static class ApplicationServiceInjection
     public static IServiceCollection InjectApplication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddMediatR(Assembly.GetExecutingAssembly());
-        services.AddValidatorsFromAssembly(typeof(RegisterNewAccountCommandValidation).Assembly);
+        //services.AddValidatorsFromAssembly(typeof(RegisterNewAccountCommandValidation).Assembly);
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         // pipeline
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));

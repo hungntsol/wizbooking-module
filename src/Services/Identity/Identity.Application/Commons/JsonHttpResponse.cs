@@ -7,6 +7,11 @@ public class JsonHttpResponse<T>
     public string? Message { get; set; }
     public object? Trace { get; set; }
 
+    public JsonHttpResponse()
+    {
+
+    }
+
     public JsonHttpResponse(int code, bool isSuccess, T? data, string? message = null, object? trace = null)
     {
         Code = code;

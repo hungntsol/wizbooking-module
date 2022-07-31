@@ -19,7 +19,7 @@ public class RegisterNewAccountCommand : IRequest<JsonHttpResponse<Unit>>
     }
 }
 
-public class RegisterNewAccountCommandValidation : AbstractValidator<RegisterNewAccountCommand>
+public sealed class RegisterNewAccountCommandValidation : AbstractValidator<RegisterNewAccountCommand>
 {
     public RegisterNewAccountCommandValidation()
     {
@@ -28,7 +28,7 @@ public class RegisterNewAccountCommandValidation : AbstractValidator<RegisterNew
             .NotEmpty().WithMessage("Email is required");
 
         RuleFor(q => q.Password)
-            .MinimumLength(6).WithMessage("Password must logger than 6 characters")
+            .MinimumLength(6).WithMessage("Password must longer than 6 characters")
             .NotEmpty().WithMessage("Password is required");
 
         RuleFor(q => q.FirstName)
