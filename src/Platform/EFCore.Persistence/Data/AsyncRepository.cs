@@ -15,10 +15,10 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
     protected readonly DbSet<TEntity> dbSet;
     protected readonly TContext dbContext;
 
-    public AsyncRepository(DbSet<TEntity> dbSet, TContext context)
+    public AsyncRepository(TContext context)
     {
-        this.dbSet = dbSet;
         this.dbContext = context;
+        this.dbSet = this.dbContext.Set<TEntity>();
     }
 
     #region Delete

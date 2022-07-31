@@ -1,4 +1,5 @@
-﻿using Identity.Infrastructure.DependencyInjection;
+﻿using Identity.Application.DependencyInjection;
+using Identity.Infrastructure.DependencyInjection;
 using Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,7 @@ public static class ApplicationConfigureExtension
         services.AddSwaggerGen();
 
         services.InjectInfrastructure(configuration);
+        services.InjectApplication(configuration);
 
         return services;
     }
@@ -50,10 +52,11 @@ public static class ApplicationConfigureExtension
         using var scope = app.Services.CreateScope();
         var dataContext = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
 
-        if (!dataContext.Database.EnsureCreated())
-        {
-            dataContext.Database.Migrate();
-        }
+        //if (!dataContext.Database.EnsureCreated())
+        //{
+        //    dataContext.Database.Migrate();
+        //}
+        dataContext.Database.EnsureCreated();
 
         return app;
     }

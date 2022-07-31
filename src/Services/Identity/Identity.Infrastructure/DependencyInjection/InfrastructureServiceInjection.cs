@@ -17,6 +17,8 @@ public static class InfrastructureServiceInjection
 
         services.AddUnitOfWork<IdentityDataContext>();
 
+        services.AddRepositories();
+
         return services;
     }
 }

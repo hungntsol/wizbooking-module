@@ -20,12 +20,12 @@ public class UserAccount : EntityBase<ulong>
     public DateTime? DateOfBirth { get; set; }
     public string? PhoneNumber { get; set; }
     public string? Address { get; set; }
-    public string Gender { get; set; }
+    public string Gender { get; set; } = null!;
     public string? ImageUrl { get; set; }
     public bool IsEmailVerified { get; set; }
     public bool IsActive { get; set; }
     public bool IsLocked { get; set; }
-    public string Role { get; set; }
+    public string Role { get; set; } = null!;
     public DateTime? LastLogin { get; set; }
     public string? LastLoginIpv4 { get; set; }
     public string? LastLoginIpv6 { get; set; }
@@ -63,6 +63,11 @@ public class UserAccount : EntityBase<ulong>
         LastLoginIpv6 = lastLoginIpv6;
     }
 
+    internal UserAccount()
+    {
+
+    }
+
     /// <summary>
     /// Create a basic user instance. All of this information will not be changed overtime
     /// </summary>
@@ -72,17 +77,19 @@ public class UserAccount : EntityBase<ulong>
     /// <param name="lastName"></param>
     /// <param name="gender"></param>
     /// <returns></returns>
-    public UserAccount New(string email, string rawPassword, string firstName, string lastName, string gender, string role)
+    public static UserAccount New(string email, string rawPassword, string firstName, string lastName, string gender, string role)
     {
-        Email = email;
-        NormalizeEmail = email.ToUpper();
-        FirstName = firstName;
-        LastName = lastName;
-        this.SetPassword(rawPassword);
-        Gender = UserGenderTypes.IsDefined(gender) ? gender : UserGenderTypes.DEFAULT;
-        Role = UserRoleTypes.IsDefined(role) ? role : UserRoleTypes.DEFAULT;
+        var user = new UserAccount();
 
-        return this;
+        user.Email = email;
+        user.NormalizeEmail = email.ToUpper();
+        user.FirstName = firstName;
+        user.LastName = lastName;
+        user.SetPassword(rawPassword);
+        user.Gender = UserGenderTypes.IsDefined(gender) ? gender : UserGenderTypes.DEFAULT;
+        user.Role = UserRoleTypes.IsDefined(role) ? role : UserRoleTypes.DEFAULT;
+
+        return user;
     }
 
     /// <summary>
