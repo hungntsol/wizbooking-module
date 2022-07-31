@@ -1,4 +1,5 @@
 ﻿using Identity.Application.DependencyInjection;
+using Identity.Application.Middlewares;
 using Identity.Infrastructure.DependencyInjection;
 using Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -28,12 +29,18 @@ public static class ApplicationConfigureExtension
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(setup =>
+            {
+                setup.DisplayOperationId();
+                setup.DisplayRequestDuration();
+            });
         }
 
         app.MigrateAppDataContext();
 
         app.UseHttpsRedirection();
+
+        app.UseMiddleware<HandleExceptionMiddleware>();
 
         app.UseAuthorization();
 
@@ -52,10 +59,6 @@ public static class ApplicationConfigureExtension
         using var scope = app.Services.CreateScope();
         var dataContext = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
 
-        //if (!dataContext.Database.EnsureCreated())
-        //{
-        //    dataContext.Database.Migrate();
-        //}
         dataContext.Database.EnsureCreated();
 
         return app;

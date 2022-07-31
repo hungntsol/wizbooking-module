@@ -1,15 +1,15 @@
 ﻿namespace Identity.Application.Commons;
 public class JsonHttpResponse<T>
 {
-    public int StatusCode { get; set; }
+    public int Code { get; set; }
     public bool IsSuccess { get; set; }
     public T? Data { get; set; }
     public string? Message { get; set; }
     public object? Trace { get; set; }
 
-    public JsonHttpResponse(int statusCode, bool isSuccess, T? data, string? message = null, object? trace = null)
+    public JsonHttpResponse(int code, bool isSuccess, T? data, string? message = null, object? trace = null)
     {
-        StatusCode = statusCode;
+        Code = code;
         IsSuccess = isSuccess;
         Data = data;
         Message = message;

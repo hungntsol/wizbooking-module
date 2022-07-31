@@ -17,6 +17,6 @@ public abstract class ApiV1ControllerBase : ControllerBase
 
     protected IActionResult ReturnJsonResponse<T>(JsonHttpResponse<T> response)
     {
-        return StatusCode(response.StatusCode, response);
+        return StatusCode(response.Code, response);
     }
 }
