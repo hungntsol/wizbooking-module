@@ -13,7 +13,7 @@ public class PredicateBuilder<T> : IPredicateBuilder<T> where T : class
     }
     public IPredicateBuilder<T> Where(Expression<Func<T, bool>> predicate)
     {
-        Statement = q => true;
+        Statement = predicate;
         return this;
     }
 }
