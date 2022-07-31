@@ -6,4 +6,4 @@ global using EFCore.Persistence.Abstracts;
 global using FluentValidation;
 global using Microsoft.Extensions.Logging;
 global using Identity.Infrastructure.Services.Abstracts;
-
+global using Mapster;
