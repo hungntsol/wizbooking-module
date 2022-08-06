@@ -8,6 +8,7 @@ internal static class AppSettingInjection
     internal static IServiceCollection AddAppSettingOptions(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<AuthAppSetting>(configuration.GetSection("AuthSettings"));
+        services.Configure<DomainClientAppSetting>(configuration.GetSection("DomainClient"));
 
         return services;
     }

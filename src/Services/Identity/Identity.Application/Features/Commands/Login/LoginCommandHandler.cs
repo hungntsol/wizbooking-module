@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Identity.Application.Features.Queries.Profile;
+using Microsoft.AspNetCore.Http;
+using SharedCommon.Commons.HttpResponse;
 
-namespace Identity.Application.Features.Login;
+namespace Identity.Application.Features.Commands.Login;
 
 public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, JsonHttpResponse<LoginCommandViewResult>>
 {
@@ -11,10 +13,10 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, JsonHttp
     private readonly JsonHttpResponse<LoginCommandViewResult> _failedLogin = new()
     {
         IsSuccess = false,
-        Code = StatusCodes.Status400BadRequest,
+        Status = StatusCodes.Status400BadRequest,
         Data = default,
         Message = "Email or password is incorrect",
-        Trace = default
+        Errors = default
     };
 
     public LoginCommandHandler(IUserAccountRepository userAccountRepository, ILogger<LoginCommandHandler> logger, IAuthService authService)
@@ -30,9 +32,20 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, JsonHttp
         if (account is null || !account.ValidatePassword(request.Password))
             return _failedLogin;
 
-        // TODO: lastLogin, traceIp later
+        if (!account.IsValid())
+        {
+            _failedLogin.Message = "This account is disable or not actived";
+            return _failedLogin;
+        }
 
-        var loginResultView = new LoginCommandViewResult(_authService.GenerateAccessToken(account), account);
+        // TODO: traceIp later
+
+        account.LastLogin = DateTime.UtcNow;
+        var updateLastLogin = await _userAccountRepository.UpdateOneFieldAsync(account, q => q.LastLogin!, cancellationToken);
+
+        var loginResultView = new LoginCommandViewResult(
+            _authService.GenerateAccessToken(account), 
+            account.Adapt<GetProfileResultView>());
 
         return JsonHttpResponse<LoginCommandViewResult>.Ok(loginResultView);
     }
