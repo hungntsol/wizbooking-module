@@ -1,6 +1,12 @@
-﻿using EventBusMessage.Abstracts;
+﻿using System.Text.Json;
+using EventBusMessage.Abstracts;
 using Identity.Domain.Common;
 using Identity.Infrastructure.Persistence;
+using Identity.Infrastructure.SettingOptions;
+using Microsoft.Extensions.Options;
+using SharedCommon.Commons.HttpResponse;
+using SharedCommon.Commons.Mailing;
+using SharedCommon.Commons.Mailing.Models;
 using SharedEventBus.Events;
 
 namespace Identity.Application.Features.Commands.Register;
@@ -11,14 +17,17 @@ internal sealed class
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUnitOfWork<IdentityDataContext> _unitOfWork;
     private readonly IMessageProducer _messageProducer;
+    private readonly DomainClientAppSetting _domainClientAppSetting;
 
     public RegisterNewAccountCommandHandler(IUserAccountRepository userAccountRepository,
         IUnitOfWork<IdentityDataContext> unitOfWork,
-        IMessageProducer messageProducer)
+        IMessageProducer messageProducer,
+        IOptions<DomainClientAppSetting> domainClientAppSettingOption)
     {
         _userAccountRepository = userAccountRepository;
         _unitOfWork = unitOfWork;
         _messageProducer = messageProducer;
+        _domainClientAppSetting = domainClientAppSettingOption.Value;
     }
 
     public async Task<JsonHttpResponse<Unit>> Handle(RegisterNewAccountCommand request,
@@ -40,25 +49,44 @@ internal sealed class
         await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
-            var added = await _userAccountRepository.InsertAsync(newUser, cancellationToken);
+            var addUserTask = _userAccountRepository.InsertAsync(newUser, cancellationToken);
+            var produceEventMessageTask = ProduceConfirmAccountMailEvent(newUser);
 
-            var eventMessage = new SendMailEventBus()
-            {
-                To = newUser.Email,
-                DisplayName = "Verify Email",
-                Subject = "Verify Email",
-                TemplateName = EmailTemplateConstants.ConfirmAccountMail,
-                TemplateModel = default,
-            };
-            await _messageProducer.PublishAsync(eventMessage, "Worker.Mailing.Send");
+            await Task.WhenAll(addUserTask, produceEventMessageTask);
 
             await _unitOfWork.CommitAsync(cancellationToken);
         }
         catch
         {
+            await _unitOfWork.RollbackAsync(cancellationToken);
             throw new InternalServerException();
         }
 
-        return JsonHttpResponse<Unit>.Ok(Unit.Value, "Register succsesfully");
+        return JsonHttpResponse<Unit>.Ok(Unit.Value, "Register successfully, please check your email");
+    }
+
+    private async Task ProduceConfirmAccountMailEvent(UserAccount newUser)
+    {
+        var eventMessage = CreateEventBusMessage(newUser);
+        await _messageProducer.PublishAsync(eventMessage, "Worker.Mailing.Send");
+    }
+
+    private SendMailEventBusMessage CreateEventBusMessage(UserAccount newUser)
+    {
+        var eventModel = new ConfirmAccountMailModel()
+        {
+            ConfirmUrl = _domainClientAppSetting.Url() + "/confirm/me?code_id=" + Guid.NewGuid(),
+            ResendUrl = _domainClientAppSetting.Url() + "/confirm/resend?account=" + newUser.Email
+        };
+
+        return new SendMailEventBusMessage()
+        {
+            To = newUser.Email,
+            From = "WizBooking <noreply-auth@wizbooking.com>",
+            Subject = "Verify Email",
+            TemplateName = EmailTemplateConstants.ConfirmAccountMail,
+            TemplateModel = JsonSerializer.Serialize(eventModel, new JsonSerializerOptions(){PropertyNamingPolicy = JsonNamingPolicy.CamelCase}),
+            Attachments = default
+        };
     }
 }

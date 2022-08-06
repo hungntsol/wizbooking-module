@@ -1,13 +1,16 @@
 ﻿using MapsterMapper;
+using SharedCommon.Commons.HttpResponse;
 
 namespace Identity.Application.Features.Commands.UpdateProfile;
+
 internal class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, JsonHttpResponse<Unit>>
 {
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IAccountAccessorService _accountAccessorService;
     private readonly IMapper _mapper;
 
-    public UpdateProfileCommandHandler(IUserAccountRepository userAccountRepository, IAccountAccessorService accountAccessorService, IMapper mapper)
+    public UpdateProfileCommandHandler(IUserAccountRepository userAccountRepository,
+        IAccountAccessorService accountAccessorService, IMapper mapper)
     {
         _userAccountRepository = userAccountRepository;
         _accountAccessorService = accountAccessorService;
@@ -16,7 +19,8 @@ internal class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileComman
 
     public async Task<JsonHttpResponse<Unit>> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
     {
-        var account = await _userAccountRepository.FindOneAsync(q => q.Email.Equals(_accountAccessorService.GetEmail()), cancellationToken);
+        var account = await _userAccountRepository.FindOneAsync(q => q.Email.Equals(_accountAccessorService.GetEmail()),
+            cancellationToken);
         if (account is null)
         {
             throw new Exception();

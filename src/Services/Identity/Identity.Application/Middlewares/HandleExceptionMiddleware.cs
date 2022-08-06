@@ -1,10 +1,10 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
 using SharedCommon.Exceptions.StatusCodes;
 using System.Text.Json;
+using SharedCommon.Commons.HttpResponse;
 
 namespace Identity.Application.Middlewares;
+
 public sealed class HandleExceptionMiddleware : IMiddleware
 {
     private readonly ILogger<HandleExceptionMiddleware> _logger;

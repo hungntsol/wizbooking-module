@@ -2,20 +2,33 @@
 using Microsoft.AspNetCore.Http;
 
 namespace SharedEventBus.Events;
-public class SendMailEventBus : IntegrationEventBase
+public class SendMailEventBusMessage : IntegrationEventBase
 {
     public string To { get; set; } = null!;
+    public string? From { get; set; }
     public string Subject { get; set; } = null!;
     public string TemplateName { get; set; } = null!;
-    public object? TemplateModel { get; set; }
-    public string? DisplayName { get; set; }
-
+    public string? TemplateModel { get; set; }
     public IList<IFormFile>? Attachments { get; set; }
+
+    public SendMailEventBusMessage()
+    {
+        
+    }
+
+    public SendMailEventBusMessage(string to, string from, string subject, string templateName, string templateModel, IList<IFormFile> attachments)
+    {
+        To = to;
+        From = from;
+        Subject = subject;
+        TemplateName = templateName;
+        TemplateModel = templateModel;
+        Attachments = attachments;
+    }
 
     public void AddAttachment(IFormFile attachment)
     {
-        if (Attachments is null)
-            Attachments = new List<IFormFile>();
+        Attachments ??= new List<IFormFile>();
         Attachments.Add(attachment);
     }
 

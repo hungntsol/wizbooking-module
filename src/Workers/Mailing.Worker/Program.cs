@@ -5,7 +5,6 @@ using Mailing.Worker.Engine;
 using Mailing.Worker.Services;
 using Mailing.Worker.SettingOptions;
 using RazorLight;
-using RazorLight.Extensions;
 
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -27,9 +26,9 @@ IHost host = Host.CreateDefaultBuilder(args)
             {
                 var section = hostCtx.Configuration.GetSection("EventBus");
                 section.Bind(setting);
-                queue.Add<SendMailEventBus>(default, "Worker.Mailing.Send");
+                queue.Add<SendMailEventBusMessage>(default, "Worker.Mailing.Send");
             })
-            .AddConsumer<SendMailEventBus, MailingWorker>();
+            .AddConsumer<SendMailEventBusMessage, MailingWorker>();
     })
     .Build();
 

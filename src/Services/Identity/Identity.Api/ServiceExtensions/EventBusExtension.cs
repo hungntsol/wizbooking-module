@@ -10,7 +10,7 @@ internal static class EventBusExtension
 		services.AddRabbitMQ((setting, queue) =>
         {
             configuration.GetSection("EventBus").Bind(setting);
-            queue.Add<SendMailEventBus>(default, "WorkerMailing.Send");
+            queue.Add<SendMailEventBusMessage>(default, "WorkerMailing.Send");
         });
 
 

@@ -1,6 +1,5 @@
 ﻿using Mailing.Worker.Abstracts;
 using Mailing.Worker.Engine;
-using Mailing.Worker.MailTemplates;
 using Mailing.Worker.SettingOptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -25,11 +24,11 @@ internal class MailingService : IMaillingService
         _mailProviderSetting = mailProviderSettingOption.Value;
     }
 
-    public async Task SendEmailAsync(string to, string from, string subject, string htmlBody,
+    public async Task SendEmailAsync(string to, string? from, string subject, string htmlBody,
         IList<IFormFile>? attachments = null)
     {
         var email = new MimeMessage();
-        email.From.Add(MailboxAddress.Parse(_mailProviderSetting.EmailFrom ?? from));
+        email.From.Add(MailboxAddress.Parse(string.IsNullOrEmpty(from) ? _mailProviderSetting.EmailFrom : from));
         email.To.Add(MailboxAddress.Parse(to));
         email.Subject = subject;
 
@@ -76,11 +75,14 @@ internal class MailingService : IMaillingService
         }
     }
 
-    public async Task SendEmailTemplateAsync(SendMailEventBus @event)
+    public async Task SendEmailTemplateAsync<TModel>(SendMailEventBusMessage @event)
     {
-        var html = await _viewEngineRenderer.RenderAsStringAsync(
-            @event.TemplateName,
-            new ConfirmAccountMailModel("test.com", "resend.test.com"));
-        await this.SendEmailAsync(@event.To, _mailProviderSetting.EmailFrom!, @event.Subject, html, @event.Attachments);
+        var html = await _viewEngineRenderer.RenderAsStringAsync<TModel>(@event.TemplateName, @event.TemplateModel);
+        await this.SendEmailAsync(
+            @event.To, 
+            @event.From, 
+            @event.Subject, 
+            html, 
+            @event.Attachments);
     }
 }

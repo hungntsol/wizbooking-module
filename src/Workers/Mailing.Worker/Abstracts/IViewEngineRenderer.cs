@@ -6,8 +6,8 @@ public interface IViewEngineRenderer
     /// Render .cshtml page to string
     /// </summary>
     /// <typeparam name="TModel"></typeparam>
-    /// <param name="viewName"></param>
-    /// <param name="model"></param>
+    /// <param name="eventTemplate"></param>
+    /// <param name="eventModel"></param>
     /// <returns></returns>
-    Task<string> RenderAsStringAsync<TModel>(string viewName, TModel model);
+    Task<string> RenderAsStringAsync<TModel>(string @eventTemplate, string @eventModel);
 }
