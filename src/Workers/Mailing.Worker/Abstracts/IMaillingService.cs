@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
-using SharedEventBus.Events;
 
 namespace Mailing.Worker.Abstracts;
+
 internal interface IMaillingService
 {
     /// <summary>

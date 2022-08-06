@@ -1,12 +1,12 @@
 ﻿using EventBusMessage.Abstracts;
 using Identity.Domain.Common;
 using Identity.Infrastructure.Persistence;
-using SharedCommon.Commons;
-using SharedCommon.Exceptions.StatusCodes._500;
 using SharedEventBus.Events;
 
 namespace Identity.Application.Features.Commands.Register;
-internal sealed class RegisterNewAccountCommandHandler : IRequestHandler<RegisterNewAccountCommand, JsonHttpResponse<Unit>>
+
+internal sealed class
+    RegisterNewAccountCommandHandler : IRequestHandler<RegisterNewAccountCommand, JsonHttpResponse<Unit>>
 {
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IUnitOfWork<IdentityDataContext> _unitOfWork;
@@ -21,7 +21,8 @@ internal sealed class RegisterNewAccountCommandHandler : IRequestHandler<Registe
         _messageProducer = messageProducer;
     }
 
-    public async Task<JsonHttpResponse<Unit>> Handle(RegisterNewAccountCommand request, CancellationToken cancellationToken)
+    public async Task<JsonHttpResponse<Unit>> Handle(RegisterNewAccountCommand request,
+        CancellationToken cancellationToken)
     {
         var existedUser = await _userAccountRepository.FindOneAsync(q => q.Email == request.Email, cancellationToken);
         if (existedUser is not null)
@@ -36,7 +37,7 @@ internal sealed class RegisterNewAccountCommandHandler : IRequestHandler<Registe
             request.Gender,
             UserRoleTypes.NORMAL);
 
-        using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             var added = await _userAccountRepository.InsertAsync(newUser, cancellationToken);
@@ -44,9 +45,9 @@ internal sealed class RegisterNewAccountCommandHandler : IRequestHandler<Registe
             var eventMessage = new SendMailEventBus()
             {
                 To = newUser.Email,
-                DisplayName = "test.com",
+                DisplayName = "Verify Email",
                 Subject = "Verify Email",
-                TemplateName = "Test",
+                TemplateName = EmailTemplateConstants.ConfirmAccountMail,
                 TemplateModel = default,
             };
             await _messageProducer.PublishAsync(eventMessage, "Worker.Mailing.Send");

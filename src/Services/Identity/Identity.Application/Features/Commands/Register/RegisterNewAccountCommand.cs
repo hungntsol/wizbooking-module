@@ -1,7 +1,4 @@
-﻿using FluentValidation;
-using SharedCommon.Commons;
-
-namespace Identity.Application.Features.Commands.Register;
+﻿namespace Identity.Application.Features.Commands.Register;
 public class RegisterNewAccountCommand : IRequest<JsonHttpResponse<Unit>>
 {
     public string Email { get; init; }

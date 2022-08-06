@@ -7,18 +7,11 @@ internal static class EventBusExtension
 {
     internal static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
     {
-		services.AddRabbitMQ(settings =>
-		{
-			var section = configuration.GetSection("EventBus");
-			settings.HostAddress = section.GetValue<string>("HostAddress");
-			settings.ExchangeName = section.GetValue<string>("ExchangeName");
-			settings.ExchangeType = section.GetValue<string>("ExchangeType");
-			settings.QueuePrefetch = section.GetValue<ushort>("QueuePrefetch");
-			settings.RetryCount = section.GetValue<int>("RetryCount");
-		}, queue =>
-		{
-			queue.Add<SendMailEventBus>(default, "Worker.Mailing.Send");
-		});
+		services.AddRabbitMQ((setting, queue) =>
+        {
+            configuration.GetSection("EventBus").Bind(setting);
+            queue.Add<SendMailEventBus>(default, "WorkerMailing.Send");
+        });
 
 
 		return services;

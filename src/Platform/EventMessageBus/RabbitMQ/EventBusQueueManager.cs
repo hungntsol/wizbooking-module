@@ -1,5 +1,5 @@
 ﻿namespace EventBusMessage.RabbitMQ;
-public class RabbitMQQueueManager
+public class EventBusQueueManager
 {
     internal readonly IList<(string name, Type type, string binding)> Queues = new List<(string name, Type type, string binding)>();
 

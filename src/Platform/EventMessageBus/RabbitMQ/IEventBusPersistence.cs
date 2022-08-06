@@ -1,5 +1,5 @@
 ﻿namespace EventBusMessage.RabbitMQ;
-public interface IRabbitMQPersistence
+public interface IEventBusPersistence
 {
     /// <summary>
     /// Check whether the channel is connected to the RabbitMQ.

@@ -7,22 +7,22 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 
 namespace EventBusMessage.RabbitMQ;
-public class RabbitMQQueueListener<T> : BackgroundService where T : IntegrationEventBase
+public class EventBusQueueListener<T> : BackgroundService where T : IntegrationEventBase
 {
     private readonly IMessageProducer _messageProducer;
     private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<RabbitMQQueueListener<T>> _logger;
+    private readonly ILogger<EventBusQueueListener<T>> _logger;
     private readonly RabbitMQManagerSettings _rabbitMQManagerSettings;
-    private readonly IRabbitMQPersistence _rabbitMQPersistence;
+    private readonly IEventBusPersistence _rabbitMQPersistence;
     private readonly string _queueName;
 
-    public RabbitMQQueueListener(
+    public EventBusQueueListener(
         IMessageProducer messagePublisher,
         IServiceProvider serviceProvider,
-        ILogger<RabbitMQQueueListener<T>> logger,
+        ILogger<EventBusQueueListener<T>> logger,
         RabbitMQManagerSettings rabbitMQManagerSettings,
-        RabbitMQQueueManager queuesManager,
-        IRabbitMQPersistence rabbitMQPersistence)
+        EventBusQueueManager queuesManager,
+        IEventBusPersistence rabbitMQPersistence)
     {
         _messageProducer = messagePublisher;
         _serviceProvider = serviceProvider;
@@ -53,18 +53,18 @@ public class RabbitMQQueueListener<T> : BackgroundService where T : IntegrationE
 
                 using var scope = _serviceProvider.CreateScope();
                 var receiver = scope.ServiceProvider.GetRequiredService<IMessageConsumer<T>>();
-                var response = JsonSerializer.Deserialize<T>(message, _rabbitMQManagerSettings.JsonSerializerOptions);
+                var eventMessage = JsonSerializer.Deserialize<T>(message, _rabbitMQManagerSettings.JsonSerializerOptions);
 
-                if (response is not null)
+                if (eventMessage is not null)
                 {
-                    await receiver.SubscribeAsync(response, stoppingToken);
+                    await receiver.Consume(eventMessage, stoppingToken);
                     _messageProducer.MarkAsComplete(args);
-                    _logger.LogInformation("Message processed {MessageId}: {Message}", response!.Id, message);
+                    _logger.LogInformation("Message processed {MessageId}: {Message}", eventMessage!.Id, message);
                 }
                 else
                 {
                     _messageProducer.MarkAsRejected(args);
-                    _logger.LogError("Message is null {MessageId}: {Message}", response!.Id, message);
+                    _logger.LogError("Message is null {MessageId}: {Message}", eventMessage!.Id, message);
                 }
             }
             catch (Exception e)

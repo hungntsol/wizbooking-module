@@ -39,13 +39,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlatfromTests", "..\tests\P
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServiceTests", "..\tests\IdentityService\IdentityServiceTests\IdentityServiceTests.csproj", "{73676ABF-CED9-4655-B56B-293BFC6371F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBusMessage", "Platform\EventMessageBus\EventBusMessage.csproj", "{F6843AF5-12E8-4873-A543-5A9A943662F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBusMessage", "Platform\EventMessageBus\EventBusMessage.csproj", "{F6843AF5-12E8-4873-A543-5A9A943662F7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workers", "Workers", "{0D4A9F33-69BF-47B9-9573-9948CEA49AEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mailing.Worker", "Workers\Mailing.Worker\Mailing.Worker.csproj", "{DD1D7132-A266-42A2-AC47-CB68CCAEC333}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mailing.Worker", "Workers\Mailing.Worker\Mailing.Worker.csproj", "{DD1D7132-A266-42A2-AC47-CB68CCAEC333}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedEventBus", "Platform\SharedEventBus\SharedEventBus.csproj", "{FB23EE98-644C-480A-BAAE-6D923E2EF841}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedEventBus", "Platform\SharedEventBus\SharedEventBus.csproj", "{FB23EE98-644C-480A-BAAE-6D923E2EF841}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -6,22 +6,22 @@ using System.Text;
 
 namespace EventBusMessage.RabbitMQ;
 
-internal class RabbitMQMessageManager : IMessageProducer
+internal class EventBusManager : IMessageProducer
 {
-    private const string MaxPriorityHeader = "x-max-priority";
+    private const string _maxPriorityHeader = "x-max-priority";
 
 
     private IModel _channel = null!;
 
-    private readonly IRabbitMQPersistence _rabbitMQPersistence;
-    private readonly ILogger<RabbitMQMessageManager> _logger;
+    private readonly IEventBusPersistence _rabbitMQPersistence;
+    private readonly ILogger<EventBusManager> _logger;
     private readonly RabbitMQManagerSettings _rabbitMQManagerSettings;
-    private readonly RabbitMQQueueManager _queuesManager;
+    private readonly EventBusQueueManager _queuesManager;
 
-    public RabbitMQMessageManager(IRabbitMQPersistence rabbitMQPersistence,
+    public EventBusManager(IEventBusPersistence rabbitMQPersistence,
         RabbitMQManagerSettings rabbitMQManagerSettings,
-        RabbitMQQueueManager queuesManager,
-        ILogger<RabbitMQMessageManager> logger)
+        EventBusQueueManager queuesManager,
+        ILogger<EventBusManager> logger)
     {
         _rabbitMQPersistence = rabbitMQPersistence;
         _rabbitMQManagerSettings = rabbitMQManagerSettings;
@@ -118,7 +118,7 @@ internal class RabbitMQMessageManager : IMessageProducer
     {
         foreach (var queue in _queuesManager.Queues)
         {
-            var args = new Dictionary<string, object>() { [MaxPriorityHeader] = 10 };
+            var args = new Dictionary<string, object>() { [_maxPriorityHeader] = 10 };
 
             _channel.QueueDeclare(queue.name, true, false, false, args);
             _channel.QueueBind(queue.name, _rabbitMQManagerSettings.ExchangeName, queue.binding, null);

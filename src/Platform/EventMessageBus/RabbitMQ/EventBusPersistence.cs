@@ -5,10 +5,12 @@ using RabbitMQ.Client.Exceptions;
 using System.Net.Sockets;
 
 namespace EventBusMessage.RabbitMQ;
-public class RabbitMQPersistence : IRabbitMQPersistence
+
+public class EventBusPersistence : IEventBusPersistence
 {
     private readonly IConnectionFactory _connectionFactory;
-    private readonly ILogger<RabbitMQPersistence> _logger;
+    private readonly ILogger<EventBusPersistence> _logger;
+
     private readonly int _retryCount;
 
     private IConnection? _connection;
@@ -16,15 +18,30 @@ public class RabbitMQPersistence : IRabbitMQPersistence
 
     private readonly object _syncRoot = new();
 
-    public RabbitMQPersistence(
-        ILogger<RabbitMQPersistence> logger,
+    public EventBusPersistence(
+        ILogger<EventBusPersistence> logger,
         RabbitMQManagerSettings managerSettings)
     {
         _logger = logger;
-        _connectionFactory = new ConnectionFactory() { Uri = new Uri(managerSettings.HostAddress) };
+        _connectionFactory = new ConnectionFactory()
+        {
+            HostName = managerSettings.HostName,
+            UserName = managerSettings.UserName,
+            Password = managerSettings.Password,
+            Port = managerSettings.Port
+        };
         _retryCount = managerSettings.RetryCount;
 
-        _connection = _connectionFactory.CreateConnection();
+        try
+        {
+            _connection = _connectionFactory.CreateConnection();
+        }
+        catch (Exception e)
+        {
+            TryConnect();
+            _logger.LogCritical(e, "{Message}", e.Message);
+            throw new Exception("Cannot create connection to RabbitMq");
+        }
     }
 
     public void Dispose()

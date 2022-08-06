@@ -1,71 +1,86 @@
 ﻿using Mailing.Worker.Abstracts;
+using Mailing.Worker.Engine;
+using Mailing.Worker.MailTemplates;
 using Mailing.Worker.SettingOptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using SharedEventBus.Events;
 
 namespace Mailing.Worker.Services;
+
 internal class MailingService : IMaillingService
 {
     private readonly IMailProviderConnection _providerConnection;
     private readonly ILogger<MailingService> _logger;
     private readonly MailProviderAppSetting _mailProviderSetting;
+    private readonly IViewEngineRenderer _viewEngineRenderer;
 
-    public MailingService(IMailProviderConnection providerConnection, 
+    public MailingService(IMailProviderConnection providerConnection,
         ILogger<MailingService> logger,
-        IOptions<MailProviderAppSetting> mailProviderSettingOption)
+        IOptions<MailProviderAppSetting> mailProviderSettingOption, IViewEngineRenderer viewEngineRenderer)
     {
         _providerConnection = providerConnection;
         _logger = logger;
+        _viewEngineRenderer = viewEngineRenderer;
         _mailProviderSetting = mailProviderSettingOption.Value;
     }
 
-    public async Task SendEmailAsync(string to, string from, string subject, string htmlBody, IList<IFormFile>? attachments = null)
+    public async Task SendEmailAsync(string to, string from, string subject, string htmlBody,
+        IList<IFormFile>? attachments = null)
     {
-		var email = new MimeMessage();
-		email.From.Add(MailboxAddress.Parse(_mailProviderSetting.EmailFrom ?? from));
-		email.To.Add(MailboxAddress.Parse(to));
-		email.Subject = subject;
+        var email = new MimeMessage();
+        email.From.Add(MailboxAddress.Parse(_mailProviderSetting.EmailFrom ?? from));
+        email.To.Add(MailboxAddress.Parse(to));
+        email.Subject = subject;
 
-		var bodyBuilder = new BodyBuilder();
-		if (attachments is not null)
-		{
-			foreach (var file in attachments)
-			{
-				if (file.Length <= 0)
-				{
-					continue;
-				}
+        // build htmlBody
+        var bodyBuilder = new BodyBuilder();
 
-				using var ms = new MemoryStream();
-				await file.CopyToAsync(ms);
-				var fileBytes = ms.ToArray();
-				bodyBuilder.Attachments.Add(file.Name, fileBytes, ContentType.Parse(file.ContentType));
-			}
-		}
+        // attachments
+        if (attachments is not null)
+        {
+            foreach (var file in attachments)
+            {
+                if (file.Length <= 0)
+                {
+                    continue;
+                }
 
-		bodyBuilder.HtmlBody = htmlBody;
-		email.Body = bodyBuilder.ToMessageBody();
+                using var ms = new MemoryStream();
+                await file.CopyToAsync(ms);
+                var fileBytes = ms.ToArray();
+                bodyBuilder.Attachments.Add(file.Name, fileBytes, ContentType.Parse(file.ContentType));
+            }
+        }
 
-		if (!_providerConnection.IsConnected)
-		{
-			_providerConnection.TryConnect();
-		}
+        // html
+        bodyBuilder.HtmlBody = htmlBody;
+        email.Body = bodyBuilder.ToMessageBody();
 
-		try
-		{
-			await _providerConnection.SmtpClient().SendAsync(email);
-		}
-		catch (Exception e)
-		{
-			_logger.LogCritical(e, "FATAL ERROR: CANNOT SEND EMAIL\n {Message}", e.Message);
-			throw;
-		}
-	}
+        if (!_providerConnection.IsConnected)
+        {
+            _providerConnection.TryConnect();
+        }
 
-    public Task SendEmailTemplateAsync(SendMailEventBus @event)
+        try
+        {
+            await _providerConnection.SmtpClient().SendAsync(email);
+        }
+        catch (Exception e)
+        {
+            _logger.LogCritical(e, "FATAL ERROR: Cannot send email\n {Message}", e.Message);
+
+            _providerConnection.TryConnect();
+
+            throw;
+        }
+    }
+
+    public async Task SendEmailTemplateAsync(SendMailEventBus @event)
     {
-        throw new NotImplementedException();
+        var html = await _viewEngineRenderer.RenderAsStringAsync(
+            @event.TemplateName,
+            new ConfirmAccountMailModel("test.com", "resend.test.com"));
+        await this.SendEmailAsync(@event.To, _mailProviderSetting.EmailFrom!, @event.Subject, html, @event.Attachments);
     }
 }
