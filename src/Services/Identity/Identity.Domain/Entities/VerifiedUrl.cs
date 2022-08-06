@@ -9,13 +9,21 @@ public class VerifiedUrl : EntityBase<Guid>
     public string AppCode { get; set; }
     public string Email { get; set; }
     public string Target { get; set; }
-    public DateTime ExpiredAt { get; set; }
+    public long ExpiredAt { get; set; }
 
-    public VerifiedUrl(string appCode, string email, string target, DateTime expiredAt)
+    public VerifiedUrl(string email, string target, long expiredAt)
     {
-        AppCode = appCode;
+        AppCode = Guid.NewGuid().ToString();
         Email = email;
         ExpiredAt = expiredAt;
         Target = target;
+    }
+
+    public static VerifiedUrl New(string email, string target, TimeSpan span)
+    {
+        return new VerifiedUrl(
+            email,
+            target,
+            DateTimeOffset.UtcNow.AddMinutes(span.Minutes).ToUnixTimeSeconds());
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Identity.Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityDataContext))]
-    [Migration("20220731035015_v1.0")]
+    [Migration("20220806045135_v1.0")]
     partial class v10
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -130,8 +130,8 @@ namespace Identity.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("ExpiredAt")
-                        .HasColumnType("datetime2");
+                    b.Property<long>("ExpiredAt")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("datetime2");
