@@ -1,4 +1,5 @@
-﻿namespace SharedCommon.Commons;
+﻿namespace SharedCommon.Commons.HttpResponse;
+
 public class JsonHttpResponse<T>
 {
     public int Status { get; set; }
@@ -9,7 +10,6 @@ public class JsonHttpResponse<T>
 
     public JsonHttpResponse()
     {
-
     }
 
     public JsonHttpResponse(int status, bool isSuccess, T? data, string? message = null, object? errors = null)

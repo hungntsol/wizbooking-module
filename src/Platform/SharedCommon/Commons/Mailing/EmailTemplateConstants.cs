@@ -1,4 +1,4 @@
-﻿namespace SharedCommon.Commons;
+﻿namespace SharedCommon.Commons.Mailing;
 
 public static class EmailTemplateConstants
 {

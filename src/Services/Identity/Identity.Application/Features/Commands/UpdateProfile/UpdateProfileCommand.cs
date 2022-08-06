@@ -1,4 +1,7 @@
-﻿namespace Identity.Application.Features.Commands.UpdateProfile;
+﻿using SharedCommon.Commons.HttpResponse;
+
+namespace Identity.Application.Features.Commands.UpdateProfile;
+
 public class UpdateProfileCommand : IRequest<JsonHttpResponse<Unit>>
 {
     public string FirstName { get; init; } = null!;

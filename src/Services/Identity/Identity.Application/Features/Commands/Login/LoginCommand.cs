@@ -1,4 +1,4 @@
-﻿using SharedCommon.Commons;
+﻿using SharedCommon.Commons.HttpResponse;
 
 namespace Identity.Application.Features.Commands.Login;
 

@@ -4,7 +4,7 @@ public abstract class IntegrationEventBase
     public Guid Id { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    public IntegrationEventBase()
+    protected IntegrationEventBase()
     {
         Id = Guid.NewGuid();
         CreatedAt = DateTime.UtcNow;

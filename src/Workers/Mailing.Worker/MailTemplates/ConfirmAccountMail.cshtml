@@ -1,6 +1,6 @@
-﻿@model Mailing.Worker.MailTemplates.ConfirmAccountMailModel
+﻿@model SharedCommon.Commons.Mailing.Models.ConfirmAccountMailModel
 @{
-  var confirmUrl = Model.ConfirmUrl;
+    var confirmUrl = Model.ConfirmUrl;
   var resendUrl = Model.ResendUrl;
 }
 
@@ -77,7 +77,7 @@
 </head>
 <body style="background-color: #e9ecef;">
   <div class="preheader" style="display: none; max-width: 0; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #fff; opacity: 0;">
-    Verify your email for Giftshop
+    Verify your email for WizBooking
   </div>
   <table border="0" cellpadding="0" cellspacing="0" width="100%">
     <tr>
@@ -110,14 +110,14 @@
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
           <tr>
             <td align="left" bgcolor="#ffffff" style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-							Wellcome to Giftshop Uit
+							Wellcome to WizBooking
 							<br>
 							<p style="margin: 0;">Follow this link to confirm your email address, this link is only valid in 10 minutes: <a href="@confirmUrl">@confirmUrl</a>.</p>
             </td>
           </tr>
           <tr>
             <td align="left" bgcolor="#ffffff" style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-              <p style="margin: 0;">If link is expired, follow this for a new verified mail: <a href="@resendUrl">@resendUrl</a></p>
+              <p style="margin: 0;">If link is expired, click <a href="@resendUrl">here</a> for a new verified mail:</p>
             </td>
           </tr>
         </table>

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SharedCommon.Commons;
+using SharedCommon.Commons.HttpResponse;
 
 namespace Identity.Api.Controllers;
 
