@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using RazorLight;
+using SharedCommon.Commons.Logger;
 using SharedCommon.Exceptions.StatusCodes._500;
 
 namespace Mailing.Worker.Engine;
@@ -7,9 +8,9 @@ namespace Mailing.Worker.Engine;
 public class ViewEngineRenderer : IViewEngineRenderer
 {
     private readonly RazorLightEngine _razorLightEngine;
-    private readonly ILogger<ViewEngineRenderer> _logger;
+    private readonly ILoggerAdapter<ViewEngineRenderer> _logger;
 
-    public ViewEngineRenderer(RazorLightEngine razorLightEngine, ILogger<ViewEngineRenderer> logger)
+    public ViewEngineRenderer(RazorLightEngine razorLightEngine, ILoggerAdapter<ViewEngineRenderer> logger)
     {
         _razorLightEngine = razorLightEngine;
         _logger = logger;
@@ -23,7 +24,7 @@ public class ViewEngineRenderer : IViewEngineRenderer
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
-            
+
             var html = await _razorLightEngine.CompileRenderAsync(@eventTemplate, model);
             return html;
         }

@@ -1,15 +1,16 @@
 ﻿using EventBusMessage.Abstracts;
 using Mailing.Worker.Abstracts;
+using SharedCommon.Commons.Logger;
 using SharedCommon.Commons.Mailing.Models;
 
 namespace Mailing.Worker.BackgroundWorkers;
 
 internal class MailingWorker : IMessageConsumer<SendMailEventBusMessage>
 {
-    private readonly ILogger<MailingWorker> _logger;
+    private readonly ILoggerAdapter<MailingWorker> _logger;
     private readonly IMaillingService _mailService;
 
-    public MailingWorker(ILogger<MailingWorker> logger, IMaillingService mailService)
+    public MailingWorker(ILoggerAdapter<MailingWorker> logger, IMaillingService mailService)
     {
         _logger = logger;
         _mailService = mailService;

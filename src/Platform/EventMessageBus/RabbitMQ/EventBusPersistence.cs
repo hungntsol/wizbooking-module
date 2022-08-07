@@ -1,15 +1,15 @@
 ﻿using EventBusMessage.RabbitMQ.Settings;
-using Microsoft.Extensions.Logging;
 using Polly;
 using RabbitMQ.Client.Exceptions;
 using System.Net.Sockets;
+using SharedCommon.Commons.Logger;
 
 namespace EventBusMessage.RabbitMQ;
 
 public class EventBusPersistence : IEventBusPersistence
 {
     private readonly IConnectionFactory _connectionFactory;
-    private readonly ILogger<EventBusPersistence> _logger;
+    private readonly ILoggerAdapter<EventBusPersistence> _logger;
 
     private readonly int _retryCount;
 
@@ -19,7 +19,7 @@ public class EventBusPersistence : IEventBusPersistence
     private readonly object _syncRoot = new();
 
     public EventBusPersistence(
-        ILogger<EventBusPersistence> logger,
+        ILoggerAdapter<EventBusPersistence> logger,
         RabbitMQManagerSettings managerSettings)
     {
         _logger = logger;

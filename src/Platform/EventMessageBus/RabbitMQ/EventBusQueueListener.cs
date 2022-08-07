@@ -5,13 +5,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text;
+using SharedCommon.Commons.Logger;
 
 namespace EventBusMessage.RabbitMQ;
+
 public class EventBusQueueListener<T> : BackgroundService where T : IntegrationEventBase
 {
     private readonly IMessageProducer _messageProducer;
     private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<EventBusQueueListener<T>> _logger;
+    private readonly ILoggerAdapter<EventBusQueueListener<T>> _logger;
     private readonly RabbitMQManagerSettings _rabbitMQManagerSettings;
     private readonly IEventBusPersistence _rabbitMQPersistence;
     private readonly string _queueName;
@@ -19,7 +21,7 @@ public class EventBusQueueListener<T> : BackgroundService where T : IntegrationE
     public EventBusQueueListener(
         IMessageProducer messagePublisher,
         IServiceProvider serviceProvider,
-        ILogger<EventBusQueueListener<T>> logger,
+        ILoggerAdapter<EventBusQueueListener<T>> logger,
         RabbitMQManagerSettings rabbitMQManagerSettings,
         EventBusQueueManager queuesManager,
         IEventBusPersistence rabbitMQPersistence)
@@ -53,7 +55,8 @@ public class EventBusQueueListener<T> : BackgroundService where T : IntegrationE
 
                 using var scope = _serviceProvider.CreateScope();
                 var receiver = scope.ServiceProvider.GetRequiredService<IMessageConsumer<T>>();
-                var eventMessage = JsonSerializer.Deserialize<T>(message, _rabbitMQManagerSettings.JsonSerializerOptions);
+                var eventMessage =
+                    JsonSerializer.Deserialize<T>(message, _rabbitMQManagerSettings.JsonSerializerOptions);
 
                 if (eventMessage is not null)
                 {

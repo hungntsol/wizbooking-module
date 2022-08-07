@@ -4,18 +4,19 @@ using Mailing.Worker.SettingOptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using SharedCommon.Commons.Logger;
 
 namespace Mailing.Worker.Services;
 
 internal class MailingService : IMaillingService
 {
     private readonly IMailProviderConnection _providerConnection;
-    private readonly ILogger<MailingService> _logger;
+    private readonly ILoggerAdapter<MailingService> _logger;
     private readonly MailProviderAppSetting _mailProviderSetting;
     private readonly IViewEngineRenderer _viewEngineRenderer;
 
     public MailingService(IMailProviderConnection providerConnection,
-        ILogger<MailingService> logger,
+        ILoggerAdapter<MailingService> logger,
         IOptions<MailProviderAppSetting> mailProviderSettingOption, IViewEngineRenderer viewEngineRenderer)
     {
         _providerConnection = providerConnection;
@@ -79,10 +80,10 @@ internal class MailingService : IMaillingService
     {
         var html = await _viewEngineRenderer.RenderAsStringAsync<TModel>(@event.TemplateName, @event.TemplateModel);
         await this.SendEmailAsync(
-            @event.To, 
-            @event.From, 
-            @event.Subject, 
-            html, 
+            @event.To,
+            @event.From,
+            @event.Subject,
+            html,
             @event.Attachments);
     }
 }

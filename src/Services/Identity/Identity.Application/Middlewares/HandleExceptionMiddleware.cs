@@ -2,14 +2,15 @@
 using SharedCommon.Exceptions.StatusCodes;
 using System.Text.Json;
 using SharedCommon.Commons.HttpResponse;
+using SharedCommon.Commons.Logger;
 
 namespace Identity.Application.Middlewares;
 
 public sealed class HandleExceptionMiddleware : IMiddleware
 {
-    private readonly ILogger<HandleExceptionMiddleware> _logger;
+    private readonly ILoggerAdapter<HandleExceptionMiddleware> _logger;
 
-    public HandleExceptionMiddleware(ILogger<HandleExceptionMiddleware> logger)
+    public HandleExceptionMiddleware(ILoggerAdapter<HandleExceptionMiddleware> logger)
     {
         _logger = logger;
     }

@@ -5,11 +5,14 @@ using Mailing.Worker.Engine;
 using Mailing.Worker.Services;
 using Mailing.Worker.SettingOptions;
 using RazorLight;
+using SharedCommon.Commons.Logger;
 
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostCtx, services) =>
     {
+        services.InjectLoggerAdapter();
+
         services.Configure<MailProviderAppSetting>(hostCtx.Configuration.GetSection("EmailSettings"));
 
         services.AddSingleton<IMailProviderConnection, MailProviderConnection>();

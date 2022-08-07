@@ -1,27 +1,27 @@
 ﻿using EventBusMessage.Abstracts;
 using EventBusMessage.Events.Base;
 using EventBusMessage.RabbitMQ.Settings;
-using Microsoft.Extensions.Logging;
 using System.Text;
+using SharedCommon.Commons.Logger;
 
 namespace EventBusMessage.RabbitMQ;
 
 internal class EventBusManager : IMessageProducer
 {
-    private const string _maxPriorityHeader = "x-max-priority";
+    private const string MaxPriorityHeader = "x-max-priority";
 
 
     private IModel _channel = null!;
 
     private readonly IEventBusPersistence _rabbitMQPersistence;
-    private readonly ILogger<EventBusManager> _logger;
+    private readonly ILoggerAdapter<EventBusManager> _logger;
     private readonly RabbitMQManagerSettings _rabbitMQManagerSettings;
     private readonly EventBusQueueManager _queuesManager;
 
     public EventBusManager(IEventBusPersistence rabbitMQPersistence,
         RabbitMQManagerSettings rabbitMQManagerSettings,
         EventBusQueueManager queuesManager,
-        ILogger<EventBusManager> logger)
+        ILoggerAdapter<EventBusManager> logger)
     {
         _rabbitMQPersistence = rabbitMQPersistence;
         _rabbitMQManagerSettings = rabbitMQManagerSettings;
@@ -118,7 +118,7 @@ internal class EventBusManager : IMessageProducer
     {
         foreach (var queue in _queuesManager.Queues)
         {
-            var args = new Dictionary<string, object>() { [_maxPriorityHeader] = 10 };
+            var args = new Dictionary<string, object>() { [MaxPriorityHeader] = 10 };
 
             _channel.QueueDeclare(queue.name, true, false, false, args);
             _channel.QueueBind(queue.name, _rabbitMQManagerSettings.ExchangeName, queue.binding, null);

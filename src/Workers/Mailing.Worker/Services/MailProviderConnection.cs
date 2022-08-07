@@ -4,19 +4,20 @@ using MailKit.Security;
 using Microsoft.Extensions.Options;
 using Polly;
 using System.Net.Sockets;
+using SharedCommon.Commons.Logger;
 
 namespace Mailing.Worker.Services;
 
 internal class MailProviderConnection : IMailProviderConnection
 {
     private readonly MailProviderAppSetting _emailProviderSetting;
-    private readonly ILogger<MailProviderConnection> _logger;
+    private readonly ILoggerAdapter<MailProviderConnection> _logger;
 
     private ISmtpClient? _smtpClient;
     private readonly object _locker = new();
 
     public MailProviderConnection(IOptions<MailProviderAppSetting> mailProviderSettingOptions,
-        ILogger<MailProviderConnection> logger)
+        ILoggerAdapter<MailProviderConnection> logger)
     {
         _emailProviderSetting = mailProviderSettingOptions.Value;
         _logger = logger;

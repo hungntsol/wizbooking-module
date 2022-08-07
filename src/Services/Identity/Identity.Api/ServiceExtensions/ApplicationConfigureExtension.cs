@@ -5,6 +5,7 @@ using Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using SharedCommon.Commons.Logger;
 
 namespace Identity.Api.ServiceExtensions;
 
@@ -24,15 +25,18 @@ public static class ApplicationConfigureExtension
             config.AddSecurityDefinition(jwtSchema.Reference.Id, jwtSchema);
             config.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
-                {jwtSchema, ArraySegment<string>.Empty }
+                { jwtSchema, ArraySegment<string>.Empty }
             });
         });
+
+        services.InjectLoggerAdapter();
 
         services.InjectInfrastructure(configuration);
         services.InjectApplication(configuration);
         services.InjectAuthentication(configuration);
 
         services.AddEventBus(configuration);
+
 
         return services;
     }
@@ -65,11 +69,11 @@ public static class ApplicationConfigureExtension
     }
 
     /// <summary>
-	/// Migrate database to latest version if it is not yet updated.
-	/// </summary>
-	/// <param name="app"></param>
-	/// <returns></returns>
-	private static WebApplication MigrateAppDataContext(this WebApplication app)
+    /// Migrate database to latest version if it is not yet updated.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    private static WebApplication MigrateAppDataContext(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
         var dataContext = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
