@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 
 namespace Identity.Infrastructure.Services;
+
 public class AuthService : IAuthService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;

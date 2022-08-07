@@ -31,8 +31,7 @@ public class IdentityDataContext : DbContext
         base.OnConfiguring(optionsBuilder);
 
         optionsBuilder.UseLoggerFactory(loggerFactory)
-            .EnableSensitiveDataLogging()
-            .ConfigureWarnings(w => w.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
+            .EnableSensitiveDataLogging();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

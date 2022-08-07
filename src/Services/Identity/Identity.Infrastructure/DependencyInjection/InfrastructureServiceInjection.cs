@@ -13,8 +13,9 @@ public static class InfrastructureServiceInjection
     {
         services.AddDbContext<IdentityDataContext>(options =>
         {
-            options.UseSqlServer(configuration.GetValue<string>("DbContext:ConnectionString"),
-                action => action.MigrationsAssembly("Identity.Infrastructure"));
+            var connectionString = configuration.GetValue<string>("DbContext:ConnectionString");
+            options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30)),
+                builder => builder.MigrationsAssembly("Identity.Infrastructure"));
         });
 
         services.AddUnitOfWork<IdentityDataContext>();
