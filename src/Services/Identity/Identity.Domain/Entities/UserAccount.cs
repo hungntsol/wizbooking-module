@@ -30,7 +30,7 @@ public class UserAccount : EntityBase<ulong>
     public string? LastLoginIpv4 { get; set; }
     public string? LastLoginIpv6 { get; set; }
 
-    public string Fullname => string.Format("{0} {1}", this.FirstName, this.LastName);
+    public string Fullname => $"{this.FirstName} {this.LastName}";
 
     public UserAccount(string email,
         string normalizeEmail,
@@ -65,7 +65,6 @@ public class UserAccount : EntityBase<ulong>
 
     internal UserAccount()
     {
-
     }
 
     /// <summary>
@@ -76,8 +75,10 @@ public class UserAccount : EntityBase<ulong>
     /// <param name="firstName"></param>
     /// <param name="lastName"></param>
     /// <param name="gender"></param>
+    /// <param name="role"></param>
     /// <returns></returns>
-    public static UserAccount New(string email, string rawPassword, string firstName, string lastName, string gender, string role)
+    public static UserAccount New(string email, string rawPassword, string firstName, string lastName, string gender,
+        string role)
     {
         var user = new UserAccount();
 

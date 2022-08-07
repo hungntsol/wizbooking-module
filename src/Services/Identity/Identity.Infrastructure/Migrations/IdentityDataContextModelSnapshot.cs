@@ -128,8 +128,8 @@ namespace Identity.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("ExpiredAt")
-                        .HasColumnType("bigint");
+                    b.Property<DateTime>("ExpiredAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("datetime2");

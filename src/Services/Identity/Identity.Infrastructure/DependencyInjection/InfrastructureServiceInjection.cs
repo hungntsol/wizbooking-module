@@ -5,13 +5,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Identity.Infrastructure.DependencyInjection;
+
 public static class InfrastructureServiceInjection
 {
-    public static IServiceCollection InjectInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection InjectInfrastructure(this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddDbContext<IdentityDataContext>(options =>
         {
-            options.UseSqlServer(configuration.GetValue<string>("IdentityContext:ConnectionString"),
+            options.UseSqlServer(configuration.GetValue<string>("DbContext:ConnectionString"),
                 action => action.MigrationsAssembly("Identity.Infrastructure"));
         });
 

@@ -9,9 +9,9 @@ public class VerifiedUrl : EntityBase<Guid>
     public string AppCode { get; set; }
     public string Email { get; set; }
     public string Target { get; set; }
-    public long ExpiredAt { get; set; }
+    public DateTime ExpiredAt { get; set; }
 
-    public VerifiedUrl(string email, string target, long expiredAt)
+    public VerifiedUrl(string email, string target, DateTime expiredAt)
     {
         AppCode = Guid.NewGuid().ToString();
         Email = email;
@@ -24,6 +24,6 @@ public class VerifiedUrl : EntityBase<Guid>
         return new VerifiedUrl(
             email,
             target,
-            DateTimeOffset.UtcNow.AddMinutes(span.Minutes).ToUnixTimeSeconds());
+            DateTime.UtcNow.AddMinutes(span.Minutes));
     }
 }
