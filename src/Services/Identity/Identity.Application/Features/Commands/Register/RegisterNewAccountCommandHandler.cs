@@ -16,6 +16,7 @@ internal sealed class
     RegisterNewAccountCommandHandler : IRequestHandler<RegisterNewAccountCommand, JsonHttpResponse<Unit>>
 {
     private readonly IUserAccountRepository _userAccountRepository;
+    private readonly IVerifiedUrlRepository _verifiedUrlRepository;
     private readonly IUnitOfWork<IdentityDataContext> _unitOfWork;
     private readonly IMessageProducer _messageProducer;
     private readonly DomainClientAppSetting _domainClientAppSetting;
@@ -23,11 +24,13 @@ internal sealed class
     public RegisterNewAccountCommandHandler(IUserAccountRepository userAccountRepository,
         IUnitOfWork<IdentityDataContext> unitOfWork,
         IMessageProducer messageProducer,
-        IOptions<DomainClientAppSetting> domainClientAppSettingOption)
+        IOptions<DomainClientAppSetting> domainClientAppSettingOption,
+        IVerifiedUrlRepository verifiedUrlRepository)
     {
         _userAccountRepository = userAccountRepository;
         _unitOfWork = unitOfWork;
         _messageProducer = messageProducer;
+        _verifiedUrlRepository = verifiedUrlRepository;
         _domainClientAppSetting = domainClientAppSettingOption.Value;
     }
 
@@ -47,37 +50,42 @@ internal sealed class
             request.Gender,
             UserRoleTypes.NORMAL);
 
+        var newVerifyUrl = VerifiedUrl.New(newUser.Email,
+            VerifiedUrlTargetConstant.ConfirmEmail,
+            TimeSpan.FromMinutes(10));
+
         await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             var addUserTask = _userAccountRepository.InsertAsync(newUser, cancellationToken);
-            var produceEventMessageTask = ProduceConfirmAccountMailEvent(newUser);
+            var produceEventMessageTask = ProduceConfirmAccountMailEvent(newUser, newVerifyUrl.AppCode);
+            var addVerifiedUrl = _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken);
 
-            await Task.WhenAll(addUserTask, produceEventMessageTask);
+            await Task.WhenAll(addUserTask, produceEventMessageTask, addVerifiedUrl);
 
-            await _unitOfWork.CommitAsync(cancellationToken);
+            await tx.CommitAsync(cancellationToken);
         }
         catch
         {
-            await _unitOfWork.RollbackAsync(cancellationToken);
+            await tx.RollbackAsync(cancellationToken);
             throw new InternalServerException();
         }
 
         return JsonHttpResponse<Unit>.Ok(Unit.Value, "Register successfully, please check your email");
     }
 
-    private async Task ProduceConfirmAccountMailEvent(UserAccount newUser)
+    private async Task ProduceConfirmAccountMailEvent(UserAccount newUser, string verifyAppCode)
     {
-        var eventMessage = CreateEventBusMessage(newUser);
+        var eventMessage = CreateEventBusMessage(newUser, verifyAppCode);
         await _messageProducer.PublishAsync(eventMessage, "Worker.Mailing.Send");
     }
 
-    private SendMailEventBusMessage CreateEventBusMessage(UserAccount newUser)
+    private SendMailEventBusMessage CreateEventBusMessage(UserAccount newUser, string verifyAppCode)
     {
         var eventModel = new ConfirmAccountMailModel()
         {
-            ConfirmUrl = _domainClientAppSetting.Url() + "/confirm/me?code_id=" + Guid.NewGuid(),
-            ResendUrl = _domainClientAppSetting.Url() + "/confirm/resend?account=" + newUser.Email
+            ConfirmUrl = _domainClientAppSetting.Url() + "/auth/confirm/me?appCode=" + verifyAppCode,
+            ResendUrl = _domainClientAppSetting.Url() + "/auth/confirm/resend?account=" + newUser.Email
         };
 
         return new SendMailEventBusMessage()

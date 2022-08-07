@@ -3,12 +3,14 @@ using Identity.Infrastructure.Repositories.Abstracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Identity.Infrastructure.DependencyInjection;
+
 internal static class RepositoriesInjection
 {
-    internal static IServiceCollection AddRepositories(this IServiceCollection serivces)
+    internal static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        serivces.AddTransient<IUserAccountRepository, UserAccountRepository>();
+        services.AddTransient<IUserAccountRepository, UserAccountRepository>();
+        services.AddTransient<IVerifiedUrlRepository, VerifiedUrlRepository>();
 
-        return serivces;
+        return services;
     }
 }

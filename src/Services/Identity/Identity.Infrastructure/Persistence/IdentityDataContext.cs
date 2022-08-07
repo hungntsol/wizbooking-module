@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SharedCommon.Domain;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Identity.Infrastructure.Persistence;
 
@@ -29,7 +30,9 @@ public class IdentityDataContext : DbContext
     {
         base.OnConfiguring(optionsBuilder);
 
-        optionsBuilder.UseLoggerFactory(loggerFactory);
+        optionsBuilder.UseLoggerFactory(loggerFactory)
+            .EnableSensitiveDataLogging()
+            .ConfigureWarnings(w => w.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

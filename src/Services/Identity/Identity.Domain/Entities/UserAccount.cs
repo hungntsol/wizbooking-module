@@ -115,6 +115,46 @@ public class UserAccount : EntityBase<ulong>
     }
 
     /// <summary>
+    /// Activate account
+    /// </summary>
+    public void Activate()
+    {
+        this.IsActive = true;
+        ConfirmEmail();
+    }
+
+    /// <summary>
+    /// Deactive account
+    /// </summary>
+    public void DeActive()
+    {
+        this.IsActive = false;
+    }
+
+    /// <summary>
+    /// Lock account
+    /// </summary>
+    public void Lock()
+    {
+        this.IsLocked = true;
+        this.DeActive();
+    }
+
+    public void UnLock()
+    {
+        this.IsLocked = false;
+        this.Activate();
+    }
+
+    /// <summary>
+    /// Email is confirm
+    /// </summary>
+    public void ConfirmEmail()
+    {
+        this.IsEmailVerified = true;
+    }
+
+    /// <summary>
     /// Whether this account is valid for enduser
     /// </summary>
     /// <returns></returns>

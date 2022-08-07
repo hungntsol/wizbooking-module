@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Identity.Domain.Common;
+using Microsoft.EntityFrameworkCore;
 using SharedCommon.Domain;
 
 namespace Identity.Domain.Entities;
@@ -25,5 +26,10 @@ public class VerifiedUrl : EntityBase<Guid>
             email,
             target,
             DateTime.UtcNow.AddMinutes(span.Minutes));
+    }
+
+    public bool IsValid()
+    {
+        return this.ExpiredAt > DateTime.UtcNow;
     }
 }
