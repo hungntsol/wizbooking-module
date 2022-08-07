@@ -5,6 +5,7 @@ using Identity.Infrastructure.Persistence;
 using Identity.Infrastructure.SettingOptions;
 using Microsoft.Extensions.Options;
 using SharedCommon.Commons.HttpResponse;
+using SharedCommon.Commons.JsonSerialization;
 using SharedCommon.Commons.Mailing;
 using SharedCommon.Commons.Mailing.Models;
 using SharedEventBus.Events;
@@ -85,7 +86,7 @@ internal sealed class
             From = "WizBooking <noreply-auth@wizbooking.com>",
             Subject = "Verify Email",
             TemplateName = EmailTemplateConstants.ConfirmAccountMail,
-            TemplateModel = JsonSerializer.Serialize(eventModel, new JsonSerializerOptions(){PropertyNamingPolicy = JsonNamingPolicy.CamelCase}),
+            TemplateModel = JsonSerializer.Serialize(eventModel, PlatformJsonSerializerOptions.DefaultOptions),
             Attachments = default
         };
     }
