@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 
 namespace SharedEventBus.Events;
+
 public class SendMailEventBusMessage : IntegrationEventBase
 {
     public string To { get; set; } = null!;
@@ -13,10 +14,10 @@ public class SendMailEventBusMessage : IntegrationEventBase
 
     public SendMailEventBusMessage()
     {
-        
     }
 
-    public SendMailEventBusMessage(string to, string from, string subject, string templateName, string templateModel, IList<IFormFile> attachments)
+    public SendMailEventBusMessage(string to, string from, string subject, string templateName, string templateModel,
+        IList<IFormFile> attachments)
     {
         To = to;
         From = from;

@@ -46,16 +46,13 @@ public sealed class HandleExceptionMiddleware : IMiddleware
 
     private static (int, object?) GetStatusCode(Exception exception)
     {
-        if (exception is HttpBaseException httpEx)
+        return exception switch
         {
-            return (httpEx.HttpCode, httpEx.StackTrace);
-        }
-
-        if (exception is ValidationException validationEx)
-        {
-            return (400, validationEx.Errors.ToDictionary(q => q.PropertyName, q => q.ErrorMessage));
-        }
-
-        return (500, default);
+            HttpBaseException httpEx => (httpEx.HttpCode, httpEx.StackTrace),
+            ValidationException validationEx => (400,
+                validationEx.Errors.ToDictionary(q => q.PropertyName, q => q.ErrorMessage)),
+            ArgumentNullException argNullException => (400, "Bad request"),
+            _ => (500, default)
+        };
     }
 }

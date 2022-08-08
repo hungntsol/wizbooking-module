@@ -2,7 +2,7 @@
 
 namespace Mailing.Worker.Abstracts;
 
-internal interface IMaillingService
+internal interface IMailingService
 {
     /// <summary>
     /// Send email async with rawHtmlBody

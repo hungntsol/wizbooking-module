@@ -57,11 +57,11 @@ internal sealed class
         await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
-            var addUserTask = _userAccountRepository.InsertAsync(newUser, cancellationToken);
+            var addAccount = await _userAccountRepository.InsertAsync(newUser, cancellationToken);
             var produceEventMessageTask = ProduceConfirmAccountMailEvent(newUser, newVerifyUrl.AppCode);
-            var addVerifiedUrl = _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken);
+            var addVerifiedUrl = await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken);
 
-            await Task.WhenAll(addUserTask, produceEventMessageTask, addVerifiedUrl);
+            await produceEventMessageTask.WaitAsync(cancellationToken);
 
             await tx.CommitAsync(cancellationToken);
         }

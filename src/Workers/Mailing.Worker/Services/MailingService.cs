@@ -8,7 +8,7 @@ using SharedCommon.Commons.Logger;
 
 namespace Mailing.Worker.Services;
 
-internal class MailingService : IMaillingService
+internal class MailingService : IMailingService
 {
     private readonly IMailProviderConnection _providerConnection;
     private readonly ILoggerAdapter<MailingService> _logger;

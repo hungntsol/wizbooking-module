@@ -16,7 +16,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.Configure<MailProviderAppSetting>(hostCtx.Configuration.GetSection("EmailSettings"));
 
         services.AddSingleton<IMailProviderConnection, MailProviderConnection>();
-        services.AddSingleton<IMaillingService, MailingService>();
+        services.AddSingleton<IMailingService, MailingService>();
 
         services.AddSingleton<IViewEngineRenderer, ViewEngineRenderer>();
         services.AddSingleton<RazorLightEngine>(new RazorLightEngineBuilder()
@@ -27,11 +27,10 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddRabbitMQ((setting, queue) =>
             {
-                var section = hostCtx.Configuration.GetSection("EventBus");
-                section.Bind(setting);
+                hostCtx.Configuration.GetSection("EventBus").Bind(setting);
                 queue.Add<SendMailEventBusMessage>(default, "Worker.Mailing.Send");
             })
-            .AddConsumer<SendMailEventBusMessage, MailingWorker>();
+            .AddConsumer<SendMailEventBusMessage, SendingMailWorker>();
     })
     .Build();
 
