@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace EFCore.Persistence.Abstracts;
 
-public interface IAsyncBaseRepository<TEntity, TKey> 
+public interface IAsyncBaseRepository<TEntity, TKey>
     where TEntity : class, IEntityBase<TKey>
 {
     #region Insert
@@ -22,7 +22,8 @@ public interface IAsyncBaseRepository<TEntity, TKey>
     /// <typeparam name="TProject"></typeparam>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<TProject?> InsertAsync<TProject>(TEntity entity, CancellationToken cancellationToken = default) where TProject : class;
+    Task<TProject?> InsertAsync<TProject>(TEntity entity, CancellationToken cancellationToken = default)
+        where TProject : class;
 
     /// <summary>
     /// Insert multiple entity
@@ -63,9 +64,12 @@ public interface IAsyncBaseRepository<TEntity, TKey>
     /// Update or insert an entity
     /// </summary>
     /// <param name="entity"></param>
+    /// <param name="statement"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<bool> Upsert(TEntity entity, CancellationToken cancellationToken = default);
+    Task Upsert(TEntity entity,
+        Expression<Func<TEntity, object>> statement,
+        CancellationToken cancellationToken = default);
 
     #endregion
 

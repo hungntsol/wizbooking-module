@@ -19,20 +19,21 @@ public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswor
     private readonly ILoggerAdapter<ForgetPasswordCommandCommandHandler> _loggerAdapter;
     private readonly IMessageProducer _messageProducer;
     private readonly DomainClientAppSetting _domainClientAppSetting;
-
-    private const ushort TimeLifeOfUrlFromMinutes = 3;
+    private readonly AuthAppSetting _authAppSetting;
 
     public ForgetPasswordCommandCommandHandler(IUserAccountRepository userAccountRepository,
         IVerifiedUrlRepository verifiedUrlRepository,
         ILoggerAdapter<ForgetPasswordCommandCommandHandler> loggerAdapter,
         IMessageProducer messageProducer,
-        IOptions<DomainClientAppSetting> domainClientAppSettingOptions)
+        IOptions<DomainClientAppSetting> domainClientAppSettingOptions,
+        IOptions<AuthAppSetting> authAppSettingOption)
     {
         _userAccountRepository = userAccountRepository;
         _verifiedUrlRepository = verifiedUrlRepository;
         _loggerAdapter = loggerAdapter;
         _messageProducer = messageProducer;
         _domainClientAppSetting = domainClientAppSettingOptions.Value;
+        _authAppSetting = authAppSettingOption.Value;
     }
 
     public async Task<JsonHttpResponse<Unit>> Handle(ForgetPasswordCommand request,
@@ -44,7 +45,7 @@ public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswor
 
         var newVerifyUrl = VerifiedUrl.New(request.Email,
             VerifiedUrlTargetConstant.ResetAccount,
-            TimeSpan.FromMinutes(TimeLifeOfUrlFromMinutes));
+            TimeSpan.FromMinutes(_authAppSetting.ResetLinkExpiredMinutes));
 
         try
         {
