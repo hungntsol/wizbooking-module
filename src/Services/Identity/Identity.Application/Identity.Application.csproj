@@ -24,6 +24,7 @@
   <ItemGroup>
     <Folder Include="Features\Commands\ChangePassword\" />
     <Folder Include="Features\Queries\ConfirmAccount\" />
+    <Folder Include="Features\Queries\ResendConfirm\" />
   </ItemGroup>
 
 </Project>

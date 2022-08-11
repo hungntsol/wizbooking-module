@@ -26,7 +26,7 @@ public class ConfirmAccountQueryHandler : IRequestHandler<ConfirmAccountQuery, J
     public async Task<JsonHttpResponse<Unit>> Handle(ConfirmAccountQuery request, CancellationToken cancellationToken)
     {
         // begin tx
-        await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var predicateBuilder =
             new PredicateDefinition<VerifiedUrl>(q =>
@@ -50,8 +50,16 @@ public class ConfirmAccountQueryHandler : IRequestHandler<ConfirmAccountQuery, J
 
         _loggerAdapter.LogInformation("Activate account {Email} at {Time}", account.Email, DateTime.UtcNow);
 
-        // commit tx
-        await _unitOfWork.CommitAsync(cancellationToken);
+        try
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (Exception e)
+        {
+            _loggerAdapter.LogError(e, "{Message}", e.Message);
+            await transaction.RollbackAsync(cancellationToken);
+            throw new InternalServerException();
+        }
 
         return JsonHttpResponse<Unit>.Ok(Unit.Value);
     }

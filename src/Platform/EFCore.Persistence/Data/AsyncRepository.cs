@@ -29,7 +29,8 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
         return await this.dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 
-    public async Task<bool> DeleteBatchAsync(IPredicateDefinition<TEntity> predicateDefinition, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteBatchAsync(IPredicateDefinition<TEntity> predicateDefinition,
+        CancellationToken cancellationToken = default)
     {
         this.dbSet.RemoveRange(this.dbSet.Where(predicateDefinition.Statement).ToList());
         return await this.dbContext.SaveChangesAsync(cancellationToken) > 0;
@@ -39,7 +40,8 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
 
     #region Find
 
-    public async Task<TEntity?> FindAndDelete(IPredicateDefinition<TEntity> predicateDefinition, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> FindAndDelete(IPredicateDefinition<TEntity> predicateDefinition,
+        CancellationToken cancellationToken = default)
     {
         var entry = await this.FindOneAsync(predicateDefinition, cancellationToken);
         if (entry is null)
@@ -57,29 +59,31 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
         return entities;
     }
 
-    public Task<TEntity?> FindOneAsync(IPredicateDefinition<TEntity> predicateDefinition, CancellationToken cancellationToken = default)
-    => FindOneAsync(predicateDefinition.Statement, cancellationToken);
+    public Task<TEntity?> FindOneAsync(IPredicateDefinition<TEntity> predicateDefinition,
+        CancellationToken cancellationToken = default)
+        => FindOneAsync(predicateDefinition.Statement, cancellationToken);
 
-    public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
-    => FindOneAsync(predicate, default, cancellationToken);
+    public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
+        => FindOneAsync(predicate, default, cancellationToken);
 
     public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include,
         CancellationToken cancellationToken = default)
-    => FindOneAsync(predicate, include, default, cancellationToken);
+        => FindOneAsync(predicate, include, default, cancellationToken);
 
     public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include,
         bool asTracking,
         CancellationToken cancellationToken = default)
-    => FindOneAsync(predicate, include, asTracking, default, cancellationToken);
+        => FindOneAsync(predicate, include, asTracking, default, cancellationToken);
 
     public Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include,
         bool asTracking,
         bool ignoreQueryFilters = true,
         CancellationToken cancellationToken = default)
-    => FindOneAsync(predicate, p => p, include, asTracking, ignoreQueryFilters, cancellationToken);
+        => FindOneAsync(predicate, p => p, include, asTracking, ignoreQueryFilters, cancellationToken);
 
     public async Task<TProject?> FindOneAsync<TProject>(Expression<Func<TEntity, bool>> predicate,
         Expression<Func<TEntity, TProject>> selector,
@@ -110,7 +114,8 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
         return null;
     }
 
-    public async Task<TProject?> InsertAsync<TProject>(TEntity entity, CancellationToken cancellationToken = default) where TProject : class
+    public async Task<TProject?> InsertAsync<TProject>(TEntity entity, CancellationToken cancellationToken = default)
+        where TProject : class
     {
         await this.dbSet.AddAsync(entity, cancellationToken);
         var saves = await this.dbContext.SaveChangesAsync(cancellationToken);
@@ -134,6 +139,7 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
     #endregion
 
     #region Update
+
     public async Task<bool> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         this.dbSet.Attach(entity).State = EntityState.Modified;
@@ -142,7 +148,8 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
         return save > 0;
     }
 
-    public async Task<bool> UpdateOneFieldAsync(TEntity entity, Expression<Func<TEntity, object>> update, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateOneFieldAsync(TEntity entity, Expression<Func<TEntity, object>> update,
+        CancellationToken cancellationToken = default)
     {
         this.dbSet.Attach(entity).Property(update).IsModified = true;
         var save = await this.dbContext.SaveChangesAsync(cancellationToken);
@@ -150,35 +157,18 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
         return save > 0;
     }
 
-    public async Task<bool> Upsert(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task Upsert(TEntity entity,
+        Expression<Func<TEntity, object>> statement,
+        CancellationToken cancellationToken = default)
     {
-        #region Leave condition
+        var existingOne = await this.dbSet.FindAsync(entity.Id, cancellationToken);
 
-        if (entity is null)
-            return false;
-
-        var entry = this.dbContext.Entry(entity);
-        var leaveStates = new[] { EntityState.Modified, EntityState.Unchanged, EntityState.Deleted };
-        if (leaveStates.Contains(entry.State))
-            return false;
-
-        #endregion
-
-        var entityKey = this.dbContext.GetEntityKey(entity);
-        if (entityKey is null)
+        if (existingOne is null)
         {
-            entry.State = EntityState.Unchanged;
-            entityKey = this.dbContext.GetEntityKey(entity);
+            await this.InsertAsync(entity, cancellationToken);
         }
 
-        if (entityKey?.EntityKeyValues is null ||
-            entityKey.EntityKeyValues.Select(ekv => (int)ekv.Value).All(v => v <= 0))
-        {
-            entry.State = EntityState.Added;
-        }
-
-        var save = await this.dbContext.SaveChangesAsync(cancellationToken);
-        return save > 0;
+        await this.UpdateOneFieldAsync(entity, statement, cancellationToken);
     }
 
     #endregion
@@ -188,7 +178,7 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include,
         bool asTracking,
         bool ignoreFilter
-        )
+    )
     {
         // tracking
         if (!asTracking)
@@ -207,4 +197,3 @@ public class AsyncRepository<TEntity, TKey, TContext> : IAsyncRepository<TEntity
         return queryable;
     }
 }
-

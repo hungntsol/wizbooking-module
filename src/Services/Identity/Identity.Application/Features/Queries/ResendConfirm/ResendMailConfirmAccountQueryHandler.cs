@@ -1,79 +1,74 @@
 ﻿using System.Text.Json;
 using EventBusMessage.Abstracts;
 using Identity.Domain.Common;
-using Identity.Infrastructure.Persistence;
 using Identity.Infrastructure.SettingOptions;
 using Microsoft.Extensions.Options;
 using SharedCommon.Commons.HttpResponse;
 using SharedCommon.Commons.JsonSerialization;
+using SharedCommon.Commons.Logger;
 using SharedCommon.Commons.Mailing;
 using SharedCommon.Commons.Mailing.Models;
 using SharedEventBus.Events;
 
-namespace Identity.Application.Features.Commands.Register;
+namespace Identity.Application.Features.Queries.ResendConfirm;
 
-internal sealed class
-    RegisterNewAccountCommandHandler : IRequestHandler<RegisterNewAccountCommand, JsonHttpResponse<Unit>>
+public class
+    ResendMailConfirmAccountQueryHandler : IRequestHandler<ResendMailConfirmAccountQuery, JsonHttpResponse<Unit>>
 {
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IVerifiedUrlRepository _verifiedUrlRepository;
-    private readonly IUnitOfWork<IdentityDataContext> _unitOfWork;
-    private readonly IMessageProducer _messageProducer;
+    private readonly ILoggerAdapter<ResendMailConfirmAccountQueryHandler> _loggerAdapter;
     private readonly DomainClientAppSetting _domainClientAppSetting;
     private readonly AuthAppSetting _authAppSetting;
+    private readonly IMessageProducer _messageProducer;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public RegisterNewAccountCommandHandler(IUserAccountRepository userAccountRepository,
-        IUnitOfWork<IdentityDataContext> unitOfWork,
-        IMessageProducer messageProducer,
-        IOptions<DomainClientAppSetting> domainClientAppSettingOption,
+    public ResendMailConfirmAccountQueryHandler(IUserAccountRepository userAccountRepository,
         IVerifiedUrlRepository verifiedUrlRepository,
-        IOptions<AuthAppSetting> authAppSettingOptions)
+        ILoggerAdapter<ResendMailConfirmAccountQueryHandler> loggerAdapter,
+        IOptions<DomainClientAppSetting> domainClientAppSettingOptions,
+        IOptions<AuthAppSetting> authAppSettingOptions,
+        IMessageProducer messageProducer,
+        IUnitOfWork unitOfWork)
+
     {
         _userAccountRepository = userAccountRepository;
-        _unitOfWork = unitOfWork;
-        _messageProducer = messageProducer;
         _verifiedUrlRepository = verifiedUrlRepository;
-        _domainClientAppSetting = domainClientAppSettingOption.Value;
+        _loggerAdapter = loggerAdapter;
+        _messageProducer = messageProducer;
+        _unitOfWork = unitOfWork;
+        _domainClientAppSetting = domainClientAppSettingOptions.Value;
         _authAppSetting = authAppSettingOptions.Value;
     }
 
-    public async Task<JsonHttpResponse<Unit>> Handle(RegisterNewAccountCommand request,
+    public async Task<JsonHttpResponse<Unit>> Handle(ResendMailConfirmAccountQuery request,
         CancellationToken cancellationToken)
     {
-        var existedUser = await _userAccountRepository.FindOneAsync(q => q.Email == request.Email, cancellationToken);
-        if (existedUser is not null)
-        {
-            return JsonHttpResponse<Unit>.ErrorBadRequest("Email has been used");
-        }
+        var account = await _userAccountRepository.FindOneAsync(q => q.Email.Equals(request.Email), cancellationToken);
+        ArgumentNullException.ThrowIfNull(account);
 
-        var newUser = UserAccount.New(request.Email,
-            request.Password,
-            request.FirstName,
-            request.LastName,
-            request.Gender,
-            UserRoleTypes.NORMAL);
-
-        var newVerifyUrl = VerifiedUrl.New(newUser.Email,
+        var newVerifyUrl = VerifiedUrl.New(
+            request.Email,
             VerifiedUrlTargetConstant.ConfirmEmail,
             TimeSpan.FromMinutes(_authAppSetting.ConfirmLinkExpiredMinutes));
 
-        await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
-        var addAccount = await _userAccountRepository.InsertAsync(newUser, cancellationToken);
-        var produceEventMessageTask = ProduceConfirmAccountMailEvent(newUser, newVerifyUrl.AppCode);
-        var addVerifiedUrl = await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken);
+        await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        var added = await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken);
 
         try
         {
-            await produceEventMessageTask.WaitAsync(cancellationToken);
-            await tx.CommitAsync(cancellationToken);
+            await ProduceConfirmAccountMailEvent(account, newVerifyUrl.AppCode);
+            await transaction.CommitAsync(cancellationToken);
         }
-        catch
+        catch (Exception e)
         {
-            await tx.RollbackAsync(cancellationToken);
+            _loggerAdapter.LogError(e, "{Message}", e.Message);
+            await transaction.RollbackAsync(cancellationToken);
+
             throw new InternalServerException();
         }
 
-        return JsonHttpResponse<Unit>.Ok(Unit.Value, "Register successfully, please check your email");
+        return JsonHttpResponse<Unit>.Ok(Unit.Value);
     }
 
     private async Task ProduceConfirmAccountMailEvent(UserAccount newUser, string verifyAppCode)
