@@ -14,10 +14,14 @@ namespace Identity.Application.Features.Commands.Register;
 internal sealed class
     RegisterNewAccountCommandHandler : IRequestHandler<RegisterNewAccountCommand, JsonHttpResponse<Unit>>
 {
-    private readonly DomainClientAppSetting _domainClientAppSetting;
     private readonly AuthAppSetting _authAppSetting;
+    private readonly DomainClientAppSetting _domainClientAppSetting;
+    private readonly IMessageProducer _messageProducer;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserAccountRepository _userAccountRepository;
+    private readonly IVerifiedUrlRepository _verifiedUrlRepository;
 
-    public RegisterNewAccountCommandHandler(IUserAccountCoreRepository userAccountRepository,
+    public RegisterNewAccountCommandHandler(IUserAccountRepository userAccountRepository,
         IUnitOfWork<IdentityDataContext> unitOfWork,
         IMessageProducer messageProducer,
         IOptions<DomainClientAppSetting> domainClientAppSettingOption,

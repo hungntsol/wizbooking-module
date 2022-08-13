@@ -4,9 +4,9 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
 {
     private readonly IAccountAccessorService _accountAccessorService;
     private readonly ILoggerAdapter<ChangePasswordCommandHandler> _loggerAdapter;
-    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IUserAccountRepository _userAccountRepository;
 
-    public ChangePasswordCommandHandler(IUserAccountCoreRepository userAccountRepository,
+    public ChangePasswordCommandHandler(IUserAccountRepository userAccountRepository,
         IAccountAccessorService accountAccessorService, ILoggerAdapter<ChangePasswordCommandHandler> loggerAdapter)
     {
         _userAccountRepository = userAccountRepository;

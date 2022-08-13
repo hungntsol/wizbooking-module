@@ -6,12 +6,12 @@ public class ConfirmAccountQueryHandler : IRequestHandler<ConfirmAccountQuery, J
 {
     private readonly ILoggerAdapter<ConfirmAccountQueryHandler> _loggerAdapter;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IUserAccountRepository _userAccountRepository;
     private readonly IVerifiedUrlRepository _verifiedUrlRepository;
 
     public ConfirmAccountQueryHandler(IVerifiedUrlRepository verifiedUrlRepository,
         ILoggerAdapter<ConfirmAccountQueryHandler> loggerAdapter,
-        IUserAccountCoreRepository userAccountRepository,
+        IUserAccountRepository userAccountRepository,
         IUnitOfWork unitOfWork)
     {
         _verifiedUrlRepository = verifiedUrlRepository;

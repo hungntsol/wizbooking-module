@@ -12,12 +12,12 @@ namespace Identity.Application.Features.Commands.ForgetPassword;
 
 public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswordCommand, JsonHttpResponse<Unit>>
 {
-    private const ushort TimeLifeOfUrlFromMinutes = 3;
+    private readonly AuthAppSetting _authAppSetting;
     private readonly DomainClientAppSetting _domainClientAppSetting;
     private readonly ILoggerAdapter<ForgetPasswordCommandCommandHandler> _loggerAdapter;
     private readonly IMessageProducer _messageProducer;
-    private readonly DomainClientAppSetting _domainClientAppSetting;
-    private readonly AuthAppSetting _authAppSetting;
+    private readonly IUserAccountRepository _userAccountRepository;
+    private readonly IVerifiedUrlRepository _verifiedUrlRepository;
 
     public ForgetPasswordCommandCommandHandler(IUserAccountRepository userAccountRepository,
         IVerifiedUrlRepository verifiedUrlRepository,

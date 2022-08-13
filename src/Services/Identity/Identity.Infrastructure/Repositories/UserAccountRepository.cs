@@ -5,7 +5,7 @@ using Identity.Infrastructure.Repositories.Abstracts;
 namespace Identity.Infrastructure.Repositories;
 
 public class UserAccountRepository : EfCoreRepository<UserAccount, ulong, IdentityDataContext>,
-    IUserAccountCoreRepository
+    IUserAccountRepository
 {
     public UserAccountRepository(IdentityDataContext context) : base(context)
     {

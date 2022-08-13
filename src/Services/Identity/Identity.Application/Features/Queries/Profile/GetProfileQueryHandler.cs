@@ -3,9 +3,9 @@
 internal class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, JsonHttpResponse<GetProfileResultView>>
 {
     private readonly IAccountAccessorService _accountAccessorService;
-    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IUserAccountRepository _userAccountRepository;
 
-    public GetProfileQueryHandler(IUserAccountCoreRepository userAccountRepository,
+    public GetProfileQueryHandler(IUserAccountRepository userAccountRepository,
         IAccountAccessorService accountAccessorService)
     {
         _userAccountRepository = userAccountRepository;

@@ -6,10 +6,10 @@ public class ResetAccountCommandHandler : IRequestHandler<ResetAccountCommand, J
 {
     private readonly ILoggerAdapter<ResetAccountCommandHandler> _loggerAdapter;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IUserAccountRepository _userAccountRepository;
     private readonly IVerifiedUrlRepository _verifiedUrlRepository;
 
-    public ResetAccountCommandHandler(IUserAccountCoreRepository userAccountRepository,
+    public ResetAccountCommandHandler(IUserAccountRepository userAccountRepository,
         IVerifiedUrlRepository verifiedUrlRepository,
         ILoggerAdapter<ResetAccountCommandHandler> loggerAdapter,
         IUnitOfWork unitOfWork)

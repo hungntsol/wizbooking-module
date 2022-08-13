@@ -17,9 +17,9 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, JsonHttp
     };
 
     private readonly ILoggerAdapter<LoginCommandHandler> _loggerAdapter;
-    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IUserAccountRepository _userAccountRepository;
 
-    public LoginCommandHandler(IUserAccountCoreRepository userAccountRepository, IAuthService authService,
+    public LoginCommandHandler(IUserAccountRepository userAccountRepository, IAuthService authService,
         ILoggerAdapter<LoginCommandHandler> loggerAdapter)
     {
         _userAccountRepository = userAccountRepository;
