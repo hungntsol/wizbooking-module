@@ -8,7 +8,7 @@ internal static class RepositoriesInjection
 {
     internal static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddTransient<IUserAccountRepository, UserAccountRepository>();
+        services.AddTransient<IUserAccountCoreRepository, UserAccountRepository>();
         services.AddTransient<IVerifiedUrlRepository, VerifiedUrlRepository>();
 
         return services;

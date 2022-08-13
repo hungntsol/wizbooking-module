@@ -1,5 +1,5 @@
 ﻿namespace Identity.Infrastructure.Repositories.Abstracts;
 
-public interface IVerifiedUrlRepository : IAsyncRepository<VerifiedUrl, Guid>
+public interface IVerifiedUrlRepository : IEfCoreRepository<VerifiedUrl, Guid>
 {
 }

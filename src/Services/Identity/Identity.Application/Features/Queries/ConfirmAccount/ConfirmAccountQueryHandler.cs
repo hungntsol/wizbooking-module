@@ -1,20 +1,17 @@
-﻿using EFCore.Persistence.Filter;
-using Identity.Domain.Common;
-using SharedCommon.Commons.HttpResponse;
-using SharedCommon.Commons.Logger;
+﻿using Identity.Domain.Common;
 
 namespace Identity.Application.Features.Queries.ConfirmAccount;
 
 public class ConfirmAccountQueryHandler : IRequestHandler<ConfirmAccountQuery, JsonHttpResponse<Unit>>
 {
-    private readonly IVerifiedUrlRepository _verifiedUrlRepository;
-    private readonly IUserAccountRepository _userAccountRepository;
     private readonly ILoggerAdapter<ConfirmAccountQueryHandler> _loggerAdapter;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IVerifiedUrlRepository _verifiedUrlRepository;
 
     public ConfirmAccountQueryHandler(IVerifiedUrlRepository verifiedUrlRepository,
         ILoggerAdapter<ConfirmAccountQueryHandler> loggerAdapter,
-        IUserAccountRepository userAccountRepository,
+        IUserAccountCoreRepository userAccountRepository,
         IUnitOfWork unitOfWork)
     {
         _verifiedUrlRepository = verifiedUrlRepository;
@@ -29,7 +26,7 @@ public class ConfirmAccountQueryHandler : IRequestHandler<ConfirmAccountQuery, J
         await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var predicateBuilder =
-            new PredicateDefinition<VerifiedUrl>(q =>
+            new PredicateBuilder<VerifiedUrl>(q =>
                 q.AppCode.Equals(request.AppCode) && q.Target.Equals(VerifiedUrlTargetConstant.ConfirmEmail));
         var verifyUrl = await _verifiedUrlRepository.FindAndDelete(predicateBuilder, cancellationToken);
 

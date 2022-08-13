@@ -1,18 +1,19 @@
-﻿using EFCore.Persistence.Filter;
+﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using SharedCommon.Domain;
-using System.Linq.Expressions;
+using SharedCommon.PredicateBuilder;
 
 namespace EFCore.Persistence.Abstracts;
 
-public interface IAsyncReadRepository<TEntity, TKey> 
+public interface IEfCoreReadRepository<TEntity, TKey>
     where TEntity : class, IEntityBase<TKey>
 {
     #region Find one
 
     Task<TEntity?> FindOneAsync(object?[]? keyValues, CancellationToken cancellationToken = default);
 
-    Task<TEntity?> FindOneAsync(IPredicateDefinition<TEntity> predicateDefinition, CancellationToken cancellationToken = default);
+    Task<TEntity?> FindOneAsync(PredicateBuilder<TEntity> predicateDefinition,
+        CancellationToken cancellationToken = default);
 
     Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default);

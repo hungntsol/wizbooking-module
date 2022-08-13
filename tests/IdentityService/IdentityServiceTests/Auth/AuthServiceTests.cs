@@ -21,7 +21,7 @@ internal class MockAppSettingIConfiguration : Mock<IOptions<AuthAppSetting>>
     }
 }
 
-[Collection("AuthService")]
+[Collection("AuthService Test")]
 public class AuthServiceTests
 {
     [Fact]

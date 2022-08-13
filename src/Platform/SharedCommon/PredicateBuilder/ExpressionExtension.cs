@@ -1,10 +1,13 @@
 ﻿using System.Linq.Expressions;
 
-namespace EFCore.Persistence.Filter.Extensions;
+namespace SharedCommon.PredicateBuilder;
 
-public static class ExpressionExtensions
+/// <summary>
+///     Extension to join two expression
+/// </summary>
+public static class ExpressionExtension
 {
-    public static Expression<Func<T, bool>> AndAlso<T>(
+    public static Expression<Func<T, bool>> And<T>(
         this Expression<Func<T, bool>> main,
         Expression<Func<T, bool>> other)
     {
@@ -14,8 +17,8 @@ public static class ExpressionExtensions
     }
 
     public static Expression<Func<T, bool>> Or<T>(
-    this Expression<Func<T, bool>> main,
-    Expression<Func<T, bool>> other)
+        this Expression<Func<T, bool>> main,
+        Expression<Func<T, bool>> other)
     {
         var parameter = VisitLeftAndRight(main, other, out var left, out var right);
 
@@ -24,8 +27,8 @@ public static class ExpressionExtensions
 
 
     private static ParameterExpression VisitLeftAndRight<T>(Expression<Func<T, bool>> main,
-    Expression<Func<T, bool>> join,
-    out Expression left, out Expression right)
+        Expression<Func<T, bool>> join,
+        out Expression left, out Expression right)
     {
         var parameter = Expression.Parameter(typeof(T));
 
@@ -35,5 +38,32 @@ public static class ExpressionExtensions
         var rightVisitor = new ReplaceExpressionVisitor(join.Parameters[0], parameter);
         right = rightVisitor.Visit(join.Body);
         return parameter;
+    }
+}
+
+internal class ReplaceExpressionVisitor : ExpressionVisitor
+{
+    private readonly Expression _newValue;
+    private readonly Expression _oldValue;
+
+    public ReplaceExpressionVisitor(Expression oldValue, Expression newValue)
+    {
+        _oldValue = oldValue;
+        _newValue = newValue;
+    }
+
+    public override Expression Visit(Expression? node)
+    {
+        if (node is null)
+        {
+            return _oldValue;
+        }
+
+        if (node == _oldValue)
+        {
+            return _newValue;
+        }
+
+        return base.Visit(node);
     }
 }

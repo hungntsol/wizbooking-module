@@ -1,17 +1,16 @@
-﻿using EFCore.Persistence.Filter;
-using EFCore.Persistence.Filter.Extensions;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using SharedCommon.PredicateBuilder;
 
-namespace PlatfromTests.EFCoreFilter.Predicate;
+namespace PlatformTests.PredicateBuilder;
 
-[Collection("EFCore Predicate Filter")]
+[Collection("PredicateBuilder Test")]
 public class PredicateBuilderTest : IClassFixture<PredicateTestFixture>
 {
-    PredicateTestFixture fixture;
+    private readonly PredicateTestFixture _fixture;
 
     public PredicateBuilderTest(PredicateTestFixture fixture)
     {
-        this.fixture = fixture;
+        _fixture = fixture;
     }
 
     [Fact]
@@ -19,8 +18,8 @@ public class PredicateBuilderTest : IClassFixture<PredicateTestFixture>
     public void Should_EmptyPredicateBuilder_ReturnAllOfItem()
     {
         // arrange
-        var users = fixture.Users;
-        var predicate = new PredicateBuilder<User>().Empty();
+        var users = _fixture.Accounts;
+        var predicate = new PredicateBuilder<FakeAccount>().Empty();
 
         // act
         var result = users.AsQueryable()
@@ -41,8 +40,8 @@ public class PredicateBuilderTest : IClassFixture<PredicateTestFixture>
     public void Should_FilterIdPredicate_ReturnUser(int id)
     {
         // arrange
-        var users = fixture.Users;
-        var predicate = new PredicateBuilder<User>().Where(q => q.Id == id);
+        var users = _fixture.Accounts;
+        var predicate = new PredicateBuilder<FakeAccount>(q => q.Id == id);
 
         // act
         var result = users.AsQueryable()
@@ -62,8 +61,8 @@ public class PredicateBuilderTest : IClassFixture<PredicateTestFixture>
     public void Should_FilterIdAndName_ReturnUser(int id, string name)
     {
         // arrange
-        var users = fixture.Users;
-        var predicate = new PredicateBuilder<User>().Where(q => q.Id == id && q.Name == name);
+        var users = _fixture.Accounts;
+        var predicate = new PredicateBuilder<FakeAccount>(q => q.Id == id && q.Name == name);
 
         // act
         var result = users.AsQueryable()
@@ -82,11 +81,11 @@ public class PredicateBuilderTest : IClassFixture<PredicateTestFixture>
     public void Should_CombineAndAlsoTwoExpression_ReturnUser(int id, string name)
     {
         // arrange
-        var users = fixture.Users;
-        Expression<Func<User, bool>> filterId = q => q.Id == id;
-        Expression<Func<User, bool>> filterName = q => q.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
+        var users = _fixture.Accounts;
+        Expression<Func<FakeAccount, bool>> filterId = q => q.Id == id;
+        Expression<Func<FakeAccount, bool>> filterName = q => q.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
 
-        var predicateAnd = new PredicateBuilder<User>().Where(filterId.AndAlso(filterName));
+        var predicateAnd = new PredicateBuilder<FakeAccount>(filterId.And(filterName));
 
         // act
         var result = users.AsQueryable()
@@ -105,11 +104,11 @@ public class PredicateBuilderTest : IClassFixture<PredicateTestFixture>
     public void Should_CombineAndAlsoTwoExpression_ReturnNull(int id, string name)
     {
         // arrange
-        var users = fixture.Users;
-        Expression<Func<User, bool>> filterId = q => q.Id == id;
-        Expression<Func<User, bool>> filterName = q => q.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
+        var users = _fixture.Accounts;
+        Expression<Func<FakeAccount, bool>> filterId = q => q.Id == id;
+        Expression<Func<FakeAccount, bool>> filterName = q => q.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
 
-        var predicateAnd = new PredicateBuilder<User>().Where(filterId.AndAlso(filterName));
+        var predicateAnd = new PredicateBuilder<FakeAccount>(filterId.And(filterName));
 
         // act
         var result = users.AsQueryable()
@@ -127,11 +126,11 @@ public class PredicateBuilderTest : IClassFixture<PredicateTestFixture>
     public void Should_CombineOr2Expression_ReturnUser(int id, string name)
     {
         // arrange
-        var users = fixture.Users;
-        Expression<Func<User, bool>> filterId = q => q.Id == id;
-        Expression<Func<User, bool>> filterName = q => q.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
+        var users = _fixture.Accounts;
+        Expression<Func<FakeAccount, bool>> filterId = q => q.Id == id;
+        Expression<Func<FakeAccount, bool>> filterName = q => q.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
 
-        var predicateOr = new PredicateBuilder<User>().Where(filterId.Or(filterName));
+        var predicateOr = new PredicateBuilder<FakeAccount>(filterId.Or(filterName));
 
         // act
         var result = users.AsQueryable().Where(predicateOr.Statement)
@@ -148,11 +147,11 @@ public class PredicateBuilderTest : IClassFixture<PredicateTestFixture>
     public void Should_CombineOr2Expression_ReturnNull(int id, string name)
     {
         // arrange
-        var users = fixture.Users;
-        Expression<Func<User, bool>> filterId = q => q.Id == id;
-        Expression<Func<User, bool>> filterName = q => q.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
+        var users = _fixture.Accounts;
+        Expression<Func<FakeAccount, bool>> filterId = q => q.Id == id;
+        Expression<Func<FakeAccount, bool>> filterName = q => q.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
 
-        var predicateOr = new PredicateBuilder<User>().Where(filterId.Or(filterName));
+        var predicateOr = new PredicateBuilder<FakeAccount>(filterId.Or(filterName));
 
         // act
         var result = users.AsQueryable().Where(predicateOr.Statement)
@@ -169,16 +168,16 @@ public class PredicateBuilderTest : IClassFixture<PredicateTestFixture>
     public void Should_CombineComplexOrWithAndExpression_ReturnUser(int id, string name)
     {
         // arrange
-        var users = fixture.Users;
-        Expression<Func<User, bool>> exprFalse = q => q.Name.Length > 10; // alway false
-        Expression<Func<User, bool>> exprId = q => q.Id == id;
-        Expression<Func<User, bool>> exprName = q => q.Name == name;
+        var users = _fixture.Accounts;
+        Expression<Func<FakeAccount, bool>> exprFalse = q => q.Name.Length > 10; // always false
+        Expression<Func<FakeAccount, bool>> exprId = q => q.Id == id;
+        Expression<Func<FakeAccount, bool>> exprName = q => q.Name == name;
 
-        var predBuilder = new PredicateBuilder<User>().Where(exprFalse.Or(exprId.AndAlso(exprName)));
+        var predicateBuilder = new PredicateBuilder<FakeAccount>(exprFalse.Or(exprId.And(exprName)));
 
         // act
         var result = users.AsQueryable()
-            .Where(predBuilder.Statement)
+            .Where(predicateBuilder.Statement)
             .FirstOrDefault();
 
         // assert

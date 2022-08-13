@@ -1,23 +1,48 @@
-﻿using EFCore.Persistence.Filter;
+﻿using System.Linq.Expressions;
 using SharedCommon.Domain;
-using System.Linq.Expressions;
+using SharedCommon.PredicateBuilder;
 
 namespace EFCore.Persistence.Abstracts;
 
-public interface IAsyncBaseRepository<TEntity, TKey>
+public interface IEfCoreBaseRepository<TEntity, TKey>
     where TEntity : class, IEntityBase<TKey>
 {
+    #region Upsert
+
+    /// <summary>
+    ///     Update or insert an entity
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<bool> Upsert(TEntity? entity, CancellationToken cancellationToken = default);
+
+    #endregion
+
+    #region Find and delete
+
+    /// <summary>
+    ///     Find and delete entity with predication definition
+    /// </summary>
+    /// <param name="predicateDefinition"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<TEntity?> FindAndDelete(PredicateBuilder<TEntity> predicateDefinition,
+        CancellationToken cancellationToken = default);
+
+    #endregion
+
     #region Insert
 
     /// <summary>
-    /// Insert one entity async
+    ///     Insert one entity async
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
     Task<TEntity?> InsertAsync(TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Insert one entity and project result
+    ///     Insert one entity and project result
     /// </summary>
     /// <typeparam name="TProject"></typeparam>
     /// <param name="entity"></param>
@@ -26,7 +51,7 @@ public interface IAsyncBaseRepository<TEntity, TKey>
         where TProject : class;
 
     /// <summary>
-    /// Insert multiple entity
+    ///     Insert multiple entity
     /// </summary>
     /// <param name="entities"></param>
     /// <returns></returns>
@@ -37,7 +62,7 @@ public interface IAsyncBaseRepository<TEntity, TKey>
     #region Update
 
     /// <summary>
-    /// Update an entity
+    ///     Update an entity
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="cancellationToken"></param>
@@ -45,7 +70,7 @@ public interface IAsyncBaseRepository<TEntity, TKey>
     Task<bool> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Update only one field of record
+    ///     Update only one field of record
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="update"></param>
@@ -58,25 +83,10 @@ public interface IAsyncBaseRepository<TEntity, TKey>
 
     #endregion
 
-    #region Upsert
-
-    /// <summary>
-    /// Update or insert an entity
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="statement"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task Upsert(TEntity entity,
-        Expression<Func<TEntity, object>> statement,
-        CancellationToken cancellationToken = default);
-
-    #endregion
-
     #region Delete
 
     /// <summary>
-    /// Delete entity async
+    ///     Delete entity async
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="cancellationToken"></param>
@@ -84,25 +94,12 @@ public interface IAsyncBaseRepository<TEntity, TKey>
     Task<bool> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Delete multiple entity
+    ///     Delete multiple entity
     /// </summary>
     /// <param name="predicateDefinition"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<bool> DeleteBatchAsync(IPredicateDefinition<TEntity> predicateDefinition,
-        CancellationToken cancellationToken = default);
-
-    #endregion
-
-    #region Find and delete
-
-    /// <summary>
-    /// Find and delete entity with predication definition
-    /// </summary>
-    /// <param name="predicateDefinition"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<TEntity?> FindAndDelete(IPredicateDefinition<TEntity> predicateDefinition,
+    Task<bool> DeleteBatchAsync(PredicateBuilder<TEntity> predicateDefinition,
         CancellationToken cancellationToken = default);
 
     #endregion

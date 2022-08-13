@@ -1,13 +1,11 @@
-﻿using SharedCommon.Commons.HttpResponse;
-
-namespace Identity.Application.Features.Queries.Profile;
+﻿namespace Identity.Application.Features.Queries.Profile;
 
 internal class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, JsonHttpResponse<GetProfileResultView>>
 {
-    private readonly IUserAccountRepository _userAccountRepository;
     private readonly IAccountAccessorService _accountAccessorService;
+    private readonly IUserAccountCoreRepository _userAccountRepository;
 
-    public GetProfileQueryHandler(IUserAccountRepository userAccountRepository,
+    public GetProfileQueryHandler(IUserAccountCoreRepository userAccountRepository,
         IAccountAccessorService accountAccessorService)
     {
         _userAccountRepository = userAccountRepository;
