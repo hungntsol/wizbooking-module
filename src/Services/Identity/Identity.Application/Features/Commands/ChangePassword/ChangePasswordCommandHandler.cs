@@ -1,15 +1,12 @@
-﻿using SharedCommon.Commons.HttpResponse;
-using SharedCommon.Commons.Logger;
-
-namespace Identity.Application.Features.Commands.ChangePassword;
+﻿namespace Identity.Application.Features.Commands.ChangePassword;
 
 public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, JsonHttpResponse<Unit>>
 {
-    private readonly IUserAccountRepository _userAccountRepository;
     private readonly IAccountAccessorService _accountAccessorService;
     private readonly ILoggerAdapter<ChangePasswordCommandHandler> _loggerAdapter;
+    private readonly IUserAccountCoreRepository _userAccountRepository;
 
-    public ChangePasswordCommandHandler(IUserAccountRepository userAccountRepository,
+    public ChangePasswordCommandHandler(IUserAccountCoreRepository userAccountRepository,
         IAccountAccessorService accountAccessorService, ILoggerAdapter<ChangePasswordCommandHandler> loggerAdapter)
     {
         _userAccountRepository = userAccountRepository;

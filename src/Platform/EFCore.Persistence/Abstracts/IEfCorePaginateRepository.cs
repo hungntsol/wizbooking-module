@@ -1,10 +1,10 @@
-﻿using EFCore.Persistence.Paging;
+﻿using System.Linq.Expressions;
+using EFCore.Persistence.Paging;
 using Microsoft.EntityFrameworkCore.Query;
-using System.Linq.Expressions;
 
 namespace EFCore.Persistence.Abstracts;
 
-public interface IAsyncPaginateRepository<T> where T : class
+public interface IEfCorePaginateRepository<T> where T : class
 {
     Task<IPaginate<T>> FindPaginateAsync(
         Expression<Func<T, bool>> predicate,

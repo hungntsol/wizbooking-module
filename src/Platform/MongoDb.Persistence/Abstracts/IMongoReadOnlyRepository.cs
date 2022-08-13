@@ -9,7 +9,7 @@ namespace MongoDb.Persistence.Abstracts;
 /// All of method here is only use for READ data from MongoDb
 /// </summary>
 /// <typeparam name="TEntity"></typeparam>
-public interface IAsyncReadOnlyRepository<TEntity> : IDisposable where TEntity : class
+public interface IMongoReadOnlyRepository<TEntity> : IDisposable where TEntity : class
 {
     #region Queryable & Aggregation
 
@@ -164,7 +164,6 @@ public interface IAsyncReadOnlyRepository<TEntity> : IDisposable where TEntity :
         CancellationToken cancellationToken = default) where TDerived : TEntity;
 
     #endregion
-
 
     #region Get
 

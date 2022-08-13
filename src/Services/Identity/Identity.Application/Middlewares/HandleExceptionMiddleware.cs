@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using SharedCommon.Exceptions.StatusCodes;
-using System.Text.Json;
-using SharedCommon.Commons.HttpResponse;
-using SharedCommon.Commons.Logger;
 
 namespace Identity.Application.Middlewares;
 
@@ -38,7 +36,7 @@ public sealed class HandleExceptionMiddleware : IMiddleware
         httpContext.Response.ContentType = "application/json";
         httpContext.Response.StatusCode = statusCode;
 
-        var options = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var json = JsonSerializer.Serialize(responseEx, options);
 
         await httpContext.Response.WriteAsync(json);

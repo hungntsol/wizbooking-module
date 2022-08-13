@@ -1,28 +1,25 @@
-﻿using EventBusMessage.Abstracts;
+﻿using System.Text.Json;
+using EventBusMessage.Abstracts;
 using Identity.Domain.Common;
 using Identity.Infrastructure.SettingOptions;
 using Microsoft.Extensions.Options;
-using SharedCommon.Commons.HttpResponse;
 using SharedCommon.Commons.JsonSerialization;
-using SharedCommon.Commons.Logger;
 using SharedCommon.Commons.Mailing;
 using SharedCommon.Commons.Mailing.Models;
 using SharedEventBus.Events;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Identity.Application.Features.Commands.ForgetPassword;
 
 public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswordCommand, JsonHttpResponse<Unit>>
 {
-    private readonly IUserAccountRepository _userAccountRepository;
-    private readonly IVerifiedUrlRepository _verifiedUrlRepository;
+    private const ushort TimeLifeOfUrlFromMinutes = 3;
+    private readonly DomainClientAppSetting _domainClientAppSetting;
     private readonly ILoggerAdapter<ForgetPasswordCommandCommandHandler> _loggerAdapter;
     private readonly IMessageProducer _messageProducer;
-    private readonly DomainClientAppSetting _domainClientAppSetting;
+    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IVerifiedUrlRepository _verifiedUrlRepository;
 
-    private const ushort TimeLifeOfUrlFromMinutes = 3;
-
-    public ForgetPasswordCommandCommandHandler(IUserAccountRepository userAccountRepository,
+    public ForgetPasswordCommandCommandHandler(IUserAccountCoreRepository userAccountRepository,
         IVerifiedUrlRepository verifiedUrlRepository,
         ILoggerAdapter<ForgetPasswordCommandCommandHandler> loggerAdapter,
         IMessageProducer messageProducer,
@@ -75,7 +72,7 @@ public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswor
     private static SendMailEventBusMessage NewRecoverPasswordEventBusMessage(VerifiedUrl? addVerifyUrl,
         ResetAccountMailModel resetAccountMailModel)
     {
-        var recoverPasswordEventBusMessage = new SendMailEventBusMessage()
+        var recoverPasswordEventBusMessage = new SendMailEventBusMessage
         {
             From = "WizBooking <noreply-auth@wizbooking.com>",
             To = addVerifyUrl!.Email,

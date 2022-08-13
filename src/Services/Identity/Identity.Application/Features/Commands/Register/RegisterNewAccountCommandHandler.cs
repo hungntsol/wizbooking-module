@@ -4,7 +4,6 @@ using Identity.Domain.Common;
 using Identity.Infrastructure.Persistence;
 using Identity.Infrastructure.SettingOptions;
 using Microsoft.Extensions.Options;
-using SharedCommon.Commons.HttpResponse;
 using SharedCommon.Commons.JsonSerialization;
 using SharedCommon.Commons.Mailing;
 using SharedCommon.Commons.Mailing.Models;
@@ -15,13 +14,13 @@ namespace Identity.Application.Features.Commands.Register;
 internal sealed class
     RegisterNewAccountCommandHandler : IRequestHandler<RegisterNewAccountCommand, JsonHttpResponse<Unit>>
 {
-    private readonly IUserAccountRepository _userAccountRepository;
-    private readonly IVerifiedUrlRepository _verifiedUrlRepository;
-    private readonly IUnitOfWork<IdentityDataContext> _unitOfWork;
-    private readonly IMessageProducer _messageProducer;
     private readonly DomainClientAppSetting _domainClientAppSetting;
+    private readonly IMessageProducer _messageProducer;
+    private readonly IUnitOfWork<IdentityDataContext> _unitOfWork;
+    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IVerifiedUrlRepository _verifiedUrlRepository;
 
-    public RegisterNewAccountCommandHandler(IUserAccountRepository userAccountRepository,
+    public RegisterNewAccountCommandHandler(IUserAccountCoreRepository userAccountRepository,
         IUnitOfWork<IdentityDataContext> unitOfWork,
         IMessageProducer messageProducer,
         IOptions<DomainClientAppSetting> domainClientAppSettingOption,
@@ -82,13 +81,13 @@ internal sealed class
 
     private SendMailEventBusMessage CreateEventBusMessage(UserAccount newUser, string verifyAppCode)
     {
-        var eventModel = new ConfirmAccountMailModel()
+        var eventModel = new ConfirmAccountMailModel
         {
             ConfirmUrl = _domainClientAppSetting.Url() + "/auth/confirm/me?appCode=" + verifyAppCode,
             ResendUrl = _domainClientAppSetting.Url() + "/auth/confirm/resend?account=" + newUser.Email
         };
 
-        return new SendMailEventBusMessage()
+        return new SendMailEventBusMessage
         {
             To = newUser.Email,
             From = "WizBooking <noreply-auth@wizbooking.com>",

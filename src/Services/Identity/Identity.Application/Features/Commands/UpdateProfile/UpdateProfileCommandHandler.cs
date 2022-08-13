@@ -5,11 +5,11 @@ namespace Identity.Application.Features.Commands.UpdateProfile;
 
 internal class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, JsonHttpResponse<Unit>>
 {
-    private readonly IUserAccountRepository _userAccountRepository;
     private readonly IAccountAccessorService _accountAccessorService;
     private readonly IMapper _mapper;
+    private readonly IUserAccountCoreRepository _userAccountRepository;
 
-    public UpdateProfileCommandHandler(IUserAccountRepository userAccountRepository,
+    public UpdateProfileCommandHandler(IUserAccountCoreRepository userAccountRepository,
         IAccountAccessorService accountAccessorService, IMapper mapper)
     {
         _userAccountRepository = userAccountRepository;
@@ -21,10 +21,7 @@ internal class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileComman
     {
         var account = await _userAccountRepository.FindOneAsync(q => q.Email.Equals(_accountAccessorService.GetEmail()),
             cancellationToken);
-        if (account is null)
-        {
-            throw new Exception();
-        }
+        if (account is null) throw new Exception();
 
         _mapper.Map(request, account);
 

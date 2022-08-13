@@ -1,14 +1,10 @@
 ﻿using Identity.Application.Features.Queries.Profile;
 using Microsoft.AspNetCore.Http;
-using SharedCommon.Commons.HttpResponse;
-using SharedCommon.Commons.Logger;
 
 namespace Identity.Application.Features.Commands.Login;
 
 public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, JsonHttpResponse<LoginCommandViewResult>>
 {
-    private readonly IUserAccountRepository _userAccountRepository;
-    private readonly ILoggerAdapter<LoginCommandHandler> _loggerAdapter;
     private readonly IAuthService _authService;
 
     private readonly JsonHttpResponse<LoginCommandViewResult> _failedLogin = new()
@@ -20,7 +16,10 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, JsonHttp
         Errors = default
     };
 
-    public LoginCommandHandler(IUserAccountRepository userAccountRepository, IAuthService authService,
+    private readonly ILoggerAdapter<LoginCommandHandler> _loggerAdapter;
+    private readonly IUserAccountCoreRepository _userAccountRepository;
+
+    public LoginCommandHandler(IUserAccountCoreRepository userAccountRepository, IAuthService authService,
         ILoggerAdapter<LoginCommandHandler> loggerAdapter)
     {
         _userAccountRepository = userAccountRepository;
@@ -35,7 +34,9 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, JsonHttp
 
         var account = await _userAccountRepository.FindOneAsync(q => q.Email.Equals(request.Email), cancellationToken);
         if (account is null || !account.ValidatePassword(request.Password))
+        {
             return _failedLogin;
+        }
 
         if (!account.IsValid())
         {
