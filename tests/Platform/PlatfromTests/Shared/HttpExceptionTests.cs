@@ -2,9 +2,9 @@
 using SharedCommon.Exceptions.StatusCodes._400;
 using SharedCommon.Exceptions.StatusCodes._500;
 
-namespace PlatfromTests.Shared;
+namespace PlatformTests.Shared;
 
-[Collection("HttpException")]
+[Collection("HttpException Test")]
 public class HttpExceptionTests
 {
     [Fact]
@@ -93,7 +93,7 @@ public class HttpExceptionTests
 
         // assert
         var ex = Assert.Throws<CustomHttpBaseException>(act);
-        Assert.Equal("Custom message", ex.Message, ignoreCase: true);
+        Assert.Equal("Custom message", ex.Message, true);
         Assert.Equal(1000, ex.HttpCode);
     }
 }

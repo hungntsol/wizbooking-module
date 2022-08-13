@@ -26,4 +26,8 @@
     <ProjectReference Include="..\..\..\src\Platform\SharedCommon\SharedCommon.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="PredicateBuilder\Predicate\" />
+  </ItemGroup>
+
 </Project>
