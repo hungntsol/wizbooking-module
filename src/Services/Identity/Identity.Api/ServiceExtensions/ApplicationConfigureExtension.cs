@@ -5,7 +5,7 @@ using Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using SharedCommon.Commons.Logger;
+using SharedCommon.Commons.LoggerAdapter;
 
 namespace Identity.Api.ServiceExtensions;
 
@@ -69,7 +69,7 @@ public static class ApplicationConfigureExtension
     }
 
     /// <summary>
-    /// Migrate database to latest version if it is not yet updated.
+    ///     Migrate database to latest version if it is not yet updated.
     /// </summary>
     /// <param name="app"></param>
     /// <returns></returns>

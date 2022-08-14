@@ -7,5 +7,5 @@ global using Identity.Infrastructure.Services.Abstracts;
 global using Mapster;
 global using SharedCommon.Exceptions.StatusCodes._500;
 global using SharedCommon.Commons.HttpResponse;
-global using SharedCommon.Commons.Logger;
+global using SharedCommon.Commons.LoggerAdapter;
 global using SharedCommon.PredicateBuilder;

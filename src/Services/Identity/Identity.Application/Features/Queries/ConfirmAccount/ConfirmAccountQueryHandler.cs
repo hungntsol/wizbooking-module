@@ -28,7 +28,8 @@ public class ConfirmAccountQueryHandler : IRequestHandler<ConfirmAccountQuery, J
         var predicateBuilder =
             new PredicateBuilder<VerifiedUrl>(q =>
                 q.AppCode.Equals(request.AppCode) && q.Target.Equals(VerifiedUrlTargetConstant.ConfirmEmail));
-        var verifyUrl = await _verifiedUrlRepository.FindAndDelete(predicateBuilder, cancellationToken);
+        var verifyUrl =
+            await _verifiedUrlRepository.FindAndDelete(predicateBuilder, cancellationToken: cancellationToken);
 
         ArgumentNullException.ThrowIfNull(verifyUrl);
 
@@ -43,7 +44,7 @@ public class ConfirmAccountQueryHandler : IRequestHandler<ConfirmAccountQuery, J
         ArgumentNullException.ThrowIfNull(account);
 
         account.Activate();
-        await _userAccountRepository.UpdateAsync(account, cancellationToken);
+        await _userAccountRepository.UpdateAsync(account, cancellationToken: cancellationToken);
 
         _loggerAdapter.LogInformation("Activate account {Email} at {Time}", account.Email, DateTime.UtcNow);
 

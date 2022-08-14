@@ -1,20 +1,19 @@
-﻿using Mailing.Worker.Abstracts;
+﻿using System.Net.Sockets;
+using Mailing.Worker.Abstracts;
 using Mailing.Worker.SettingOptions;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using Polly;
-using System.Net.Sockets;
-using SharedCommon.Commons.Logger;
 
 namespace Mailing.Worker.Services;
 
 internal class MailProviderConnection : IMailProviderConnection
 {
     private readonly MailProviderAppSetting _emailProviderSetting;
+    private readonly object _locker = new();
     private readonly ILoggerAdapter<MailProviderConnection> _logger;
 
     private ISmtpClient? _smtpClient;
-    private readonly object _locker = new();
 
     public MailProviderConnection(IOptions<MailProviderAppSetting> mailProviderSettingOptions,
         ILoggerAdapter<MailProviderConnection> logger)
@@ -31,7 +30,10 @@ internal class MailProviderConnection : IMailProviderConnection
         {
             _logger.LogWarning("SmtpClient is null, trying to reconnect");
 
-            if (TryConnect()) return _smtpClient!;
+            if (TryConnect())
+            {
+                return _smtpClient!;
+            }
 
             _logger.LogCritical("Can't connect to smtp server");
             throw new Exception();
@@ -71,7 +73,9 @@ internal class MailProviderConnection : IMailProviderConnection
         _smtpClient.Connect(_emailProviderSetting.Host, _emailProviderSetting.Port, secureSocketOpts);
 
         if (secureSocketOpts == SecureSocketOptions.None && _emailProviderSetting.LocalSmtp)
+        {
             return; // skip authenticate if in local development mode
+        }
 
         _smtpClient.Authenticate(_emailProviderSetting.Username, _emailProviderSetting.Password);
     }

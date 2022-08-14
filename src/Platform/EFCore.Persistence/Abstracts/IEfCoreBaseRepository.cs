@@ -15,7 +15,8 @@ public interface IEfCoreBaseRepository<TEntity, TKey>
     /// <param name="entity"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<bool> Upsert(TEntity? entity, CancellationToken cancellationToken = default);
+    Task<bool> Upsert(TEntity? entity,
+        CancellationToken cancellationToken = default);
 
     #endregion
 
@@ -38,16 +39,20 @@ public interface IEfCoreBaseRepository<TEntity, TKey>
     ///     Insert one entity async
     /// </summary>
     /// <param name="entity"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<TEntity?> InsertAsync(TEntity entity, CancellationToken cancellationToken = default);
+    Task<TEntity?> InsertAsync(TEntity entity,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Insert one entity and project result
     /// </summary>
     /// <typeparam name="TProject"></typeparam>
     /// <param name="entity"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<TProject?> InsertAsync<TProject>(TEntity entity, CancellationToken cancellationToken = default)
+    Task<TProject?> InsertAsync<TProject>(TEntity entity,
+        CancellationToken cancellationToken = default)
         where TProject : class;
 
     /// <summary>

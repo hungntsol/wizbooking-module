@@ -27,7 +27,7 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
         }
 
         account.SetPassword(request.NewPassword);
-        await _userAccountRepository.UpdateAsync(account, cancellationToken);
+        await _userAccountRepository.UpdateAsync(account, cancellationToken: cancellationToken);
 
         return JsonHttpResponse<Unit>.Ok(Unit.Value);
     }

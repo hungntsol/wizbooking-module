@@ -29,7 +29,7 @@ internal class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileComman
 
         try
         {
-            var updated = await _userAccountRepository.UpdateAsync(account, cancellationToken);
+            var updated = await _userAccountRepository.UpdateAsync(account, cancellationToken: cancellationToken);
             return JsonHttpResponse<Unit>.Ok(Unit.Value);
         }
         catch (Exception)

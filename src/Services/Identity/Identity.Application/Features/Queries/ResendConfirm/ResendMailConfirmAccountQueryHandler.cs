@@ -51,7 +51,7 @@ public class
             TimeSpan.FromMinutes(_authAppSetting.ConfirmLinkExpiredMinutes));
 
         await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
-        var added = await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken);
+        var added = await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken: cancellationToken);
 
         try
         {

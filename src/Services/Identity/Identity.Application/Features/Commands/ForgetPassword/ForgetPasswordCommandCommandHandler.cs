@@ -47,7 +47,8 @@ public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswor
 
         try
         {
-            var addVerifyUrl = await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken);
+            var addVerifyUrl =
+                await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken: cancellationToken);
 
             // send event to send email
             var resetAccountMailModel = NewResetAccountMailModel(newVerifyUrl);

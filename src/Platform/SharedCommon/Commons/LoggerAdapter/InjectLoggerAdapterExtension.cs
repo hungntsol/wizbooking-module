@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace SharedCommon.Commons.Logger;
+namespace SharedCommon.Commons.LoggerAdapter;
 
 public static class InjectLoggerAdapterExtension
 {

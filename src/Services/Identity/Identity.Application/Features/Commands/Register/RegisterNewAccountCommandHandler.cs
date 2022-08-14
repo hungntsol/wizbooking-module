@@ -11,7 +11,7 @@ using SharedEventBus.Events;
 
 namespace Identity.Application.Features.Commands.Register;
 
-internal sealed class
+public sealed class
     RegisterNewAccountCommandHandler : IRequestHandler<RegisterNewAccountCommand, JsonHttpResponse<Unit>>
 {
     private readonly AuthAppSetting _authAppSetting;
@@ -57,9 +57,12 @@ internal sealed class
             TimeSpan.FromMinutes(_authAppSetting.ConfirmLinkExpiredMinutes));
 
         await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
-        var addAccount = await _userAccountRepository.InsertAsync(newUser, cancellationToken);
+        var addAccount = await _userAccountRepository
+            .PublishEvent(true)
+            .InsertAsync(newUser, cancellationToken);
         var produceEventMessageTask = ProduceConfirmAccountMailEvent(newUser, newVerifyUrl.AppCode);
-        var addVerifiedUrl = await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken);
+        var addVerifiedUrl =
+            await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken);
 
         try
         {

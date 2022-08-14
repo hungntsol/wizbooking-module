@@ -1,8 +1,8 @@
-﻿using EventBusMessage.RabbitMQ.Settings;
+﻿using System.Net.Sockets;
+using EventBusMessage.RabbitMQ.Settings;
 using Polly;
 using RabbitMQ.Client.Exceptions;
-using System.Net.Sockets;
-using SharedCommon.Commons.Logger;
+using SharedCommon.Commons.LoggerAdapter;
 
 namespace EventBusMessage.RabbitMQ;
 
@@ -13,17 +13,16 @@ public class EventBusPersistence : IEventBusPersistence
 
     private readonly int _retryCount;
 
-    private IConnection? _connection;
-    private bool _disposed;
-
     private readonly object _syncRoot = new();
+
+    private bool _disposed;
 
     public EventBusPersistence(
         ILoggerAdapter<EventBusPersistence> logger,
         RabbitMQManagerSettings managerSettings)
     {
         _logger = logger;
-        _connectionFactory = new ConnectionFactory()
+        _connectionFactory = new ConnectionFactory
         {
             HostName = managerSettings.HostName,
             UserName = managerSettings.UserName,
@@ -34,7 +33,7 @@ public class EventBusPersistence : IEventBusPersistence
 
         try
         {
-            _connection = _connectionFactory.CreateConnection();
+            Connection = _connectionFactory.CreateConnection();
         }
         catch (Exception e)
         {
@@ -44,28 +43,7 @@ public class EventBusPersistence : IEventBusPersistence
         }
     }
 
-    public void Dispose()
-    {
-        if (!_disposed || IsConnected)
-            return;
-
-        _disposed = true;
-
-        try
-        {
-            _connection!.ConnectionBlocked -= OnConnectionBlocked;
-            _connection.ConnectionShutdown -= OnConnectionShutdown;
-            _connection.CallbackException -= OnCallbackException;
-            _connection.Dispose();
-        }
-        catch (Exception e)
-        {
-            _logger.LogCritical(e, "{Message}", e.Message);
-            throw;
-        }
-    }
-
-    public bool IsConnected => _connection is not null && _connection.IsOpen && !_disposed;
+    public bool IsConnected => Connection is not null && Connection.IsOpen && !_disposed;
 
     public bool TryConnect()
     {
@@ -81,17 +59,17 @@ public class EventBusPersistence : IEventBusPersistence
                         $"{time.TotalSeconds:n1}", ex.Message);
                 });
 
-            policy.Execute(() => { _connection = _connectionFactory.CreateConnection(); });
+            policy.Execute(() => { Connection = _connectionFactory.CreateConnection(); });
 
             if (IsConnected)
             {
-                _connection!.ConnectionShutdown += OnConnectionShutdown;
-                _connection.ConnectionBlocked += OnConnectionBlocked;
-                _connection.CallbackException += OnCallbackException;
+                Connection!.ConnectionShutdown += OnConnectionShutdown;
+                Connection.ConnectionBlocked += OnConnectionBlocked;
+                Connection.CallbackException += OnCallbackException;
 
                 _logger.LogInformation(
                     "RabbitMQ Client acquired a persistent connection to '{HostName}' and is subscribed to failure events",
-                    _connection.Endpoint.HostName);
+                    Connection.Endpoint.HostName);
 
                 return true;
             }
@@ -101,7 +79,7 @@ public class EventBusPersistence : IEventBusPersistence
         }
     }
 
-    public IConnection? Connection => _connection;
+    public IConnection? Connection { get; private set; }
 
     public IModel CreateChannel()
     {
@@ -111,13 +89,39 @@ public class EventBusPersistence : IEventBusPersistence
             throw new Exception();
         }
 
-        return _connection!.CreateModel();
+        return Connection!.CreateModel();
+    }
+
+    public void Dispose()
+    {
+        if (!_disposed || IsConnected)
+        {
+            return;
+        }
+
+        _disposed = true;
+
+        try
+        {
+            Connection!.ConnectionBlocked -= OnConnectionBlocked;
+            Connection.ConnectionShutdown -= OnConnectionShutdown;
+            Connection.CallbackException -= OnCallbackException;
+            Connection.Dispose();
+        }
+        catch (Exception e)
+        {
+            _logger.LogCritical(e, "{Message}", e.Message);
+            throw;
+        }
     }
 
     private void OnConnectionBlocked(object? sender, ConnectionBlockedEventArgs e)
     {
         if (_disposed)
+        {
             return;
+        }
+
         _logger.LogWarning("RabbitMQ connection is blocked. Trying to connect again");
 
         TryConnect();
@@ -126,7 +130,10 @@ public class EventBusPersistence : IEventBusPersistence
     private void OnConnectionShutdown(object? sender, ShutdownEventArgs e)
     {
         if (_disposed)
+        {
             return;
+        }
+
         _logger.LogWarning("RabbitMQ connection is shutdown. Trying to connect again");
 
         TryConnect();
@@ -135,7 +142,9 @@ public class EventBusPersistence : IEventBusPersistence
     private void OnCallbackException(object? sender, CallbackExceptionEventArgs e)
     {
         if (_disposed)
+        {
             return;
+        }
 
         _logger.LogWarning("RabbitMQ connection is broken. Trying to connect again");
         TryConnect();

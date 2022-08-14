@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using RazorLight;
-using SharedCommon.Commons.Logger;
 using SharedCommon.Exceptions.StatusCodes._500;
 
 namespace Mailing.Worker.Engine;

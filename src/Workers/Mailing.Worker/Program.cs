@@ -5,10 +5,8 @@ using Mailing.Worker.Engine;
 using Mailing.Worker.Services;
 using Mailing.Worker.SettingOptions;
 using RazorLight;
-using SharedCommon.Commons.Logger;
 
-
-IHost host = Host.CreateDefaultBuilder(args)
+var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostCtx, services) =>
     {
         services.InjectLoggerAdapter();
@@ -19,7 +17,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IMailingService, MailingService>();
 
         services.AddSingleton<IViewEngineRenderer, ViewEngineRenderer>();
-        services.AddSingleton<RazorLightEngine>(new RazorLightEngineBuilder()
+        services.AddSingleton(new RazorLightEngineBuilder()
             .UseMemoryCachingProvider()
             .UseFileSystemProject(Directory.GetCurrentDirectory())
             .EnableDebugMode()
