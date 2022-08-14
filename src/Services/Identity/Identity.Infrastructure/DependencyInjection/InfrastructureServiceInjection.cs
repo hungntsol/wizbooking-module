@@ -18,7 +18,6 @@ public static class InfrastructureServiceInjection
             options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30)),
                 builder => builder.MigrationsAssembly("Identity.Infrastructure"));
         });
-        services.AddUnitOfWork<IdentityDataContext>(Assembly.GetExecutingAssembly());
 
         services.AddRepositories();
         services.AddServices(configuration);

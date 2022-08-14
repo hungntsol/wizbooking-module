@@ -20,7 +20,7 @@ public static class InfrastructureServicesExtension
             }
         );
 
-        services.AddUnitOfWork<MeetingDataContext>(Assembly.GetExecutingAssembly());
+        services.RegisterEfCoreModule<MeetingDataContext>(Assembly.GetExecutingAssembly());
 
         return services;
     }
