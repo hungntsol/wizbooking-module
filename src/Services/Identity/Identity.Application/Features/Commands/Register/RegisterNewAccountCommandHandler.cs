@@ -58,7 +58,7 @@ public sealed class
 
         await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
         var addAccount = await _userAccountRepository
-            .PublishEvent(true)
+            .DispatchEvent(true)
             .InsertAsync(newUser, cancellationToken);
         var produceEventMessageTask = ProduceConfirmAccountMailEvent(newUser, newVerifyUrl.AppCode);
         var addVerifiedUrl =

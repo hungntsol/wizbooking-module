@@ -27,9 +27,9 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
         DbSet = DbContext.Set<TEntity>();
     }
 
-    public IEfCoreRepository<TEntity, TKey> PublishEvent(bool enable)
+    public IEfCoreRepository<TEntity, TKey> DispatchEvent(bool enable)
     {
-        Enable(enable);
+        EnableEvent(enable);
         return this;
     }
 
@@ -74,7 +74,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
             return false;
         }
 
-        _mediator.PipeIf(AllowPublish(),
+        _mediator.PipeIf(CanPublish(),
             mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Deleted, entity),
                 cancellationToken)));
         return true;
@@ -91,7 +91,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
             return false;
         }
 
-        _mediator.PipeIf(AllowPublish(),
+        _mediator.PipeIf(CanPublish(),
             mediator => Task.FromResult(mediator.Publish(
                 DomainEvent<TEntity>.New($"Batch{nameof(TEntity)}", DomainEventAction.Deleted),
                 cancellationToken)));
@@ -121,7 +121,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
         var entity = await DbSet.FindAsync(keyValues, cancellationToken)
             .ConfigureAwait(false);
 
-        if (AllowPublish())
+        if (CanPublish())
         {
             await _mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Queried, entity), cancellationToken);
         }
@@ -193,7 +193,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
             return null;
         }
 
-        _mediator.PipeIf(AllowPublish(),
+        _mediator.PipeIf(CanPublish(),
             mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Created, entity),
                 cancellationToken)));
         return entity;
@@ -211,7 +211,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
             return null;
         }
 
-        _mediator.PipeIf(AllowPublish(),
+        _mediator.PipeIf(CanPublish(),
             mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Created, entity),
                 cancellationToken)));
         return entity.Adapt<TProject>();
@@ -227,7 +227,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
             return false;
         }
 
-        _mediator.PipeIf(AllowPublish(),
+        _mediator.PipeIf(CanPublish(),
             mediator => Task.FromResult(
                 mediator.Publish(DomainEvent<TEntity>.New($"Batch{nameof(TEntity)}", DomainEventAction.Created))));
         return true;
@@ -248,7 +248,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
             return false;
         }
 
-        _mediator.PipeIf(AllowPublish(),
+        _mediator.PipeIf(CanPublish(),
             mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Updated, entity),
                 cancellationToken)));
 
@@ -266,7 +266,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
             return false;
         }
 
-        _mediator.PipeIf(AllowPublish(),
+        _mediator.PipeIf(CanPublish(),
             mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Updated, entity),
                 cancellationToken)));
         return true;

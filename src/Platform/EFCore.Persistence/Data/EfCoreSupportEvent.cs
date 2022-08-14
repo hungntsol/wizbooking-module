@@ -7,7 +7,7 @@ public abstract class EfCoreSupportEvent
 {
     private bool _isAllowPublish;
 
-    public void Enable(bool allow)
+    public void EnableEvent(bool allow)
     {
         _isAllowPublish = allow;
     }
@@ -16,7 +16,7 @@ public abstract class EfCoreSupportEvent
     ///     Decide whether publish notify or not. After checking the state will be reset
     /// </summary>
     /// <returns></returns>
-    public bool AllowPublish()
+    public bool CanPublish()
     {
         if (!_isAllowPublish)
         {
