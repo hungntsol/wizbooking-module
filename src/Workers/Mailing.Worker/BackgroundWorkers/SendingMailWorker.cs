@@ -1,6 +1,5 @@
 ﻿using EventBusMessage.Abstracts;
 using Mailing.Worker.Abstracts;
-using SharedCommon.Commons.Logger;
 using SharedCommon.Commons.Mailing;
 using SharedCommon.Commons.Mailing.Models;
 

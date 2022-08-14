@@ -12,24 +12,26 @@ namespace Identity.Application.Features.Commands.ForgetPassword;
 
 public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswordCommand, JsonHttpResponse<Unit>>
 {
-    private const ushort TimeLifeOfUrlFromMinutes = 3;
+    private readonly AuthAppSetting _authAppSetting;
     private readonly DomainClientAppSetting _domainClientAppSetting;
     private readonly ILoggerAdapter<ForgetPasswordCommandCommandHandler> _loggerAdapter;
     private readonly IMessageProducer _messageProducer;
-    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IUserAccountRepository _userAccountRepository;
     private readonly IVerifiedUrlRepository _verifiedUrlRepository;
 
-    public ForgetPasswordCommandCommandHandler(IUserAccountCoreRepository userAccountRepository,
+    public ForgetPasswordCommandCommandHandler(IUserAccountRepository userAccountRepository,
         IVerifiedUrlRepository verifiedUrlRepository,
         ILoggerAdapter<ForgetPasswordCommandCommandHandler> loggerAdapter,
         IMessageProducer messageProducer,
-        IOptions<DomainClientAppSetting> domainClientAppSettingOptions)
+        IOptions<DomainClientAppSetting> domainClientAppSettingOptions,
+        IOptions<AuthAppSetting> authAppSettingOption)
     {
         _userAccountRepository = userAccountRepository;
         _verifiedUrlRepository = verifiedUrlRepository;
         _loggerAdapter = loggerAdapter;
         _messageProducer = messageProducer;
         _domainClientAppSetting = domainClientAppSettingOptions.Value;
+        _authAppSetting = authAppSettingOption.Value;
     }
 
     public async Task<JsonHttpResponse<Unit>> Handle(ForgetPasswordCommand request,
@@ -41,11 +43,12 @@ public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswor
 
         var newVerifyUrl = VerifiedUrl.New(request.Email,
             VerifiedUrlTargetConstant.ResetAccount,
-            TimeSpan.FromMinutes(TimeLifeOfUrlFromMinutes));
+            TimeSpan.FromMinutes(_authAppSetting.ResetLinkExpiredMinutes));
 
         try
         {
-            var addVerifyUrl = await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken);
+            var addVerifyUrl =
+                await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken: cancellationToken);
 
             // send event to send email
             var resetAccountMailModel = NewResetAccountMailModel(newVerifyUrl);

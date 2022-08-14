@@ -4,15 +4,14 @@ using Mailing.Worker.SettingOptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using SharedCommon.Commons.Logger;
 
 namespace Mailing.Worker.Services;
 
 internal class MailingService : IMailingService
 {
-    private readonly IMailProviderConnection _providerConnection;
     private readonly ILoggerAdapter<MailingService> _logger;
     private readonly MailProviderAppSetting _mailProviderSetting;
+    private readonly IMailProviderConnection _providerConnection;
     private readonly IViewEngineRenderer _viewEngineRenderer;
 
     public MailingService(IMailProviderConnection providerConnection,
@@ -79,7 +78,7 @@ internal class MailingService : IMailingService
     public async Task SendEmailTemplateAsync<TModel>(SendMailEventBusMessage @event)
     {
         var html = await _viewEngineRenderer.RenderAsStringAsync<TModel>(@event.TemplateName, @event.TemplateModel);
-        await this.SendEmailAsync(
+        await SendEmailAsync(
             @event.To,
             @event.From,
             @event.Subject,

@@ -4,6 +4,7 @@ using Identity.Application.Features.Commands.Login;
 using Identity.Application.Features.Commands.Register;
 using Identity.Application.Features.Commands.ResetPassword;
 using Identity.Application.Features.Queries.ConfirmAccount;
+using Identity.Application.Features.Queries.ResendConfirm;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -56,5 +57,12 @@ public class AuthController : ApiV1ControllerBase
     public async Task<IActionResult> ConfirmAccount([FromQuery] ConfirmAccountQuery query)
     {
         return JsonReponse(await mediator.Send(query));
+    }
+
+    [HttpGet("/auth/confirm/resend")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResendConfirmMail([FromQuery] string account)
+    {
+        return JsonReponse(await mediator.Send(new ResendMailConfirmAccountQuery(account)));
     }
 }

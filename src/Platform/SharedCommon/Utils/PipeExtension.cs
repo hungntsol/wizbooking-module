@@ -9,9 +9,35 @@ public static class PipeExtension
         return next(@this);
     }
 
-    public static T Pipe<T>(this T @this, Action<T> action)
+    public static T Pipe<T>(this T @this, Action<T> next)
     {
-        action(@this);
+        next(@this);
+
+        return @this;
+    }
+
+    public static T PipeIf<T>(this T @this, bool condition, Action<T> next)
+    {
+        if (condition)
+        {
+            next(@this);
+        }
+
+        return @this;
+    }
+
+    public static T Pipe<T>(this T @this, Action next)
+    {
+        next();
+        return @this;
+    }
+
+    public static T PipeIf<T>(this T @this, bool condition, Action next)
+    {
+        if (condition)
+        {
+            next();
+        }
 
         return @this;
     }

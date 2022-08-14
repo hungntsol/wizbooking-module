@@ -6,10 +6,10 @@ public class ResetAccountCommandHandler : IRequestHandler<ResetAccountCommand, J
 {
     private readonly ILoggerAdapter<ResetAccountCommandHandler> _loggerAdapter;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IUserAccountRepository _userAccountRepository;
     private readonly IVerifiedUrlRepository _verifiedUrlRepository;
 
-    public ResetAccountCommandHandler(IUserAccountCoreRepository userAccountRepository,
+    public ResetAccountCommandHandler(IUserAccountRepository userAccountRepository,
         IVerifiedUrlRepository verifiedUrlRepository,
         ILoggerAdapter<ResetAccountCommandHandler> loggerAdapter,
         IUnitOfWork unitOfWork)
@@ -28,7 +28,8 @@ public class ResetAccountCommandHandler : IRequestHandler<ResetAccountCommand, J
 
         await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-        var verifyUrl = await _verifiedUrlRepository.FindAndDelete(predicateDefinition, cancellationToken);
+        var verifyUrl =
+            await _verifiedUrlRepository.FindAndDelete(predicateDefinition, cancellationToken: cancellationToken);
         ArgumentNullException.ThrowIfNull(verifyUrl);
 
         var user = await _userAccountRepository.FindOneAsync(q => q.Email.Equals(verifyUrl.Email), cancellationToken);
@@ -36,7 +37,7 @@ public class ResetAccountCommandHandler : IRequestHandler<ResetAccountCommand, J
 
 
         user.SetPassword(request.NewPassword);
-        var updatedAccount = await _userAccountRepository.UpdateAsync(user, cancellationToken);
+        var updatedAccount = await _userAccountRepository.UpdateAsync(user, cancellationToken: cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
 

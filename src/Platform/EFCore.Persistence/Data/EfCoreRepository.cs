@@ -1,24 +1,36 @@
 ﻿using System.Linq.Expressions;
 using EFCore.Persistence.Abstracts;
 using Mapster;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using SharedCommon.Domain;
 using SharedCommon.PredicateBuilder;
+using SharedCommon.Utils;
 
 namespace EFCore.Persistence.Data;
 
-public class EfCoreRepository<TEntity, TKey, TContext> : IEfCoreRepository<TEntity, TKey>
+public class EfCoreRepository<TEntity, TKey, TContext> :
+    EfCoreSupportEvent,
+    IEfCoreRepository<TEntity, TKey>
     where TContext : DbContext
     where TEntity : class, IEntityBase<TKey>
 {
+    private readonly IMediator _mediator;
     protected readonly TContext DbContext;
     protected readonly DbSet<TEntity> DbSet;
 
-    public EfCoreRepository(TContext context)
+    public EfCoreRepository(TContext context, IMediator mediator)
     {
         DbContext = context;
+        _mediator = mediator;
         DbSet = DbContext.Set<TEntity>();
+    }
+
+    public IEfCoreRepository<TEntity, TKey> PublishEvent(bool enable)
+    {
+        Enable(enable);
+        return this;
     }
 
     private static IQueryable<TEntity> BuildIQueryable(
@@ -51,17 +63,39 @@ public class EfCoreRepository<TEntity, TKey, TContext> : IEfCoreRepository<TEnti
 
     #region Delete
 
-    public async Task<bool> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         DbSet.Attach(entity).State = EntityState.Deleted;
-        return await DbContext.SaveChangesAsync(cancellationToken) > 0;
+        var saves = await DbContext.SaveChangesAsync(cancellationToken) > 0;
+
+        if (!saves)
+        {
+            return false;
+        }
+
+        _mediator.PipeIf(AllowPublish(),
+            mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Deleted, entity),
+                cancellationToken)));
+        return true;
     }
 
     public async Task<bool> DeleteBatchAsync(PredicateBuilder<TEntity> predicateBuilder,
         CancellationToken cancellationToken = default)
     {
         DbSet.RemoveRange(DbSet.Where(predicateBuilder.Statement).ToList());
-        return await DbContext.SaveChangesAsync(cancellationToken) > 0;
+        var saves = await DbContext.SaveChangesAsync(cancellationToken) > 0;
+
+        if (!saves)
+        {
+            return false;
+        }
+
+        _mediator.PipeIf(AllowPublish(),
+            mediator => Task.FromResult(mediator.Publish(
+                DomainEvent<TEntity>.New($"Batch{nameof(TEntity)}", DomainEventAction.Deleted),
+                cancellationToken)));
+        return true;
     }
 
     #endregion
@@ -84,9 +118,15 @@ public class EfCoreRepository<TEntity, TKey, TContext> : IEfCoreRepository<TEnti
 
     public async Task<TEntity?> FindOneAsync(object?[]? keyValues, CancellationToken cancellationToken = default)
     {
-        var entities = await DbSet.FindAsync(keyValues, cancellationToken)
+        var entity = await DbSet.FindAsync(keyValues, cancellationToken)
             .ConfigureAwait(false);
-        return entities;
+
+        if (AllowPublish())
+        {
+            await _mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Queried, entity), cancellationToken);
+        }
+
+        return entity;
     }
 
     public Task<TEntity?> FindOneAsync(PredicateBuilder<TEntity> predicateBuilder,
@@ -135,39 +175,46 @@ public class EfCoreRepository<TEntity, TKey, TContext> : IEfCoreRepository<TEnti
         return await BuildIQueryable(DbSet, include, asTracking, ignoreQueryFilters)
             .Where(predicate)
             .Select(selector)
-            .FirstOrDefaultAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     #endregion
 
     #region Insert
 
-    public async Task<TEntity?> InsertAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> InsertAsync(TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         await DbSet.AddAsync(entity, cancellationToken);
         var saves = await DbContext.SaveChangesAsync(cancellationToken);
 
-        if (saves > 0)
+        if (saves <= 0)
         {
-            return entity;
+            return null;
         }
 
-        return null;
+        _mediator.PipeIf(AllowPublish(),
+            mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Created, entity),
+                cancellationToken)));
+        return entity;
     }
 
-    public async Task<TProject?> InsertAsync<TProject>(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<TProject?> InsertAsync<TProject>(TEntity entity,
+        CancellationToken cancellationToken = default)
         where TProject : class
     {
         await DbSet.AddAsync(entity, cancellationToken);
         var saves = await DbContext.SaveChangesAsync(cancellationToken);
 
-        if (saves > 0)
+        if (saves <= 0)
         {
-            return entity.Adapt<TProject>();
+            return null;
         }
 
-        return null;
+        _mediator.PipeIf(AllowPublish(),
+            mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Created, entity),
+                cancellationToken)));
+        return entity.Adapt<TProject>();
     }
 
     public async Task<bool> InsertBatchAsync(IEnumerable<TEntity> entities)
@@ -175,63 +222,60 @@ public class EfCoreRepository<TEntity, TKey, TContext> : IEfCoreRepository<TEnti
         await DbSet.AddRangeAsync(entities);
         var saves = await DbContext.SaveChangesAsync();
 
-        return saves > 0;
+        if (saves <= 0)
+        {
+            return false;
+        }
+
+        _mediator.PipeIf(AllowPublish(),
+            mediator => Task.FromResult(
+                mediator.Publish(DomainEvent<TEntity>.New($"Batch{nameof(TEntity)}", DomainEventAction.Created))));
+        return true;
     }
 
     #endregion
 
     #region Update
 
-    public async Task<bool> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateAsync(TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         DbSet.Attach(entity).State = EntityState.Modified;
-        var save = await DbContext.SaveChangesAsync(cancellationToken);
+        var save = await DbContext.SaveChangesAsync(cancellationToken) > 0;
 
-        return save > 0;
+        if (!save)
+        {
+            return false;
+        }
+
+        _mediator.PipeIf(AllowPublish(),
+            mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Updated, entity),
+                cancellationToken)));
+
+        return true;
     }
 
     public async Task<bool> UpdateOneFieldAsync(TEntity entity, Expression<Func<TEntity, object>> update,
         CancellationToken cancellationToken = default)
     {
         DbSet.Attach(entity).Property(update).IsModified = true;
-        var save = await DbContext.SaveChangesAsync(cancellationToken);
+        var save = await DbContext.SaveChangesAsync(cancellationToken) > 0;
 
-        return save > 0;
+        if (!save)
+        {
+            return false;
+        }
+
+        _mediator.PipeIf(AllowPublish(),
+            mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Updated, entity),
+                cancellationToken)));
+        return true;
     }
 
-    public async Task<bool> Upsert(TEntity? entity, CancellationToken cancellationToken = default)
+    public Task<bool> Upsert(TEntity? entity,
+        CancellationToken cancellationToken = default)
     {
-        #region Leave condition
-
-        if (entity is null)
-        {
-            return false;
-        }
-
-        var entry = DbContext.Entry(entity);
-        var leaveStates = new[] { EntityState.Modified, EntityState.Unchanged, EntityState.Deleted };
-        if (leaveStates.Contains(entry.State))
-        {
-            return false;
-        }
-
-        #endregion
-
-        var entityKey = DbContext.GetEntityKey(entity);
-        if (entityKey is null)
-        {
-            entry.State = EntityState.Unchanged;
-            entityKey = DbContext.GetEntityKey(entity);
-        }
-
-        if (entityKey?.EntityKeyValues is null ||
-            entityKey.EntityKeyValues.Select(ekv => (int)ekv.Value).All(v => v <= 0))
-        {
-            entry.State = EntityState.Added;
-        }
-
-        var save = await DbContext.SaveChangesAsync(cancellationToken);
-        return save > 0;
+        throw new NotImplementedException();
     }
 
     #endregion

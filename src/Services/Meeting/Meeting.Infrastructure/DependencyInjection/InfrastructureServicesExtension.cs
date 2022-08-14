@@ -1,10 +1,12 @@
-﻿using EFCore.Persistence.DependencyInjection;
+﻿using System.Reflection;
+using EFCore.Persistence.DependencyInjection;
 using Meeting.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Meeting.Infrastructure.DependencyInjection;
+
 public static class InfrastructureServicesExtension
 {
     public static IServiceCollection AddInfrastructureService(this IServiceCollection services,
@@ -18,7 +20,7 @@ public static class InfrastructureServicesExtension
             }
         );
 
-        services.AddUnitOfWork<MeetingDataContext>();
+        services.AddUnitOfWork<MeetingDataContext>(Assembly.GetExecutingAssembly());
 
         return services;
     }

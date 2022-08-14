@@ -1,21 +1,21 @@
-﻿using EventBusMessage.Abstracts;
+﻿using System.Text;
+using EventBusMessage.Abstracts;
 using EventBusMessage.Events.Base;
 using EventBusMessage.RabbitMQ.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Text;
-using SharedCommon.Commons.Logger;
+using SharedCommon.Commons.LoggerAdapter;
 
 namespace EventBusMessage.RabbitMQ;
 
 public class EventBusQueueListener<T> : BackgroundService where T : IntegrationEventBase
 {
-    private readonly IMessageProducer _messageProducer;
-    private readonly IServiceProvider _serviceProvider;
     private readonly ILoggerAdapter<EventBusQueueListener<T>> _loggerAdapter;
+    private readonly IMessageProducer _messageProducer;
+    private readonly string _queueName;
     private readonly RabbitMQManagerSettings _rabbitMQManagerSettings;
     private readonly IEventBusPersistence _rabbitMQPersistence;
-    private readonly string _queueName;
+    private readonly IServiceProvider _serviceProvider;
 
     public EventBusQueueListener(
         IMessageProducer messagePublisher,

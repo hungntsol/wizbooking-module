@@ -7,4 +7,5 @@ public interface IEfCoreRepository<TEntity, TKey> :
     IEfCoreReadRepository<TEntity, TKey>
     where TEntity : class, IEntityBase<TKey>
 {
+    IEfCoreRepository<TEntity, TKey> PublishEvent(bool enable);
 }

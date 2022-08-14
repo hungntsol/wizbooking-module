@@ -1,22 +1,22 @@
-﻿using EventBusMessage.Abstracts;
+﻿using System.Text;
+using EventBusMessage.Abstracts;
 using EventBusMessage.Events.Base;
 using EventBusMessage.RabbitMQ.Settings;
-using System.Text;
-using SharedCommon.Commons.Logger;
+using SharedCommon.Commons.LoggerAdapter;
 
 namespace EventBusMessage.RabbitMQ;
 
 internal class EventBusManager : IMessageProducer
 {
     private const string MaxPriorityHeader = "x-max-priority";
+    private readonly ILoggerAdapter<EventBusManager> _logger;
+    private readonly EventBusQueueManager _queuesManager;
+    private readonly RabbitMQManagerSettings _rabbitMQManagerSettings;
+
+    private readonly IEventBusPersistence _rabbitMQPersistence;
 
 
     private IModel _channel = null!;
-
-    private readonly IEventBusPersistence _rabbitMQPersistence;
-    private readonly ILoggerAdapter<EventBusManager> _logger;
-    private readonly RabbitMQManagerSettings _rabbitMQManagerSettings;
-    private readonly EventBusQueueManager _queuesManager;
 
     public EventBusManager(IEventBusPersistence rabbitMQPersistence,
         RabbitMQManagerSettings rabbitMQManagerSettings,
@@ -44,12 +44,18 @@ internal class EventBusManager : IMessageProducer
         return _channel;
     }
 
-    public void MarkAsComplete(BasicDeliverEventArgs args) => _channel.BasicAck(args.DeliveryTag, false);
+    public void MarkAsComplete(BasicDeliverEventArgs args)
+    {
+        _channel.BasicAck(args.DeliveryTag, false);
+    }
 
-    public void MarkAsRejected(BasicDeliverEventArgs args) => _channel.BasicReject(args.DeliveryTag, false);
+    public void MarkAsRejected(BasicDeliverEventArgs args)
+    {
+        _channel.BasicReject(args.DeliveryTag, false);
+    }
 
     /// <summary>
-    /// Publishes a message to a queue.
+    ///     Publishes a message to a queue.
     /// </summary>
     /// <param name="body"></param>
     /// <param name="routingKey"></param>
@@ -70,7 +76,7 @@ internal class EventBusManager : IMessageProducer
     }
 
     /// <summary>
-    /// Init connection, channel
+    ///     Init connection, channel
     /// </summary>
     private void InitiateConnection()
     {
@@ -96,7 +102,7 @@ internal class EventBusManager : IMessageProducer
     }
 
     /// <summary>
-    /// Declare exchange for current channel
+    ///     Declare exchange for current channel
     /// </summary>
     private void ExchangeDeclare()
     {
@@ -112,13 +118,13 @@ internal class EventBusManager : IMessageProducer
     }
 
     /// <summary>
-    /// Declare queue and binding current channel.
+    ///     Declare queue and binding current channel.
     /// </summary>
     private void QueueDeclareAndBind()
     {
         foreach (var queue in _queuesManager.Queues)
         {
-            var args = new Dictionary<string, object>() { [MaxPriorityHeader] = 10 };
+            var args = new Dictionary<string, object> { [MaxPriorityHeader] = 10 };
 
             _channel.QueueDeclare(queue.name, true, false, false, args);
             _channel.QueueBind(queue.name, _rabbitMQManagerSettings.ExchangeName, queue.binding, null);

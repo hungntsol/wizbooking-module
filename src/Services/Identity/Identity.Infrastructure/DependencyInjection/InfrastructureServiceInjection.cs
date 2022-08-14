@@ -1,4 +1,5 @@
-﻿using EFCore.Persistence.DependencyInjection;
+﻿using System.Reflection;
+using EFCore.Persistence.DependencyInjection;
 using Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,8 +18,7 @@ public static class InfrastructureServiceInjection
             options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30)),
                 builder => builder.MigrationsAssembly("Identity.Infrastructure"));
         });
-
-        services.AddUnitOfWork<IdentityDataContext>();
+        services.AddUnitOfWork<IdentityDataContext>(Assembly.GetExecutingAssembly());
 
         services.AddRepositories();
         services.AddServices(configuration);

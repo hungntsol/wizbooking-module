@@ -1,18 +1,20 @@
-﻿using Identity.Application.Middlewares;
+﻿using System.Reflection;
+using Identity.Application.Middlewares;
 using Identity.Application.PipelineBehaviours;
 using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Identity.Application.DependencyInjection;
+
 public static class ApplicationServiceInjection
 {
     public static IServiceCollection InjectApplication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddMediatR(Assembly.GetExecutingAssembly());
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddMapster();
+        services.RegisterMapster();
+
+        services.AddMediatR(Assembly.GetExecutingAssembly());
 
         // pipeline
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
@@ -24,9 +26,9 @@ public static class ApplicationServiceInjection
         return services;
     }
 
-    private static IServiceCollection AddMapster(this IServiceCollection services)
+    private static IServiceCollection RegisterMapster(this IServiceCollection services)
     {
-        var config = new TypeAdapterConfig()
+        var config = new TypeAdapterConfig
         {
             RequireExplicitMapping = false,
             RequireDestinationMemberSource = false,

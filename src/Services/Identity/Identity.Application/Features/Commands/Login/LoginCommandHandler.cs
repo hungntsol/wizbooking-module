@@ -17,9 +17,9 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, JsonHttp
     };
 
     private readonly ILoggerAdapter<LoginCommandHandler> _loggerAdapter;
-    private readonly IUserAccountCoreRepository _userAccountRepository;
+    private readonly IUserAccountRepository _userAccountRepository;
 
-    public LoginCommandHandler(IUserAccountCoreRepository userAccountRepository, IAuthService authService,
+    public LoginCommandHandler(IUserAccountRepository userAccountRepository, IAuthService authService,
         ILoggerAdapter<LoginCommandHandler> loggerAdapter)
     {
         _userAccountRepository = userAccountRepository;
@@ -48,7 +48,9 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, JsonHttp
 
         account.LastLogin = DateTime.UtcNow;
         var updateLastLogin =
-            await _userAccountRepository.UpdateOneFieldAsync(account, q => q.LastLogin!, cancellationToken);
+            await _userAccountRepository.UpdateOneFieldAsync(account,
+                q => q.LastLogin!,
+                cancellationToken: cancellationToken);
 
         var loginResultView = new LoginCommandViewResult(
             _authService.GenerateAccessToken(account),
