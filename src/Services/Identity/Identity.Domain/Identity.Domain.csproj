@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Platform\Persistence.EfCore\Persistence.EfCore.csproj" />
     <ProjectReference Include="..\..\..\Platform\SharedCommon\SharedCommon.csproj" />
   </ItemGroup>
 

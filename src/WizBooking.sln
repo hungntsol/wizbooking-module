@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meeting.Application", "Serv
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Platform", "Platform", "{DED2DB58-B791-462F-B661-8290BA6C6E42}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Persistence", "Platform\EFCore.Persistence\EFCore.Persistence.csproj", "{3CB6E8F9-73D7-4A33-97CF-661D97A199AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence.EfCore", "Platform\Persistence.EfCore\Persistence.EfCore.csproj", "{3CB6E8F9-73D7-4A33-97CF-661D97A199AF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meeting.Infrastructure", "Services\Meeting\Meeting.Infrastructure\Meeting.Infrastructure.csproj", "{4234736E-8C4A-415C-95FB-F64097142119}"
 EndProject
@@ -47,7 +47,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mailing.Worker", "Workers\M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedEventBus", "Platform\SharedEventBus\SharedEventBus.csproj", "{FB23EE98-644C-480A-BAAE-6D923E2EF841}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDb.Persistence", "Platform\MongoDb.Persistence\MongoDb.Persistence.csproj", "{39D17F00-0214-4F55-A5FA-C555BD7AFD77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence.MongoDb", "Platform\Persistence.MongoDb\Persistence.MongoDb.csproj", "{39D17F00-0214-4F55-A5FA-C555BD7AFD77}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Persistence", "Persistence", "{9B085FC7-834A-410B-8021-BCDF4A3067D7}"
 EndProject

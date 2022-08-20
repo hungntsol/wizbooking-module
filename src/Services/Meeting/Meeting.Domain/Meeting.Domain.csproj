@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Platform\Persistence.MongoDb\Persistence.MongoDb.csproj" />
     <ProjectReference Include="..\..\..\Platform\SharedCommon\SharedCommon.csproj" />
   </ItemGroup>
 
