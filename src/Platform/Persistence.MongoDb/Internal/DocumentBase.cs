@@ -9,7 +9,7 @@ public class DocumentBase<TKey> : SupportPayloadEvent, IDocument<TKey>, ISupport
 {
 	[BsonId]
 	[BsonRepresentation(BsonType.ObjectId)]
-	public TKey Id { get; set; }
+	public TKey Id { get; set; } = default!;
 
 	public DateTime CreatedAt { get; set; }
 	public DateTime ModifiedAt { get; set; }
