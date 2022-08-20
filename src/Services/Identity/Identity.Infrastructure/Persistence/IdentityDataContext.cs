@@ -1,79 +1,75 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SharedCommon.Domain;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Persistence.EfCore.Internal;
 
 namespace Identity.Infrastructure.Persistence;
 
 public class IdentityDataContext : DbContext
 {
-    #region DbSet
+	private static readonly ILoggerFactory loggerFactory = LoggerFactory.Create(
+		builder =>
+		{
+			builder.AddFilter(DbLoggerCategory.Database.Command.Name, LogLevel.Information)
+				.AddFilter(DbLoggerCategory.Query.Name, LogLevel.Warning)
+				.AddConsole();
+		});
 
-    public DbSet<UserAccount> UserAccounts { get; set; } = null!;
-    public DbSet<VerifiedUrl> VerifiedUrls { get; set; } = null!;
+	public IdentityDataContext(DbContextOptions options) : base(options)
+	{
+	}
 
-    #endregion
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	{
+		base.OnConfiguring(optionsBuilder);
 
-    private static readonly ILoggerFactory loggerFactory = LoggerFactory.Create(
-        (builder) =>
-        {
-            builder.AddFilter(DbLoggerCategory.Database.Command.Name, LogLevel.Information)
-                .AddFilter(DbLoggerCategory.Query.Name, LogLevel.Warning)
-                .AddConsole();
-        });
+		optionsBuilder.UseLoggerFactory(loggerFactory)
+			.EnableSensitiveDataLogging();
+	}
 
-    public IdentityDataContext(DbContextOptions options) : base(options)
-    {
-    }
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+	{
+		base.OnModelCreating(modelBuilder);
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
+		ConfigureTableName(modelBuilder);
+		modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+	}
 
-        optionsBuilder.UseLoggerFactory(loggerFactory)
-            .EnableSensitiveDataLogging();
-    }
+	public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
+		CancellationToken cancellationToken = default)
+	{
+		foreach (var entry in ChangeTracker.Entries<EntityBase<ulong>>())
+		{
+			switch (entry.State)
+			{
+				case EntityState.Added:
+					entry.Entity.CreatedAt = DateTime.UtcNow;
+					break;
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
+				case EntityState.Modified:
+					entry.Entity.ModifiedAt = DateTime.UtcNow;
+					break;
+			}
+		}
 
-        ConfigureTableName(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-    }
+		return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+	}
 
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
-        CancellationToken cancellationToken = default)
-    {
-        foreach (var entry in ChangeTracker.Entries<EntityBase<ulong>>())
-        {
-            switch (entry.State)
-            {
-                case EntityState.Added:
-                    entry.Entity.CreatedAt = DateTime.UtcNow;
-                    break;
+	private static void ConfigureTableName(ModelBuilder modelBuilder)
+	{
+		foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+		{
+			var tblName = entityType.GetTableName();
+			if (tblName is not null && tblName.StartsWith("AspNet"))
+			{
+				entityType.SetTableName(tblName[6..]);
+			}
+		}
+	}
 
-                case EntityState.Modified:
-                    entry.Entity.ModifiedAt = DateTime.UtcNow;
-                    break;
+	#region DbSet
 
-                default:
-                    break;
-            }
-        }
+	public DbSet<UserAccount> UserAccounts { get; set; } = null!;
+	public DbSet<VerifiedUrl> VerifiedUrls { get; set; } = null!;
 
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-    }
-
-    private static void ConfigureTableName(ModelBuilder modelBuilder)
-    {
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            var tblName = entityType.GetTableName();
-            if (tblName is not null && tblName.StartsWith("AspNet"))
-            {
-                entityType.SetTableName(tblName[6..]);
-            }
-        }
-    }
+	#endregion
 }

@@ -9,6 +9,7 @@
   <ItemGroup>
     <Folder Include="Commons\JsonSerialization\" />
     <Folder Include="Commons\LoggerAdapter\" />
+    <Folder Include="Commons\Builder\" />
     <Folder Include="Commons\Notification\" />
     <Folder Include="RegisterModules\" />
   </ItemGroup>
