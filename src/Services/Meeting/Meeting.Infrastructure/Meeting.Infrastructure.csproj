@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Meeting.Domain\Meeting.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DependencyInjection\" />
+  </ItemGroup>
+
 </Project>

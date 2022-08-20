@@ -9,15 +9,15 @@ using SharedCommon.Commons.LoggerAdapter;
 
 namespace Persistence.MongoDb.Data;
 
-public class MongoDbContext : IMongoDbContext
+public abstract class MongoDbContext : IMongoDbContext
 {
 	private readonly List<Func<Task>> _commands;
 	private readonly MongoContextConfiguration _configuration;
 	private readonly object _lock = new();
-	private readonly LoggerAdapter<MongoDbContext> _loggerAdapter;
+	private readonly ILoggerAdapter<MongoDbContext> _loggerAdapter;
 	private readonly RetryPolicy _retryPolicy;
 
-	public MongoDbContext(MongoContextConfiguration configuration, LoggerAdapter<MongoDbContext> loggerAdapter)
+	public MongoDbContext(MongoContextConfiguration configuration, ILoggerAdapter<MongoDbContext> loggerAdapter)
 	{
 		_configuration = configuration;
 		_loggerAdapter = loggerAdapter;
@@ -85,6 +85,11 @@ public class MongoDbContext : IMongoDbContext
 		Configure();
 
 		return MongoDatabase!;
+	}
+
+	public virtual Task InternalCreateIndexesAsync(bool recreate = false)
+	{
+		return Task.CompletedTask;
 	}
 
 	private void Configure()
