@@ -1,7 +1,4 @@
-﻿using Persistence.MongoDb.Attribute;
-using Persistence.MongoDb.Internal;
-
-namespace Meeting.Domain.Entities;
+﻿namespace Meeting.Domain.Entities;
 
 [BsonCollection("scheduleInviteUrl")]
 public class ScheduleInviteUrl : DocumentBase<string>

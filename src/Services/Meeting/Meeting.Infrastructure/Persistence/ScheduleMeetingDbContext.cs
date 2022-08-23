@@ -1,22 +1,17 @@
-﻿using Meeting.Domain.Entities;
-using MongoDB.Driver;
-using Persistence.MongoDb.Data;
-using Persistence.MongoDb.Internal;
-using SharedCommon.Commons.LoggerAdapter;
-
-namespace Meeting.Infrastructure.Persistence;
+﻿namespace Meeting.Infrastructure.Persistence;
 
 public class ScheduleMeetingDbContext : MongoDbContext
 {
-	public ScheduleMeetingDbContext(MongoContextConfiguration configuration,
-		ILoggerAdapter<MongoDbContext> loggerAdapter) : base(configuration, loggerAdapter)
+	public ScheduleMeetingDbContext(MongoContextConfiguration contextConfiguration,
+		ILoggerAdapter<MongoDbContext> loggerAdapter) : base(contextConfiguration, loggerAdapter)
 	{
 	}
 
 	public override Task InternalCreateIndexesAsync(bool recreate = false)
 	{
 		Task.WhenAll(CreateScheduleInviteUrlIndexesAsync(recreate),
-			CreateScheduleMeetingIndexesAsync(recreate));
+			CreateScheduleMeetingIndexesAsync(recreate),
+			CreateUserHostServiceIndexesAsync(recreate));
 
 		return base.InternalCreateIndexesAsync(recreate);
 	}
@@ -53,5 +48,20 @@ public class ScheduleMeetingDbContext : MongoDbContext
 				new(Builders<ScheduleMeeting>.IndexKeys.Descending(doc => doc.GuestId)),
 				new(Builders<ScheduleMeeting>.IndexKeys.Descending(doc => doc.GuestId))
 			});
+	}
+
+	internal async Task CreateUserHostServiceIndexesAsync(bool recreate)
+	{
+		var collection = GetCollection<UserHostService>();
+		if (recreate)
+		{
+			await collection.Indexes.DropAllAsync();
+		}
+
+		await collection.Indexes.CreateManyAsync(new List<CreateIndexModel<UserHostService>>
+		{
+			new(Builders<UserHostService>.IndexKeys.Text(doc => doc.Name)),
+			new(Builders<UserHostService>.IndexKeys.Text(doc => doc.HostId))
+		});
 	}
 }

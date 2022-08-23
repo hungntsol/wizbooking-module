@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Persistence.EfCore.Abstracts;
 using SharedCommon.Domain;
+using SharedCommon.Exceptions;
 using SharedCommon.PredicateBuilder;
 using SharedCommon.Utils;
 
@@ -217,8 +218,10 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 		return entity.Adapt<TProject>();
 	}
 
-	public async Task<bool> InsertBatchAsync(IEnumerable<TEntity> entities)
+	public async Task<bool> InsertBatchAsync(IList<TEntity> entities)
 	{
+		NullOrEmptyArrayException.ThrowIfNullOrEmpty(entities);
+
 		await DbSet.AddRangeAsync(entities);
 		var saves = await DbContext.SaveChangesAsync();
 
@@ -229,7 +232,9 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 
 		_mediator.PipeIf(CanPublish(),
 			mediator => Task.FromResult(
-				mediator.Publish(DomainEvent<TEntity>.New($"Batch{nameof(TEntity)}", DomainEventAction.Created))));
+				mediator.Publish(DomainEvent<TEntity>.New($"Batch{nameof(TEntity)}",
+					DomainEventAction.Created,
+					entities.ToList()))));
 		return true;
 	}
 

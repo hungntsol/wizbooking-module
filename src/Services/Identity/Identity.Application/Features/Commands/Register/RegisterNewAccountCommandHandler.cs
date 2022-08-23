@@ -4,10 +4,9 @@ using Identity.Domain.Common;
 using Identity.Infrastructure.Persistence;
 using Identity.Infrastructure.SettingOptions;
 using Microsoft.Extensions.Options;
-using Persistence.EfCore.Abstracts;
 using SharedCommon.Commons.JsonSerialization;
-using SharedCommon.Commons.Mailing;
-using SharedCommon.Commons.Mailing.Models;
+using SharedCommon.Commons.MailingConstants;
+using SharedCommon.Commons.MailingConstants.Models;
 using SharedEventBus.Events;
 
 namespace Identity.Application.Features.Commands.Register;
@@ -57,7 +56,9 @@ public sealed class
 			VerifiedUrlTargetConstant.ConfirmEmail,
 			TimeSpan.FromMinutes(_authAppSetting.ConfirmLinkExpiredMinutes));
 
-		await using var tx = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+		// start tx
+		await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
 		var addAccount = await _userAccountRepository
 			.DispatchEvent(true)
 			.InsertAsync(newUser, cancellationToken);
@@ -68,11 +69,11 @@ public sealed class
 		try
 		{
 			await produceEventMessageTask.WaitAsync(cancellationToken);
-			await tx.CommitAsync(cancellationToken);
+			await transaction.CommitAsync(cancellationToken);
 		}
 		catch
 		{
-			await tx.RollbackAsync(cancellationToken);
+			await transaction.RollbackAsync(cancellationToken);
 			throw new InternalServerException();
 		}
 

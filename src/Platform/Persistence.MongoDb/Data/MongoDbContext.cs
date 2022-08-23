@@ -12,14 +12,14 @@ namespace Persistence.MongoDb.Data;
 public abstract class MongoDbContext : IMongoDbContext
 {
 	private readonly List<Func<Task>> _commands;
-	private readonly MongoContextConfiguration _configuration;
+	private readonly MongoContextConfiguration _contextConfiguration;
 	private readonly object _lock = new();
 	private readonly ILoggerAdapter<MongoDbContext> _loggerAdapter;
 	private readonly RetryPolicy _retryPolicy;
 
-	public MongoDbContext(MongoContextConfiguration configuration, ILoggerAdapter<MongoDbContext> loggerAdapter)
+	public MongoDbContext(MongoContextConfiguration contextConfiguration, ILoggerAdapter<MongoDbContext> loggerAdapter)
 	{
-		_configuration = configuration;
+		_contextConfiguration = contextConfiguration;
 		_loggerAdapter = loggerAdapter;
 		_commands = new List<Func<Task>>();
 
@@ -108,8 +108,10 @@ public abstract class MongoDbContext : IMongoDbContext
 		{
 			_retryPolicy.Execute(() =>
 			{
-				Client = new MongoClient(_configuration.Connection);
-				MongoDatabase = Client.GetDatabase(_configuration.DatabaseName);
+				Client = _contextConfiguration.ClientSettings is not null
+					? new MongoClient(_contextConfiguration.ClientSettings)
+					: new MongoClient(_contextConfiguration.Connection);
+				MongoDatabase = Client.GetDatabase(_contextConfiguration.DatabaseName);
 			});
 		}
 	}

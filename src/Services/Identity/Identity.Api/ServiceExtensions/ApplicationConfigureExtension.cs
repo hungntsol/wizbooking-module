@@ -1,11 +1,11 @@
 ﻿using Identity.Application.DependencyInjection;
-using Identity.Application.Middlewares;
 using Identity.Infrastructure.DependencyInjection;
 using Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SharedCommon.Commons.LoggerAdapter;
+using SharedCommon.Commons.Middelwares;
 
 namespace Identity.Api.ServiceExtensions;
 
@@ -36,7 +36,6 @@ public static class ApplicationConfigureExtension
 		services.InjectAuthentication(configuration);
 
 		services.AddEventBus(configuration);
-
 
 		return services;
 	}
@@ -73,18 +72,18 @@ public static class ApplicationConfigureExtension
 	/// </summary>
 	/// <param name="app"></param>
 	/// <returns></returns>
-	private static WebApplication MigrateAppDataContext(this WebApplication app)
+	private static void MigrateAppDataContext(this IHost app)
 	{
 		using var scope = app.Services.CreateScope();
 		var dataContext = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
 
-		if (!dataContext.Database.CanConnect())
+		if (dataContext.Database.CanConnect())
 		{
-			dataContext.Database.Migrate();
-			dataContext.Database.EnsureCreated();
+			return;
 		}
 
-		return app;
+		dataContext.Database.Migrate();
+		dataContext.Database.EnsureCreated();
 	}
 
 	private static OpenApiSecurityScheme DefineOpenApiSecuritySchema()
