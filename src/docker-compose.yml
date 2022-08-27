@@ -23,8 +23,11 @@ services:
             - "15000:443"
         environment:
             - "DbContext:ConnectionString=server=identity_db;port=3306;database=Identity;user=root;password=RootWiz@123;"
+        depends_on:
+            - identity_db
         networks:
             - services
+
 
 volumes:
     identity_data:

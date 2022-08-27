@@ -20,7 +20,6 @@
   <ItemGroup>
     <Folder Include="DependencyInjection\" />
     <Folder Include="Repositories\Abstracts\" />
-    <Folder Include="Services\Abstracts\" />
   </ItemGroup>
 
 </Project>

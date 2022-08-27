@@ -1,11 +1,12 @@
 ﻿using System.Reflection;
-using Identity.Infrastructure.Persistence;
+using FluentValidation;
+using Meeting.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Persistence.EfCore.DependencyInjection;
+using Persistence.MongoDb.DependencyInjection;
 using SharedCommon.RegisterModules;
 
-namespace Identity.Application.DependencyInjection;
+namespace Meeting.Application.DependencyInjection;
 
 public static class ApplicationServiceInjection
 {
@@ -13,7 +14,14 @@ public static class ApplicationServiceInjection
 		IConfiguration configuration)
 	{
 		services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-		services.RegisterEfCoreModule<IdentityDataContext>(Assembly.GetExecutingAssembly());
+		services.RegisterMongoDbModule<ScheduleMeetingDbContext>(
+			assembly: Assembly.GetExecutingAssembly(),
+			contextConfiguration: ctx =>
+			{
+				ctx.Connection = "mongodb://localhost:27017";
+				ctx.DatabaseName = "MeetingHdr";
+			});
+
 		services.RegisterHandleExceptionMiddlewareModule();
 		services.RegisterPipelineValidationBehaviorModule();
 

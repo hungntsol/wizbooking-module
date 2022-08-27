@@ -17,7 +17,8 @@ public abstract class MongoDbContext : IMongoDbContext
 	private readonly ILoggerAdapter<MongoDbContext> _loggerAdapter;
 	private readonly RetryPolicy _retryPolicy;
 
-	public MongoDbContext(MongoContextConfiguration contextConfiguration, ILoggerAdapter<MongoDbContext> loggerAdapter)
+	protected MongoDbContext(MongoContextConfiguration contextConfiguration,
+		ILoggerAdapter<MongoDbContext> loggerAdapter)
 	{
 		_contextConfiguration = contextConfiguration;
 		_loggerAdapter = loggerAdapter;
@@ -48,9 +49,16 @@ public abstract class MongoDbContext : IMongoDbContext
 		_commands.Add(func);
 	}
 
+	public async Task<IClientSessionHandle> GetSessionHandle()
+	{
+		OnConnect();
+
+		return SessionHandle ?? await Client!.StartSessionAsync();
+	}
+
 	public async Task<int> SaveChanges()
 	{
-		Configure();
+		OnConnect();
 
 		using (SessionHandle = await Client!.StartSessionAsync())
 		{
@@ -75,14 +83,14 @@ public abstract class MongoDbContext : IMongoDbContext
 
 	public IMongoCollection<TDocument> GetCollection<TDocument>() where TDocument : class, IDocument
 	{
-		Configure();
+		OnConnect();
 
 		return MongoDatabase!.GetCollection<TDocument>(GetCollectionName<TDocument>());
 	}
 
 	public IMongoDatabase GetDatabase()
 	{
-		Configure();
+		OnConnect();
 
 		return MongoDatabase!;
 	}
@@ -92,7 +100,7 @@ public abstract class MongoDbContext : IMongoDbContext
 		return Task.CompletedTask;
 	}
 
-	private void Configure()
+	private void OnConnect()
 	{
 		if (Client is not null)
 		{

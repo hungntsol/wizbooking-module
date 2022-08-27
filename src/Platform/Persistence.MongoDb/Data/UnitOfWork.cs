@@ -1,6 +1,6 @@
 ﻿using Persistence.MongoDb.Abstract;
 
-namespace Persistence.MongoDb.Internal;
+namespace Persistence.MongoDb.Data;
 
 public class UnitOfWork : IUnitOfWork
 {
