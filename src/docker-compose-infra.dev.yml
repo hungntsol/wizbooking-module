@@ -11,70 +11,31 @@ services:
         volumes:
             - identity_data:/var/lib/mysql
         networks:
-            - infrastructure
-            
+            - wizbooking_infra
+
     # meeting db (mongodb)
-    meeting_db_rs0:
-        image: mongo
+    meeting_db_primary:
+        image: bitnami/mongodb
+        extra_hosts:
+            - "localhost:0.0.0.0"
         ports:
-            - "27017:27017"
+            - 27017:27017
         restart: always
-        command: mongod --replSet meeting-cluster-set
+        environment:
+            - MONGODB_ADVERTISED_HOSTNAME=meeting_db_primary
+            - MONGODB_REPLICA_SET_MODE=primary
+            - MONGODB_REPLICA_SET_NAME=meeting_cluster
+            - MONGODB_REPLICA_SET_KEY=abc123
+            - MONGODB_ROOT_USER=root
+            - MONGODB_ROOT_PASSWORD=root@123
+        volumes:
+            - meeting_data:/data/db
         networks:
-            - infrastructure
-        
-    meeting_db_rs1:
-        image: mongo
-        ports:
-            - "27018:27017"
-        restart: always
-        command: mongod --replSet meeting-cluster-set
-        networks:
-            - infrastructure
-        
-    meeting_db_rs2:
-        image: mongo
-        ports:
-            - "27019:27017"
-        restart: always
-        command: mongod --replSet meeting-cluster-set
-        networks:
-            - infrastructure
-        
-    mongo_cluster_init:
-        image: mongo
-        restart: "no"
-        depends_on:
-            - meeting_db_rs0
-            - meeting_db_rs1
-            - meeting_db_rs2
-        command: > 
-            mongo --host meeting_db_rs0:27017 --eval
-                '
-                config = {
-                    "_id" : "meeting-cluster-set",
-                    "members" : [
-                        {
-                            "_id" : 0,
-                            "host" : "meeting_db_rs0:27017"
-                        },
-                        {
-                            "_id" : 1,
-                            "host" : "meeting_db_rs1:27017"
-                        },
-                        {
-                            "_id" : 2,
-                            "host" : "meeting_db_rs2:27017"
-                        }
-                    ]
-                };
-                rs.initiate(config)
-                '
-        networks:
-            - infrastructure
-    
+            - wizbooking_infra
+
 volumes:
     identity_data:
-    
+    meeting_data:
+
 networks:
-    infrastructure: {}
+    wizbooking_infra:
