@@ -60,7 +60,7 @@ public interface IEfCoreBaseRepository<TEntity, TKey>
 	/// </summary>
 	/// <param name="entities"></param>
 	/// <returns></returns>
-	Task<bool> InsertBatchAsync(IEnumerable<TEntity> entities);
+	Task<bool> InsertBatchAsync(IList<TEntity> entities);
 
 	#endregion
 

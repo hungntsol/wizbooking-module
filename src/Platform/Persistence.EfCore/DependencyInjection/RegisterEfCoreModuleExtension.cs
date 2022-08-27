@@ -16,7 +16,7 @@ public static class RegisterEfCoreModuleExtension
 		services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
 		services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
 		services.AddMediatR(assembly);
-		services.RegisterMapping();
+		services.RegisterMappingModule();
 
 		return services;
 	}

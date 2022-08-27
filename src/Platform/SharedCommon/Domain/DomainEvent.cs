@@ -4,45 +4,56 @@ namespace SharedCommon.Domain;
 
 public class DomainEvent<TEntity> : INotification where TEntity : class
 {
-    public DomainEvent()
-    {
-        Id = Guid.NewGuid();
-        CreatedAt = DateTime.UtcNow;
-    }
+	public IEnumerable<TEntity>? EventDataList = Enumerable.Empty<TEntity>();
 
-    public DomainEvent(string name, DomainEventAction action, TEntity? eventData = null) : this()
-    {
-        EventName = name;
-        EventAction = action;
-        EventData = eventData;
-    }
+	public DomainEvent()
+	{
+		Id = Guid.NewGuid();
+		CreatedAt = DateTime.UtcNow;
+	}
 
-    public DomainEvent(DomainEventAction action, TEntity? data = null) :
-        this(nameof(TEntity), action, data)
-    {
-    }
+	public DomainEvent(string name, DomainEventAction action, TEntity? eventData = null) : this()
+	{
+		EventName = name;
+		EventAction = action;
+		EventData = eventData;
+	}
 
-    public Guid Id { get; set; }
-    public string EventName { get; set; } = null!;
-    public DomainEventAction EventAction { get; set; }
-    public TEntity? EventData { get; set; }
-    public DateTime CreatedAt { get; set; }
+	public DomainEvent(DomainEventAction action, TEntity? data = null) :
+		this(nameof(TEntity), action, data)
+	{
+	}
 
-    public static DomainEvent<TEntity> New(DomainEventAction action, TEntity? data = null)
-    {
-        return new DomainEvent<TEntity>(action, data);
-    }
+	public Guid Id { get; set; }
+	public string EventName { get; set; } = null!;
+	public DomainEventAction EventAction { get; set; }
+	public TEntity? EventData { get; set; }
+	public DateTime CreatedAt { get; set; }
 
-    public static DomainEvent<TEntity> New(string eventName, DomainEventAction action, TEntity? data = null)
-    {
-        return new DomainEvent<TEntity>(eventName, action, data);
-    }
+	public static DomainEvent<TEntity> New(DomainEventAction action, TEntity? data = null)
+	{
+		return new DomainEvent<TEntity>(action, data);
+	}
+
+	public static DomainEvent<TEntity> New(string eventName, DomainEventAction action, TEntity? data = null)
+	{
+		return new DomainEvent<TEntity>(eventName, action, data);
+	}
+
+	public static DomainEvent<TEntity> New(string eventName, DomainEventAction action,
+		IEnumerable<TEntity>? dataList)
+	{
+		return new DomainEvent<TEntity>(eventName, action)
+		{
+			EventDataList = dataList
+		};
+	}
 }
 
 public enum DomainEventAction
 {
-    Queried,
-    Created,
-    Updated,
-    Deleted
+	Queried,
+	Created,
+	Updated,
+	Deleted
 }

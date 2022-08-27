@@ -2,27 +2,27 @@
 
 internal class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, JsonHttpResponse<GetProfileResultView>>
 {
-    private readonly IAccountAccessorService _accountAccessorService;
-    private readonly IUserAccountRepository _userAccountRepository;
+	private readonly IAccountAccessorContextService _accountAccessorContextService;
+	private readonly IUserAccountRepository _userAccountRepository;
 
-    public GetProfileQueryHandler(IUserAccountRepository userAccountRepository,
-        IAccountAccessorService accountAccessorService)
-    {
-        _userAccountRepository = userAccountRepository;
-        _accountAccessorService = accountAccessorService;
-    }
+	public GetProfileQueryHandler(IUserAccountRepository userAccountRepository,
+		IAccountAccessorContextService accountAccessorContextService)
+	{
+		_userAccountRepository = userAccountRepository;
+		_accountAccessorContextService = accountAccessorContextService;
+	}
 
-    public async Task<JsonHttpResponse<GetProfileResultView>> Handle(GetProfileQuery request,
-        CancellationToken cancellationToken)
-    {
-        var account =
-            await _userAccountRepository.FindOneAsync(q => q.Email == _accountAccessorService.GetEmail(),
-                cancellationToken);
+	public async Task<JsonHttpResponse<GetProfileResultView>> Handle(GetProfileQuery request,
+		CancellationToken cancellationToken)
+	{
+		var account =
+			await _userAccountRepository.FindOneAsync(q => q.Email == _accountAccessorContextService.GetEmail(),
+				cancellationToken);
 
-        ArgumentNullException.ThrowIfNull(account);
+		ArgumentNullException.ThrowIfNull(account);
 
-        var profile = account.Adapt<GetProfileResultView>();
+		var profile = account.Adapt<GetProfileResultView>();
 
-        return JsonHttpResponse<GetProfileResultView>.Ok(profile);
-    }
+		return JsonHttpResponse<GetProfileResultView>.Ok(profile);
+	}
 }

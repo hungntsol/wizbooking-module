@@ -1,8 +1,4 @@
-﻿using MongoDB.Bson;
-using Persistence.MongoDb.Attribute;
-using Persistence.MongoDb.Internal;
-
-namespace Meeting.Domain.Entities;
+﻿namespace Meeting.Domain.Entities;
 
 [BsonCollection("scheduleMeeting")]
 public class ScheduleMeeting : DocumentBase<string>

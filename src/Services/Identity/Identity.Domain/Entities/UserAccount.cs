@@ -80,12 +80,14 @@ public class UserAccount : EntityBase<ulong>
 	public static UserAccount New(string email, string rawPassword, string firstName, string lastName, string gender,
 		string role)
 	{
-		var user = new UserAccount();
+		var user = new UserAccount
+		{
+			Email = email,
+			NormalizeEmail = email.ToUpper(),
+			FirstName = firstName,
+			LastName = lastName
+		};
 
-		user.Email = email;
-		user.NormalizeEmail = email.ToUpper();
-		user.FirstName = firstName;
-		user.LastName = lastName;
 		user.SetPassword(rawPassword);
 		user.Gender = UserGenderTypes.IsDefined(gender) ? gender : UserGenderTypes.DEFAULT;
 		user.Role = UserRoleTypes.IsDefined(role) ? role : UserRoleTypes.DEFAULT;
@@ -124,7 +126,7 @@ public class UserAccount : EntityBase<ulong>
 	}
 
 	/// <summary>
-	/// Deactive account
+	/// DeActive account
 	/// </summary>
 	public void DeActive()
 	{
@@ -137,13 +139,11 @@ public class UserAccount : EntityBase<ulong>
 	public void Lock()
 	{
 		IsLocked = true;
-		DeActive();
 	}
 
 	public void UnLock()
 	{
 		IsLocked = false;
-		Activate();
 	}
 
 	/// <summary>
@@ -155,7 +155,7 @@ public class UserAccount : EntityBase<ulong>
 	}
 
 	/// <summary>
-	/// Whether this account is valid for enduser
+	/// Whether this account is valid for end-user
 	/// </summary>
 	/// <returns></returns>
 	public bool IsValid()

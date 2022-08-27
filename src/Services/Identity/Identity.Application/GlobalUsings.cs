@@ -9,3 +9,4 @@ global using SharedCommon.Commons.HttpResponse;
 global using SharedCommon.Commons.LoggerAdapter;
 global using SharedCommon.PredicateBuilder;
 global using Persistence.EfCore.Abstracts;
+global using SharedCommon.ServiceModules.AccountContext;

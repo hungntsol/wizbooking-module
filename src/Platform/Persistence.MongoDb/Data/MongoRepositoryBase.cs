@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using MediatR;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -10,10 +11,12 @@ public abstract class MongoRepositoryBase<TDocument> : IMongoRepository<TDocumen
 {
 	private readonly IMongoCollection<TDocument> _collection;
 	private readonly IMongoDbContext _context;
+	private readonly IMediator _mediator;
 
-	public MongoRepositoryBase(IMongoDbContext context)
+	protected MongoRepositoryBase(IMongoDbContext context, IMediator mediator)
 	{
 		_context = context;
+		_mediator = mediator;
 		_collection = _context.GetCollection<TDocument>();
 	}
 
@@ -21,6 +24,226 @@ public abstract class MongoRepositoryBase<TDocument> : IMongoRepository<TDocumen
 	{
 		_context.Dispose();
 		GC.SuppressFinalize(this);
+	}
+
+	public Task<TDocument> Upsert(Expression<Func<TDocument, bool>> predicate, TDocument document,
+		ReturnDocument returnDocument = ReturnDocument.After,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TDerived> Upsert<TDerived>(Expression<Func<TDerived, bool>> predicate, TDerived document,
+		ReturnDocument returnDocument = ReturnDocument.After,
+		CancellationToken cancellationToken = default) where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TDocument> Upsert(FilterDefinition<TDocument> predicate, TDocument document,
+		ReturnDocument returnDocument = ReturnDocument.After,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TDerived> Upsert<TDerived>(FilterDefinition<TDerived> predicate, TDerived document,
+		ReturnDocument returnDocument = ReturnDocument.After, CancellationToken cancellationToken = default)
+		where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public virtual Task InsertOneAsync(TDocument document, CancellationToken cancellationToken = default)
+	{
+		var commandTask = _collection.InsertOneAsync(document, null, cancellationToken);
+		_context.AddCommand(() => commandTask);
+		return Task.CompletedTask;
+	}
+
+	public Task InsertBatchAsync(IEnumerable<TDocument> documents, CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task InsertBatchAsync<TDerived>(IEnumerable<TDerived> documents,
+		CancellationToken cancellationToken = default) where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TProject> FindOrInsertAsync<TProject>(Expression<Func<TDocument, bool>> predicate, TDocument document,
+		Expression<Func<TDocument, TProject>>? projectExpression = null,
+		ReturnDocument returnDocument = ReturnDocument.After, CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TProject> FindOrInsertAsync<TDerived, TProject>(Expression<Func<TDerived, bool>> predicate,
+		TDerived document,
+		Expression<Func<TDerived, TProject>>? projectExpression = null,
+		ReturnDocument returnDocument = ReturnDocument.After,
+		CancellationToken cancellationToken = default) where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TProject> FindOrInsertAsync<TProject>(FilterDefinition<TDocument> predicate, TDocument document,
+		Expression<Func<TDocument, TProject>>? projectExpression = null,
+		ReturnDocument returnDocument = ReturnDocument.After, CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TProject> FindOrInsertAsync<TDerived, TProject>(FilterDefinition<TDerived> predicate, TDerived document,
+		ReturnDocument returnDocument = ReturnDocument.After, CancellationToken cancellationToken = default)
+		where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<UpdateResult> UpdateOneAsync(string id,
+		Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateFunc,
+		UpdateOptions? updateOptions = null,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<UpdateResult> UpdateOneAsync<TDerived>(string id,
+		Func<UpdateDefinitionBuilder<TDerived>, UpdateDefinition<TDerived>> updateFunc,
+		UpdateOptions? updateOptions = null,
+		CancellationToken cancellationToken = default) where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<UpdateResult> UpdateOneAsync(Expression<Func<TDocument, bool>> predicate,
+		Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateFunc,
+		UpdateOptions? updateOptions = null,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<UpdateResult> UpdateOneAsync<TDerived>(Expression<Func<TDerived, bool>> predicate,
+		Func<UpdateDefinitionBuilder<TDerived>, UpdateDefinition<TDerived>> updateFunc,
+		UpdateOptions? updateOptions = null,
+		CancellationToken cancellationToken = default) where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> predicate,
+		Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateFunc,
+		UpdateOptions? updateOptions = null,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<UpdateResult> UpdateOneAsync<TDerived>(FilterDefinition<TDerived> predicate,
+		Func<UpdateDefinitionBuilder<TDerived>, UpdateDefinition<TDerived>> updateFunc,
+		UpdateOptions? updateOptions = null,
+		CancellationToken cancellationToken = default) where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TProject> FindAndUpdateAsync<TProject>(Expression<Func<TDocument, bool>> predicate,
+		Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateFunc,
+		Expression<Func<TDocument, TProject>> projectExpression,
+		ReturnDocument returnDocument = ReturnDocument.After, CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TProject> FindAndUpdateAsync<TDerived, TProject>(Expression<Func<TDerived, bool>> predicate,
+		Func<UpdateDefinitionBuilder<TDerived>, UpdateDefinition<TDerived>> updateFunc,
+		Expression<Func<TDerived, TProject>> projectExpression,
+		ReturnDocument returnDocument = ReturnDocument.After, CancellationToken cancellationToken = default)
+		where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TProject> FindAndUpdateAsync<TProject>(FilterDefinition<TDocument> predicate,
+		Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> updateFunc,
+		Expression<Func<TDocument, TProject>> projectExpression,
+		ReturnDocument returnDocument = ReturnDocument.After, CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TProject> FindAndUpdateAsync<TDerived, TProject>(FilterDefinition<TDerived> predicate,
+		Func<UpdateDefinitionBuilder<TDerived>, UpdateDefinition<TDerived>> updateFunc,
+		Expression<Func<TDerived, TProject>> projectExpression,
+		ReturnDocument returnDocument = ReturnDocument.After, CancellationToken cancellationToken = default)
+		where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<DeleteResult> DeleteOneAsync(string id, CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<DeleteResult> DeleteOneAsync(Expression<Func<TDocument, bool>> predicate,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<DeleteResult> DeleteOneAsync<TDerived>(Expression<Func<TDerived, bool>> predicate,
+		CancellationToken cancellationToken = default) where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> predicate,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<DeleteResult> DeleteOneAsync<TDerived>(FilterDefinition<TDerived> predicate,
+		CancellationToken cancellationToken = default) where TDerived : TDocument
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TDocument> FindAndDeleteAsync(string id, CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TDocument> FindAndDeleteAsync(Expression<Func<TDocument, bool>> predicate,
+		FindOneAndDeleteOptions<TDocument>? options = null,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TDocument> FindAndDeleteAsync(FilterDefinition<TDocument> predicate,
+		FindOneAndDeleteOptions<TDocument>? options = null,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TDerived> FindAndDeleteAsync<TDerived>(Expression<Func<TDerived, bool>> predicate,
+		FindOneAndDeleteOptions<TDerived>? options = null,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<TDerived> FindAndDeleteAsync<TDerived>(FilterDefinition<TDerived> predicate,
+		FindOneAndDeleteOptions<TDerived>? options = null,
+		CancellationToken cancellationToken = default)
+	{
+		throw new NotImplementedException();
 	}
 
 	#region Get

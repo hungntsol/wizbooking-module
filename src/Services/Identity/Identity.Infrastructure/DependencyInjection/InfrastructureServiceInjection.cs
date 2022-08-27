@@ -1,4 +1,8 @@
 ﻿using Identity.Infrastructure.Persistence;
+using Identity.Infrastructure.Repositories;
+using Identity.Infrastructure.Repositories.Abstracts;
+using Identity.Infrastructure.Services;
+using Identity.Infrastructure.Services.Abstracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,5 +26,16 @@ public static class InfrastructureServiceInjection
 		services.AddAppSettingOptions(configuration);
 
 		return services;
+	}
+
+	private static void AddServices(this IServiceCollection services, IConfiguration configuration)
+	{
+		services.AddTransient<IAuthService, AuthService>();
+	}
+
+	private static void AddRepositories(this IServiceCollection services)
+	{
+		services.AddTransient<IUserAccountRepository, UserAccountRepository>();
+		services.AddTransient<IVerifiedUrlRepository, VerifiedUrlRepository>();
 	}
 }

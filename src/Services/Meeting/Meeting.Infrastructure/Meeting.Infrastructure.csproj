@@ -17,4 +17,10 @@
     <ProjectReference Include="..\Meeting.Domain\Meeting.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DependencyInjection\" />
+    <Folder Include="Repositories\Abstracts\" />
+    <Folder Include="Services\Abstracts\" />
+  </ItemGroup>
+
 </Project>

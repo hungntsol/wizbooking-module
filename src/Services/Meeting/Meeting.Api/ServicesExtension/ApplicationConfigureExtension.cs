@@ -1,4 +1,7 @@
-﻿namespace Meeting.Api.ServicesExtension;
+﻿using Meeting.Infrastructure.DependencyInjection;
+using SharedCommon.Commons.LoggerAdapter;
+
+namespace Meeting.Api.ServicesExtension;
 
 public static class ApplicationConfigureExtension
 {
@@ -11,6 +14,9 @@ public static class ApplicationConfigureExtension
 		services.AddEndpointsApiExplorer();
 		services.AddSwaggerGen();
 
+		services.RegisterLoggerAdapter();
+
+		services.InjectInfrastructure(configuration);
 
 		return services;
 	}
@@ -29,7 +35,6 @@ public static class ApplicationConfigureExtension
 		app.UseAuthorization();
 
 		app.MapControllers();
-
 		return app;
 	}
 }
