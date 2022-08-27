@@ -11,7 +11,7 @@ namespace Identity.Infrastructure.DependencyInjection;
 
 public static class InfrastructureServiceInjection
 {
-	public static IServiceCollection InjectInfrastructure(this IServiceCollection services,
+	public static IServiceCollection InjectInfrastructureLayer(this IServiceCollection services,
 		IConfiguration configuration)
 	{
 		services.AddDbContext<IdentityDataContext>(options =>

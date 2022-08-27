@@ -1,0 +1,36 @@
+version: '3.4'
+
+services:
+    #identity service
+    identity_db:
+        image: mysql
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=RootWiz@123
+        volumes:
+            - identity_data:/var/lib/mysql
+        networks:
+            - services
+
+    identity_api:
+        image: ${DOCKER_REGISTRY-}identity_api
+        build:
+            context: .
+            dockerfile: Services/Identity/Identity.Api/Dockerfile
+        ports:
+            - "5000:80"
+            - "15000:443"
+        environment:
+            - "DbContext:ConnectionString=server=identity_db;port=3306;database=Identity;user=root;password=RootWiz@123;"
+        depends_on:
+            - identity_db
+        networks:
+            - services
+
+
+volumes:
+    identity_data:
+
+networks:
+    services: {}

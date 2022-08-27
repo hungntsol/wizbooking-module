@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SharedCommon.Commons.HttpResponse;
 
-namespace Identity.Api.Controllers;
+namespace Meeting.Api.Controllers;
 
 [ApiController]
 [Route("v1/api/[controller]")]

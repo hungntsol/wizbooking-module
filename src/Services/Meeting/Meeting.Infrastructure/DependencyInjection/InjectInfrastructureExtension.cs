@@ -1,7 +1,8 @@
-﻿using Meeting.Infrastructure.Persistence;
-using Meeting.Infrastructure.Persistence.Mapping;
+﻿using Meeting.Infrastructure.Persistence.Mapping;
 using Meeting.Infrastructure.Repositories;
 using Meeting.Infrastructure.Repositories.Abstracts;
+using Meeting.Infrastructure.Services;
+using Meeting.Infrastructure.Services.Abstracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.MongoDb.DependencyInjection;
@@ -16,15 +17,14 @@ public static class InjectInfrastructureExtension
 	/// <param name="services"></param>
 	/// <param name="configuration"></param>
 	/// <returns></returns>
-	public static IServiceCollection InjectInfrastructure(this IServiceCollection services,
+	public static IServiceCollection InjectInfrastructureLayer(this IServiceCollection services,
 		IConfiguration configuration)
 	{
-		services.RegisterMongoDbModule<ScheduleMeetingDbContext>(conf => { conf.DatabaseName = "test"; });
-
 		services.InjectRepositories();
+		services.InjectService();
 
-		RegisterMongoDbModuleExtension.InitInternalAfterSetup(services);
 		ConfigureMappingSource();
+		RegisterMongoDbModuleExtension.InitInternalAfterSetup(services);
 
 		return services;
 	}
@@ -45,5 +45,11 @@ public static class InjectInfrastructureExtension
 	{
 		services.AddTransient<IScheduleInviteUrlRepository, ScheduleInviteUrlRepository>();
 		services.AddTransient<IScheduleMeetingRepository, ScheduleMeetingRepository>();
+	}
+
+	private static void InjectService(this IServiceCollection services)
+	{
+		services.AddTransient<IScheduleInviteUrlService, ScheduleInviteUrlService>();
+		services.AddTransient<IScheduleMeetingService, ScheduleMeetingService>();
 	}
 }

@@ -31,8 +31,8 @@ public static class ApplicationConfigureExtension
 
 		services.RegisterLoggerAdapter();
 
-		services.InjectInfrastructure(configuration);
-		services.InjectApplication(configuration);
+		services.InjectInfrastructureLayer(configuration);
+		services.InjectApplicationLayer(configuration);
 		services.InjectAuthentication(configuration);
 
 		services.AddEventBus(configuration);

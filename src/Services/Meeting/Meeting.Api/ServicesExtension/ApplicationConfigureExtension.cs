@@ -1,4 +1,5 @@
-﻿using Meeting.Infrastructure.DependencyInjection;
+﻿using Meeting.Application.DependencyInjection;
+using Meeting.Infrastructure.DependencyInjection;
 using SharedCommon.Commons.LoggerAdapter;
 
 namespace Meeting.Api.ServicesExtension;
@@ -16,7 +17,8 @@ public static class ApplicationConfigureExtension
 
 		services.RegisterLoggerAdapter();
 
-		services.InjectInfrastructure(configuration);
+		services.InjectApplicationLayer(configuration);
+		services.InjectInfrastructureLayer(configuration);
 
 		return services;
 	}

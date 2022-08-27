@@ -8,21 +8,22 @@ namespace Identity.Api.Controllers;
 
 public class ProfilesController : ApiV1ControllerBase
 {
-    public ProfilesController(IMediator mediator) : base(mediator)
-    {
-    }
+	public ProfilesController(IMediator mediator) : base(mediator)
+	{
+	}
 
-    [HttpGet]
-    [Authorize]
-    public async Task<IActionResult> GetProfiles(CancellationToken cancellation = default)
-    {
-        return JsonReponse(await mediator.Send(new GetProfileQuery(), cancellation));
-    }
+	[HttpGet]
+	[Authorize]
+	public async Task<IActionResult> GetProfiles(CancellationToken cancellation = default)
+	{
+		return JsonResponse(await Mediator.Send(new GetProfileQuery(), cancellation));
+	}
 
-    [HttpPut]
-    [Authorize]
-    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommand command, CancellationToken cancellation)
-    {
-        return JsonReponse(await mediator.Send(command, cancellation));
-    }
+	[HttpPut]
+	[Authorize]
+	public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommand command,
+		CancellationToken cancellation)
+	{
+		return JsonResponse(await Mediator.Send(command, cancellation));
+	}
 }
