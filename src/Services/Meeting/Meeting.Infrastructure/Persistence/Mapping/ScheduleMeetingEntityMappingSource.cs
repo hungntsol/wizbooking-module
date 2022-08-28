@@ -21,7 +21,7 @@ public class ScheduleMeetingEntityMappingSource
 			map.SetIgnoreExtraElementsIsInherited(true);
 		});
 
-		BsonClassMap.RegisterClassMap<UserHostService>(map =>
+		BsonClassMap.RegisterClassMap<HostUserSupplying>(map =>
 		{
 			map.AutoMap();
 			map.AutoMap();

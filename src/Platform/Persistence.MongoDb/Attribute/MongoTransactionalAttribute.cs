@@ -15,7 +15,7 @@ public class MongoTransactionalAttribute : System.Attribute, IAsyncActionFilter
 		var loggerAdapter = context.HttpContext.RequestServices
 			.GetRequiredService<ILoggerAdapter<MongoTransactionalAttribute>>();
 
-		using var session = await dbContext.GetSessionHandle();
+		using var session = dbContext.GetSessionHandle();
 		session.StartTransaction();
 
 		try

@@ -4,8 +4,8 @@ using Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using SharedCommon.Commons.LoggerAdapter;
 using SharedCommon.Commons.Middelwares;
+using SharedCommon.RegisterModules;
 
 namespace Identity.Api.ServiceExtensions;
 

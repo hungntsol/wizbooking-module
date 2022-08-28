@@ -10,7 +10,7 @@ public interface IMongoDbContext : IDisposable
 	/// <param name="func"></param>
 	void AddCommand(Func<Task> func);
 
-	Task<IClientSessionHandle> GetSessionHandle();
+	IClientSessionHandle GetSessionHandle();
 
 	/// <summary>
 	/// Save changes for commands

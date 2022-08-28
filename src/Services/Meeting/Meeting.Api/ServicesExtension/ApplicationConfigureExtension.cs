@@ -1,6 +1,6 @@
 ﻿using Meeting.Application.DependencyInjection;
 using Meeting.Infrastructure.DependencyInjection;
-using SharedCommon.Commons.LoggerAdapter;
+using SharedCommon.RegisterModules;
 
 namespace Meeting.Api.ServicesExtension;
 

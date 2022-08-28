@@ -14,7 +14,7 @@ services:
             - wizbooking_infra
 
     # meeting db (mongodb)
-    meeting_db_primary:
+    meeting_db_rs0:
         image: bitnami/mongodb
         extra_hosts:
             - "localhost:0.0.0.0"
@@ -22,12 +22,12 @@ services:
             - 27017:27017
         restart: always
         environment:
-            - MONGODB_ADVERTISED_HOSTNAME=meeting_db_primary
+            - MONGODB_ADVERTISED_HOSTNAME=meeting_db_rs0
             - MONGODB_REPLICA_SET_MODE=primary
             - MONGODB_REPLICA_SET_NAME=meeting_cluster
             - MONGODB_REPLICA_SET_KEY=abc123
             - MONGODB_ROOT_USER=root
-            - MONGODB_ROOT_PASSWORD=root@123
+            - MONGODB_ROOT_PASSWORD=rootDbForDev123
         volumes:
             - meeting_data:/data/db
         networks:

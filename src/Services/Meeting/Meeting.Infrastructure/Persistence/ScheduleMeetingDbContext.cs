@@ -52,16 +52,16 @@ public class ScheduleMeetingDbContext : MongoDbContext
 
 	internal async Task CreateUserHostServiceIndexesAsync(bool recreate)
 	{
-		var collection = GetCollection<UserHostService>();
+		var collection = GetCollection<HostUserSupplying>();
 		if (recreate)
 		{
 			await collection.Indexes.DropAllAsync();
 		}
 
-		await collection.Indexes.CreateManyAsync(new List<CreateIndexModel<UserHostService>>
+		await collection.Indexes.CreateManyAsync(new List<CreateIndexModel<HostUserSupplying>>
 		{
-			new(Builders<UserHostService>.IndexKeys.Text(doc => doc.Name)),
-			new(Builders<UserHostService>.IndexKeys.Text(doc => doc.HostId))
+			new(Builders<HostUserSupplying>.IndexKeys.Text(doc => doc.Name)),
+			new(Builders<HostUserSupplying>.IndexKeys.Text(doc => doc.HostId))
 		});
 	}
 }

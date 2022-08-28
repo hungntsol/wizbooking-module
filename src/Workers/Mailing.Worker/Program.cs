@@ -5,6 +5,7 @@ using Mailing.Worker.Engine;
 using Mailing.Worker.Services;
 using Mailing.Worker.SettingOptions;
 using RazorLight;
+using SharedCommon.RegisterModules;
 
 var host = Host.CreateDefaultBuilder(args)
 	.ConfigureServices((hostCtx, services) =>

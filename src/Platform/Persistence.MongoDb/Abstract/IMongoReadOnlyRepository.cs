@@ -33,6 +33,8 @@ public interface IMongoReadOnlyRepository<TDocument> : IDisposable where TDocume
 	Task<long> CountAsync<TDerived>(Expression<Func<TDerived, bool>> predicate,
 		CancellationToken cancellationToken = default) where TDerived : TDocument;
 
+	Task<bool> AnyAsync(Expression<Func<TDocument, bool>> predicate, CancellationToken cancellationToken = default);
+
 	#endregion
 
 	#region Find

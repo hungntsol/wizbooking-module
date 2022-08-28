@@ -15,7 +15,7 @@ public class ScheduleInviteUrlService : IScheduleInviteUrlService
 		_loggerAdapter = loggerAdapter;
 	}
 
-	public Task<string> CreateNewUrl()
+	public Task<string> CreateNewUrlAsync()
 	{
 		throw new NotImplementedException();
 	}

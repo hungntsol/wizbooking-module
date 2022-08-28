@@ -2,5 +2,5 @@
 
 public interface IScheduleInviteUrlService
 {
-	Task<string> CreateNewUrl();
+	Task<string> CreateNewUrlAsync();
 }
