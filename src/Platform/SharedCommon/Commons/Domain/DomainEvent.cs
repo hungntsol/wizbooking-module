@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace SharedCommon.Domain;
+namespace SharedCommon.Commons.Domain;
 
 public class DomainEvent<TEntity> : INotification where TEntity : class
 {

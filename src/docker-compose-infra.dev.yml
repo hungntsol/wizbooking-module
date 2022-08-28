@@ -1,6 +1,16 @@
 version: '3.4'
 
 services:
+    # eventbus (rabbitmq)
+    eventbus:
+        image: rabbitmq:3.10-management
+        ports:
+            - 15672:15672
+            - 5672:5672
+        restart: always
+        volumes:
+            - eventbus_data:/var/lib/rabbitmq
+
     # identity db (mysql)
     identity_db:
         image: mysql
@@ -36,6 +46,7 @@ services:
 volumes:
     identity_data:
     meeting_data:
+    eventbus_data:
 
 networks:
     wizbooking_infra:

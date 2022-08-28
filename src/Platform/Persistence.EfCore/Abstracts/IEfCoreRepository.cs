@@ -1,4 +1,4 @@
-﻿using SharedCommon.Domain;
+﻿using SharedCommon.Commons.Domain;
 
 namespace Persistence.EfCore.Abstracts;
 

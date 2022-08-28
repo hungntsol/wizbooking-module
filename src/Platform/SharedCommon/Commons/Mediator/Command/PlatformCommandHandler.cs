@@ -1,6 +1,4 @@
 ﻿using MediatR;
-using SharedCommon.Exceptions.StatusCodes._400;
-using SharedCommon.UnitOfWork;
 
 namespace SharedCommon.Commons.Mediator.Command;
 
@@ -9,12 +7,10 @@ public abstract class PlatformCommandHandler<TCommand, TResult> : IPlatformReque
 	where TCommand : IPlatformCommand<TResult>
 {
 	protected readonly IMediator Mediator;
-	protected readonly IUnitOfWork UnitOfWork;
 
-	protected PlatformCommandHandler(IMediator mediator, IUnitOfWork unitOfWork)
+	protected PlatformCommandHandler(IMediator mediator)
 	{
 		Mediator = mediator;
-		UnitOfWork = unitOfWork;
 	}
 
 	/// <summary>
@@ -27,24 +23,12 @@ public abstract class PlatformCommandHandler<TCommand, TResult> : IPlatformReque
 	public virtual async Task<TResult> Handle(TCommand request, CancellationToken cancellationToken)
 	{
 		// TODO: check if transaction enable (FROM ATTRIBUTE)
-		await UnitOfWork.StartTransactionAsync();
-
 		var result = await OnExecutingAsync(request, cancellationToken);
 
-		try
-		{
-			await UnitOfWork.CommitAsync(cancellationToken);
-
-			// publish executed event
-			await Mediator.Publish(
-				new PlatformCommandEvent<TCommand>(request, PlatformInternalEventAction.Executed),
-				cancellationToken);
-		}
-		catch (Exception e)
-		{
-			await UnitOfWork.RollbackAsync(cancellationToken);
-			throw new BadRequestException(e.Message);
-		}
+		// publish executed event
+		await Mediator.Publish(
+			new PlatformCommandEvent<TCommand>(request, PlatformInternalEventAction.Executed),
+			cancellationToken);
 
 		return result;
 	}
@@ -58,12 +42,12 @@ public abstract class PlatformCommandHandler<TCommand, TResult> : IPlatformReque
 	/// <returns></returns>
 	protected virtual async Task<TResult> OnExecutingAsync(TCommand command, CancellationToken cancellationToken)
 	{
-		var handleTask = InternalHandleAsync(command, cancellationToken);
-
 		// publish executing event
 		var notifyTask = Mediator.Publish(
 			new PlatformCommandEvent<TCommand>(command, PlatformInternalEventAction.Executing),
 			cancellationToken);
+
+		var handleTask = InternalHandleAsync(command, cancellationToken);
 
 		// wait handle and notify task
 		await Task.WhenAll(handleTask, notifyTask);

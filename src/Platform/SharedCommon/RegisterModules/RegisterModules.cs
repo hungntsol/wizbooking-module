@@ -19,7 +19,6 @@ public static class RegisterModules
 	public static void RegisterLoggerAdapter(this IServiceCollection services)
 	{
 		services.AddTransient(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
-		services.AddTransient(typeof(ILoggerAdapter), typeof(LoggerAdapter<>));
 	}
 
 	/// <summary>

@@ -1,8 +1,6 @@
 ﻿using Meeting.Infrastructure.Persistence.Mapping;
 using Meeting.Infrastructure.Repositories;
 using Meeting.Infrastructure.Repositories.Abstracts;
-using Meeting.Infrastructure.Services;
-using Meeting.Infrastructure.Services.Abstracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.MongoDb.DependencyInjection;
@@ -45,11 +43,10 @@ public static class InjectInfrastructureExtension
 	{
 		services.AddTransient<IScheduleInviteUrlRepository, ScheduleInviteUrlRepository>();
 		services.AddTransient<IScheduleMeetingRepository, ScheduleMeetingRepository>();
+		services.AddTransient<IHostUserSupplyingRepository, HostUserSupplyingRepository>();
 	}
 
 	private static void InjectService(this IServiceCollection services)
 	{
-		services.AddTransient<IScheduleInviteUrlService, ScheduleInviteUrlService>();
-		services.AddTransient<IScheduleMeetingService, ScheduleMeetingService>();
 	}
 }

@@ -1,4 +1,4 @@
-﻿using SharedCommon.Domain;
+﻿using SharedCommon.Commons.Domain;
 
 namespace Persistence.MongoDb.Abstract;
 
@@ -7,6 +7,8 @@ namespace Persistence.MongoDb.Abstract;
 /// </summary>
 public interface IDocument
 {
+	public DateTime CreatedAt { get; set; }
+	public DateTime ModifiedAt { get; set; }
 }
 
 /// <summary>

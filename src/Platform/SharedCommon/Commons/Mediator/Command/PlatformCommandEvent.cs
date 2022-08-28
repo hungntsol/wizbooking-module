@@ -4,12 +4,10 @@ namespace SharedCommon.Commons.Mediator.Command;
 
 public abstract class PlatformCommandEvent : IPlatformInternalEvent
 {
-	public const string EventTypeValue = "CommandEvent";
+	public abstract string EventName { get; }
 	public Guid Id { get; init; }
 	public DateTime CreatedAt { get; } = DateTime.UtcNow;
 	public string? CreatedBy { get; set; }
-	public abstract string EventType { get; }
-	public abstract string EventName { get; }
 	public abstract string EventAction { get; }
 
 	public static string EventNameValue<TCommand>()
@@ -34,9 +32,8 @@ public class PlatformCommandEvent<TCommand> : PlatformCommandEvent where TComman
 	public TCommand Data { get; set; } = default!;
 	public PlatformInternalEventAction Action { get; set; }
 
-	public override string EventType => "CommandEvent";
-	public override string EventName => EventTypeValue;
-	public override string EventAction => EventNameValue<TCommand>();
+	public override string EventName => EventNameValue<TCommand>();
+	public override string EventAction => Action.ToString();
 }
 
 public enum PlatformInternalEventAction

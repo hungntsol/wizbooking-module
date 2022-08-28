@@ -15,7 +15,7 @@ public class
 		IMediator mediator,
 		IUnitOfWork unitOfWork,
 		ILoggerAdapter<GenerateNewInviteUrlCommandHandler> logger) :
-		base(mediator, unitOfWork)
+		base(mediator)
 	{
 		_logger = logger;
 	}

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
-using SharedCommon.Domain;
+using SharedCommon.Commons.Domain;
 using SharedCommon.PredicateBuilder;
 
 namespace Persistence.EfCore.Abstracts;

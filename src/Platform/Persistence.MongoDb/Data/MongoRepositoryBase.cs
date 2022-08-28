@@ -56,7 +56,8 @@ public abstract class MongoRepositoryBase<TDocument> : IMongoRepository<TDocumen
 
 	public virtual async Task InsertOneAsync(TDocument document, CancellationToken cancellationToken = default)
 	{
-		await _collection.InsertOneAsync(document, null, cancellationToken);
+		document.CreatedAt = DateTime.UtcNow;
+		await _collection.InsertOneAsync(_context.GetSessionHandle(), document, null, cancellationToken);
 	}
 
 	public Task InsertBatchAsync(IEnumerable<TDocument> documents, CancellationToken cancellationToken = default)

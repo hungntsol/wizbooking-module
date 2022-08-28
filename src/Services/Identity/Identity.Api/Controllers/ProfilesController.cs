@@ -1,4 +1,6 @@
-﻿using Identity.Application.Features.Commands.UpdateProfile;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Identity.Application.Features.Commands.UpdateProfile;
 using Identity.Application.Features.Queries.Profile;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

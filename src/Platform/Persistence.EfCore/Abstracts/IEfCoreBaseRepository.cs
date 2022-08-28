@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using SharedCommon.Domain;
+using SharedCommon.Commons.Domain;
 using SharedCommon.PredicateBuilder;
 
 namespace Persistence.EfCore.Abstracts;

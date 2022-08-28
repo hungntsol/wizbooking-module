@@ -1,6 +1,7 @@
 ﻿using MediatR;
+using Meeting.Application.Features.HostUserSupply.Commands;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Persistence.MongoDb.Attribute;
 
 namespace Meeting.Api.Controllers;
 
@@ -11,9 +12,10 @@ public class HostUserController : ApiV1ControllerBase
 	}
 
 	[HttpPost]
-	[MongoTransactional]
-	public async Task<IActionResult> NewSupply()
+	[Authorize]
+	public async Task<IActionResult> NewSupply(CreateNewHostUserSupplyingCommand commandRequest)
+
 	{
-		return Ok();
+		return JsonResponse(await Mediator.Send(commandRequest));
 	}
 }

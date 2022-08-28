@@ -31,4 +31,15 @@ public class HostUserSupplying : DocumentBase<string>
 	{
 		Tags.AddRange(tags);
 	}
+
+	public static HostUserSupplying New(ulong hostId, string name, string? description, IList<string>? tags)
+	{
+		var newObj = new HostUserSupplying(hostId, name, description, true);
+		if (tags is not null)
+		{
+			newObj.AppendTags(tags);
+		}
+
+		return newObj;
+	}
 }

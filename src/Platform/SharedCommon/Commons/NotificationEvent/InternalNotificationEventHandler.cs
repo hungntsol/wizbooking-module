@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using SharedCommon.Domain;
+using SharedCommon.Commons.Domain;
 
 namespace SharedCommon.Commons.NotificationEvent;
 
