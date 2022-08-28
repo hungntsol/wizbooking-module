@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using SharedCommon.Commons.LoggerAdapter;
 using SharedCommon.Commons.Middelwares;
 using SharedCommon.Commons.PipelineBehaviours;
 using SharedCommon.ServiceModules.AccountContext;
@@ -15,6 +16,11 @@ namespace SharedCommon.RegisterModules;
 
 public static class RegisterModules
 {
+	public static void RegisterLoggerAdapter(this IServiceCollection services)
+	{
+		services.AddTransient(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
+	}
+
 	/// <summary>
 	/// Register Mapster for mapping object
 	/// </summary>

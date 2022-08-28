@@ -49,11 +49,11 @@ public abstract class MongoDbContext : IMongoDbContext
 		_commands.Add(func);
 	}
 
-	public async Task<IClientSessionHandle> GetSessionHandle()
+	public IClientSessionHandle GetSessionHandle()
 	{
 		OnConnect();
 
-		return SessionHandle ?? await Client!.StartSessionAsync();
+		return SessionHandle ?? Client!.StartSession();
 	}
 
 	public async Task<int> SaveChanges()

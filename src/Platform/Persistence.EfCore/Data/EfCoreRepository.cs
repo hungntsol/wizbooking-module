@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Persistence.EfCore.Abstracts;
-using SharedCommon.Domain;
+using SharedCommon.Commons.Domain;
 using SharedCommon.Exceptions;
 using SharedCommon.PredicateBuilder;
 using SharedCommon.Utils;

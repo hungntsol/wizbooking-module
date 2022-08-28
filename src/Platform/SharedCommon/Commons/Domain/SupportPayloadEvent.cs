@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace SharedCommon.Domain;
+namespace SharedCommon.Commons.Domain;
 
 public class SupportPayloadEvent
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using SharedCommon.Domain;
+using SharedCommon.Commons.Domain;
 
 namespace Persistence.EfCore.Internal;
 

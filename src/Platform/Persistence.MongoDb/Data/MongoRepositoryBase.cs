@@ -54,11 +54,10 @@ public abstract class MongoRepositoryBase<TDocument> : IMongoRepository<TDocumen
 		throw new NotImplementedException();
 	}
 
-	public virtual Task InsertOneAsync(TDocument document, CancellationToken cancellationToken = default)
+	public virtual async Task InsertOneAsync(TDocument document, CancellationToken cancellationToken = default)
 	{
-		var commandTask = _collection.InsertOneAsync(document, null, cancellationToken);
-		_context.AddCommand(() => commandTask);
-		return Task.CompletedTask;
+		document.CreatedAt = DateTime.UtcNow;
+		await _collection.InsertOneAsync(_context.GetSessionHandle(), document, null, cancellationToken);
 	}
 
 	public Task InsertBatchAsync(IEnumerable<TDocument> documents, CancellationToken cancellationToken = default)
@@ -403,6 +402,12 @@ public abstract class MongoRepositoryBase<TDocument> : IMongoRepository<TDocumen
 	#endregion
 
 	#region Find fluent
+
+	public async Task<bool> AnyAsync(Expression<Func<TDocument, bool>> predicate,
+		CancellationToken cancellationToken = default)
+	{
+		return await _collection.AsQueryable().AnyAsync(predicate, cancellationToken);
+	}
 
 	public virtual IFindFluent<TDocument, TDocument> FindFluent(Expression<Func<TDocument, bool>> predicate,
 		FindOptions? findOptions = null)

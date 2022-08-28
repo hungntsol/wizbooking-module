@@ -16,10 +16,10 @@ public static class ApplicationServiceInjection
 		services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 		services.RegisterMongoDbModule<ScheduleMeetingDbContext>(
 			assembly: Assembly.GetExecutingAssembly(),
-			contextConfiguration: ctx =>
+			contextConfiguration: cof =>
 			{
-				ctx.Connection = "mongodb://localhost:27017";
-				ctx.DatabaseName = "MeetingHdr";
+				cof.Connection = configuration.GetValue<string>("MeetingDataContext:ConnectionString");
+				cof.DatabaseName = configuration.GetValue<string>("MeetingDataContext:Database");
 			});
 
 		services.RegisterHandleExceptionMiddlewareModule();

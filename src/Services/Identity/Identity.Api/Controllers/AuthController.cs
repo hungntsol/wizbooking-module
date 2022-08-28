@@ -1,4 +1,5 @@
-﻿using Identity.Application.Features.Commands.ChangePassword;
+﻿using System.Threading.Tasks;
+using Identity.Application.Features.Commands.ChangePassword;
 using Identity.Application.Features.Commands.ForgetPassword;
 using Identity.Application.Features.Commands.Login;
 using Identity.Application.Features.Commands.Register;

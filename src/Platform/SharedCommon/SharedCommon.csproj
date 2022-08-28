@@ -8,9 +8,9 @@
 
   <ItemGroup>
     <Folder Include="Commons\JsonSerialization\" />
-    <Folder Include="Commons\LoggerAdapter\" />
     <Folder Include="Commons\Builder\" />
     <Folder Include="Commons\SettingOptions\" />
+    <Folder Include="UnitOfWork\" />
     <Folder Include="RegisterModules\" />
   </ItemGroup>
 

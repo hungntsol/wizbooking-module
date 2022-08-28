@@ -1,4 +1,6 @@
-﻿using SharedCommon.RegisterModules;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SharedCommon.RegisterModules;
 
 namespace Identity.Api.ServiceExtensions;
 

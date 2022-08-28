@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Persistence.MongoDb.Abstract;
-using SharedCommon.Domain;
+using SharedCommon.Commons.Domain;
 
 namespace Persistence.MongoDb.Internal;
 

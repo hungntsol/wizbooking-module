@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence.MongoDb.Abstract;
 using Persistence.MongoDb.Data;
 using Persistence.MongoDb.Internal;
+using SharedCommon.UnitOfWork;
 
 namespace Persistence.MongoDb.DependencyInjection;
 

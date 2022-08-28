@@ -1,5 +1,5 @@
-﻿using SharedCommon.Commons.NotificationEvent;
-using SharedCommon.Domain;
+﻿using SharedCommon.Commons.Domain;
+using SharedCommon.Commons.NotificationEvent;
 
 namespace Identity.Application.InternalNotifications;
 

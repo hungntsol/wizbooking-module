@@ -4,8 +4,8 @@ using Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using SharedCommon.Commons.LoggerAdapter;
 using SharedCommon.Commons.Middelwares;
+using SharedCommon.RegisterModules;
 
 namespace Identity.Api.ServiceExtensions;
 
@@ -20,7 +20,7 @@ public static class ApplicationConfigureExtension
 		services.AddEndpointsApiExplorer();
 		services.AddSwaggerGen(config =>
 		{
-			config.SwaggerDoc("v1", new OpenApiInfo { Title = "Api", Version = "v1" });
+			config.SwaggerDoc("v1", new OpenApiInfo { Title = "Api Identity", Version = "v1" });
 			var jwtSchema = DefineOpenApiSecuritySchema();
 			config.AddSecurityDefinition(jwtSchema.Reference.Id, jwtSchema);
 			config.AddSecurityRequirement(new OpenApiSecurityRequirement
