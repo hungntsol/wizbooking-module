@@ -2,9 +2,9 @@ name: .NET Core
 
 on:
   push:
-    branches: [ "master", "develop", "workflow-build-docker" ]
+    branches: ["master", "develop", "workflow-build-docker"]
   pull_request:
-    branches: [ "master", "develop" ]
+    branches: ["master", "develop"]
 
 jobs:
   build-and-test:
@@ -12,45 +12,44 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - name: Setup checkout@v3
-      uses: actions/checkout@v3
-      
-    - name: Setup .NET 6
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
-        
-    - name: Setup cache@v3.0.8
-      uses: actions/cache@v3.0.8
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ github.sha }}
-        restore-keys: |
-              ${{ runner.os }}-nuget-
-        
-    - name: Restore dependencies
-      working-directory: ${{ secrets.WORKINGDIR }}
-      run: dotnet restore WizBooking.sln
-      
-    - name: Build
-      working-directory: ${{ secrets.WORKINGDIR }}
-      run: dotnet build --no-restore WizBooking.sln
-      
-    - name: Test
-      working-directory: ${{ secrets.WORKINGDIR }}
-      run: dotnet test --no-build --verbosity normal WizBooking.sln
-    
+      - name: Setup checkout@v3
+        uses: actions/checkout@v3
+
+      - name: Setup .NET 6
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Setup cache@v3.0.8
+        uses: actions/cache@v3.0.8
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        working-directory: ${{ secrets.WORKINGDIR }}
+        run: dotnet restore WizBooking.sln
+
+      - name: Build
+        working-directory: ${{ secrets.WORKINGDIR }}
+        run: dotnet build --no-restore WizBooking.sln
+
+      - name: Test
+        working-directory: ${{ secrets.WORKINGDIR }}
+        run: dotnet test --no-build --verbosity normal WizBooking.sln
+
   build-docker:
     name: Build docker
     runs-on: ubuntu-22.04
-    
+
     steps:
-    - name: Setup checkout@v3
-      uses: actions/checkout@v3
-      
-    - name: Infra dev
-      run: | 
-            chmod +x ./scripts/setup-infra-dev.sh
-            ./scripts/setup-infra-dev.sh
-      shell: bash
-  
+      - name: Setup checkout@v3
+        uses: actions/checkout@v3
+
+      - name: Infra dev
+        run: |
+          chmod +x ./scripts/workflows-infra-dev.sh
+          ./scripts/workflows-infra-dev.sh
+        shell: bash
