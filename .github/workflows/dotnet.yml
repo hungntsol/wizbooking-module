@@ -2,7 +2,7 @@ name: .NET Core
 
 on:
   push:
-    branches: ["master", "develop", "workflow-build-docker"]
+    branches: ["master", "develop", "workflows-github"]
   pull_request:
     branches: ["master", "develop"]
 
@@ -39,17 +39,3 @@ jobs:
       - name: Test
         working-directory: ${{ secrets.WORKINGDIR }}
         run: dotnet test --no-build --verbosity normal WizBooking.sln
-
-  build-docker:
-    name: Build docker
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: Setup checkout@v3
-        uses: actions/checkout@v3
-
-      - name: Infra dev
-        run: |
-          chmod +x ./scripts/workflows-infra-dev.sh
-          ./scripts/workflows-infra-dev.sh
-        shell: bash
