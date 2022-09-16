@@ -5,4 +5,3 @@ global using Persistence.MongoDb.Abstract;
 global using MongoDB.Driver;
 global using Persistence.MongoDb.Data;
 global using Persistence.MongoDb.Internal;
-global using SharedCommon.Commons.LoggerAdapter;

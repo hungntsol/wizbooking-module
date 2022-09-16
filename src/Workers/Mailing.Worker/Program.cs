@@ -1,16 +1,17 @@
 using EventBusMessage.DependencyInjection;
+using EventBusMessage.Events;
 using Mailing.Worker.Abstracts;
 using Mailing.Worker.BackgroundWorkers;
 using Mailing.Worker.Engine;
 using Mailing.Worker.Services;
 using Mailing.Worker.SettingOptions;
 using RazorLight;
-using SharedCommon.RegisterModules;
+using SharedCommon.Modules.LoggerAdapter;
 
 var host = Host.CreateDefaultBuilder(args)
 	.ConfigureServices((hostCtx, services) =>
 	{
-		services.RegisterLoggerAdapter();
+		services.AddLoggerAdapter();
 
 		services.Configure<MailProviderAppSetting>(hostCtx.Configuration.GetSection("EmailSettings"));
 

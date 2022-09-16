@@ -2,7 +2,7 @@
 using EventBusMessage.Abstracts;
 using EventBusMessage.Events.Base;
 using EventBusMessage.RabbitMQ.Settings;
-using SharedCommon.Commons.LoggerAdapter;
+using SharedCommon.Modules.LoggerAdapter;
 
 namespace EventBusMessage.RabbitMQ;
 

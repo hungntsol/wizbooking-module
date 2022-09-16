@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
-using SharedCommon.Commons.Domain;
-using SharedCommon.PredicateBuilder;
+using SharedCommon.Commons.Entity;
+using SharedCommon.Commons.PredicateBuilder;
 
 namespace Persistence.EfCore.Abstracts;
 
@@ -13,9 +13,11 @@ public interface IEfCoreBaseRepository<TEntity, TKey>
 	///     Update or insert an entity
 	/// </summary>
 	/// <param name="entity"></param>
+	/// <param name="sendEvent"></param>
 	/// <param name="cancellationToken"></param>
 	/// <returns></returns>
 	Task<bool> Upsert(TEntity? entity,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default);
 
 	#endregion
@@ -26,9 +28,11 @@ public interface IEfCoreBaseRepository<TEntity, TKey>
 	///     Find and delete entity with predication definition
 	/// </summary>
 	/// <param name="predicateDefinition"></param>
+	/// <param name="sendEvent"></param>
 	/// <param name="cancellationToken"></param>
 	/// <returns></returns>
 	Task<TEntity?> FindAndDelete(PredicateBuilder<TEntity> predicateDefinition,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default);
 
 	#endregion
@@ -39,28 +43,20 @@ public interface IEfCoreBaseRepository<TEntity, TKey>
 	///     Insert one entity async
 	/// </summary>
 	/// <param name="entity"></param>
+	/// <param name="sendEvent"></param>
 	/// <param name="cancellationToken"></param>
 	/// <returns></returns>
 	Task<TEntity?> InsertAsync(TEntity entity,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default);
-
-	/// <summary>
-	///     Insert one entity and project result
-	/// </summary>
-	/// <typeparam name="TProject"></typeparam>
-	/// <param name="entity"></param>
-	/// <param name="cancellationToken"></param>
-	/// <returns></returns>
-	Task<TProject?> InsertAsync<TProject>(TEntity entity,
-		CancellationToken cancellationToken = default)
-		where TProject : class;
 
 	/// <summary>
 	///     Insert multiple entity
 	/// </summary>
 	/// <param name="entities"></param>
+	/// <param name="sendEvent"></param>
 	/// <returns></returns>
-	Task<bool> InsertBatchAsync(IList<TEntity> entities);
+	Task<bool> InsertBatchAsync(IList<TEntity> entities, bool sendEvent = true);
 
 	#endregion
 
@@ -70,20 +66,25 @@ public interface IEfCoreBaseRepository<TEntity, TKey>
 	///     Update an entity
 	/// </summary>
 	/// <param name="entity"></param>
+	/// <param name="sendEvent"></param>
 	/// <param name="cancellationToken"></param>
 	/// <returns></returns>
-	Task<bool> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
+	Task<bool> UpdateAsync(TEntity entity,
+		bool sendEvent = true,
+		CancellationToken cancellationToken = default);
 
 	/// <summary>
 	///     Update only one field of record
 	/// </summary>
 	/// <param name="entity"></param>
 	/// <param name="update"></param>
+	/// <param name="sendEvent"></param>
 	/// <param name="cancellationToken"></param>
 	/// <returns></returns>
 	Task<bool> UpdateOneFieldAsync(
 		TEntity entity,
 		Expression<Func<TEntity, object>> update,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default);
 
 	#endregion
@@ -94,17 +95,22 @@ public interface IEfCoreBaseRepository<TEntity, TKey>
 	///     Delete entity async
 	/// </summary>
 	/// <param name="entity"></param>
+	/// <param name="sendEvent"></param>
 	/// <param name="cancellationToken"></param>
 	/// <returns></returns>
-	Task<bool> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default);
+	Task<bool> DeleteAsync(TEntity entity,
+		bool sendEvent = true,
+		CancellationToken cancellationToken = default);
 
 	/// <summary>
 	///     Delete multiple entity
 	/// </summary>
 	/// <param name="predicateDefinition"></param>
+	/// <param name="sendEvent"></param>
 	/// <param name="cancellationToken"></param>
 	/// <returns></returns>
 	Task<bool> DeleteBatchAsync(PredicateBuilder<TEntity> predicateDefinition,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default);
 
 	#endregion

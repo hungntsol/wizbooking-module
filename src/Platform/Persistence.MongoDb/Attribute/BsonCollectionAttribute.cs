@@ -27,7 +27,7 @@ public static class Bson
 	/// </summary>
 	/// <typeparam name="TEntity"></typeparam>
 	/// <returns></returns>
-	public static string CollectionName<TEntity>() where TEntity : class, IDocument
+	public static string CollectionName<TEntity>() where TEntity : class, IDocumentEntity
 	{
 		var collectionName = typeof(TEntity).GetCustomAttribute<BsonCollectionAttribute>();
 		return collectionName is null ? typeof(TEntity).Name : collectionName.CollectionName;

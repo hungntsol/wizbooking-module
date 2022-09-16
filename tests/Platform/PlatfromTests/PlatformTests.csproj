@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="PredicateBuilder\Predicate\**" />
+    <EmbeddedResource Remove="PredicateBuilder\Predicate\**" />
+    <None Remove="PredicateBuilder\Predicate\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -22,11 +28,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Platform\EventMessageBus\EventBusMessage.csproj" />
     <ProjectReference Include="..\..\..\src\Platform\SharedCommon\SharedCommon.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="PredicateBuilder\Predicate\" />
+    <Folder Include="EventBusMessage\Events\" />
+    <Folder Include="Shared\ExtensionTest\" />
+    <Folder Include="Shared\UtilsTest\" />
   </ItemGroup>
 
 </Project>

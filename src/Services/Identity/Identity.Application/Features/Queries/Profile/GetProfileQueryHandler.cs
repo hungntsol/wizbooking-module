@@ -1,6 +1,8 @@
-﻿namespace Identity.Application.Features.Queries.Profile;
+﻿using SharedCommon.Modules.JwtAuth.AccountContext;
 
-internal class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, JsonHttpResponse<GetProfileResultView>>
+namespace Identity.Application.Features.Queries.Profile;
+
+internal class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, JsonHttpResponse>
 {
 	private readonly IAccountAccessorContextService _accountAccessorContextService;
 	private readonly IUserAccountRepository _userAccountRepository;
@@ -12,7 +14,7 @@ internal class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, JsonHtt
 		_accountAccessorContextService = accountAccessorContextService;
 	}
 
-	public async Task<JsonHttpResponse<GetProfileResultView>> Handle(GetProfileQuery request,
+	public async Task<JsonHttpResponse> Handle(GetProfileQuery request,
 		CancellationToken cancellationToken)
 	{
 		var account =
@@ -23,6 +25,6 @@ internal class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, JsonHtt
 
 		var profile = account.Adapt<GetProfileResultView>();
 
-		return JsonHttpResponse<GetProfileResultView>.Ok(profile);
+		return JsonHttpResponse.Success(profile);
 	}
 }

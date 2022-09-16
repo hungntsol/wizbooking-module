@@ -1,46 +1,57 @@
 ﻿using Identity.Domain.Common;
+using SharedCommon.Commons.PredicateBuilder;
 
 namespace Identity.Application.Features.Commands.ResetPassword;
 
-public class ResetAccountCommandHandler : IRequestHandler<ResetAccountCommand, JsonHttpResponse<Unit>>
+public class ResetAccountCommandHandler : IRequestHandler<ResetAccountCommand, JsonHttpResponse>
 {
-	private readonly ILoggerAdapter<ResetAccountCommandHandler> _loggerAdapter;
-	private readonly IUnitOfWork _unitOfWork;
+	private readonly IEfCoreAtomicWork _efCoreAtomicWork;
 	private readonly IUserAccountRepository _userAccountRepository;
-	private readonly IVerifiedUrlRepository _verifiedUrlRepository;
+	private readonly IVerifiedUrlRepository _verifiedUrlOnlyRepository;
 
 	public ResetAccountCommandHandler(IUserAccountRepository userAccountRepository,
 		IVerifiedUrlRepository verifiedUrlRepository,
-		ILoggerAdapter<ResetAccountCommandHandler> loggerAdapter,
-		IUnitOfWork unitOfWork)
+		IEfCoreAtomicWork efCoreAtomicWork)
 	{
 		_userAccountRepository = userAccountRepository;
-		_verifiedUrlRepository = verifiedUrlRepository;
-		_loggerAdapter = loggerAdapter;
-		_unitOfWork = unitOfWork;
+		_verifiedUrlOnlyRepository = verifiedUrlRepository;
+		_efCoreAtomicWork = efCoreAtomicWork;
 	}
 
-	public async Task<JsonHttpResponse<Unit>> Handle(ResetAccountCommand request,
+	public async Task<JsonHttpResponse> Handle(ResetAccountCommand request,
 		CancellationToken cancellationToken)
 	{
 		var predicateDefinition = new PredicateBuilder<VerifiedUrl>(q =>
 			q.AppCode.Equals(request.AppCode) && q.Target.Equals(VerifiedUrlTargetConstant.ResetAccount));
 
-		await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+		// start transaction
+		await using var transaction = await _efCoreAtomicWork.BeginTransactionAsync(cancellationToken);
 
-		var verifyUrl =
-			await _verifiedUrlRepository.FindAndDelete(predicateDefinition, cancellationToken: cancellationToken);
-		ArgumentNullException.ThrowIfNull(verifyUrl);
-
-		var user = await _userAccountRepository.FindOneAsync(q => q.Email.Equals(verifyUrl.Email), cancellationToken);
-		ArgumentNullException.ThrowIfNull(user);
-
+		var verifyUrl = await FindAndDeleteUrlFromRepo(predicateDefinition, cancellationToken);
+		var user = await FindAccountFromRepo(verifyUrl, cancellationToken);
 
 		user.SetPassword(request.NewPassword);
-		var updatedAccount = await _userAccountRepository.UpdateAsync(user, cancellationToken: cancellationToken);
+		await _userAccountRepository.UpdateAsync(user, cancellationToken: cancellationToken);
 
-		await transaction.CommitAsync(cancellationToken);
+		await _efCoreAtomicWork.CommitAsync(cancellationToken);
 
-		return JsonHttpResponse<Unit>.Ok(Unit.Value);
+		return JsonHttpResponse.Success(Unit.Value);
+	}
+
+	private async Task<UserAccount> FindAccountFromRepo(VerifiedUrl verifyUrl,
+		CancellationToken cancellationToken = default)
+	{
+		var user = await _userAccountRepository.FindOneAsync(q => q.Email.Equals(verifyUrl.Email), cancellationToken);
+		ArgumentNullException.ThrowIfNull(user);
+		return user;
+	}
+
+	private async Task<VerifiedUrl> FindAndDeleteUrlFromRepo(PredicateBuilder<VerifiedUrl> predicateDefinition,
+		CancellationToken cancellationToken = default)
+	{
+		var verifyUrl =
+			await _verifiedUrlOnlyRepository.FindAndDelete(predicateDefinition, cancellationToken: cancellationToken);
+		ArgumentNullException.ThrowIfNull(verifyUrl);
+		return verifyUrl;
 	}
 }

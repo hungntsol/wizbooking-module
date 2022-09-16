@@ -1,7 +1,5 @@
 ﻿using EventBusMessage.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using SharedEventBus.Events;
+using EventBusMessage.Events;
 
 namespace Identity.Api.ServiceExtensions;
 

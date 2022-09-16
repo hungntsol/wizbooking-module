@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Platform\EventMessageBus\EventBusMessage.csproj" />
     <ProjectReference Include="..\..\Platform\SharedCommon\SharedCommon.csproj" />
-    <ProjectReference Include="..\..\Platform\SharedEventBus\SharedEventBus.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,13 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meeting.Api", "Services\Mee
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meeting.Domain", "Services\Meeting\Meeting.Domain\Meeting.Domain.csproj", "{71D4D14B-0151-4435-AC1F-696EDD12E188}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{62F5D1D2-9154-40F6-9A4B-990AC6A6E352}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{62F5D1D2-9154-40F6-9A4B-990AC6A6E352}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Meeting", "Meeting", "{9E2BF2AD-0D65-4F5F-B206-890B6B9B86EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meeting.Application", "Services\Meeting\Meeting.Application\Meeting.Application.csproj", "{F5598FF0-1B00-442F-9EDE-7A9A5D92151B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Platform", "Platform", "{DED2DB58-B791-462F-B661-8290BA6C6E42}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "modules", "modules", "{DED2DB58-B791-462F-B661-8290BA6C6E42}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence.EfCore", "Platform\Persistence.EfCore\Persistence.EfCore.csproj", "{3CB6E8F9-73D7-4A33-97CF-661D97A199AF}"
 EndProject
@@ -31,9 +31,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.Infrastructure", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.Application", "Services\Identity\Identity.Application\Identity.Application.csproj", "{D46A2981-3C37-4C47-97D9-6BBA537207DD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3BF9E4BF-522A-4ACC-B848-517FC2FEFBCB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{3BF9E4BF-522A-4ACC-B848-517FC2FEFBCB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{15AAC13F-EF49-4D0F-A68E-CE4196BBE2D9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{15AAC13F-EF49-4D0F-A68E-CE4196BBE2D9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlatformTests", "..\tests\Platform\PlatfromTests\PlatformTests.csproj", "{78B0D95F-8842-4DC1-B0F0-C4626CB640D1}"
 EndProject
@@ -41,21 +41,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServiceTests", "..\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBusMessage", "Platform\EventMessageBus\EventBusMessage.csproj", "{F6843AF5-12E8-4873-A543-5A9A943662F7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workers", "Workers", "{0D4A9F33-69BF-47B9-9573-9948CEA49AEE}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workers", "workers", "{0D4A9F33-69BF-47B9-9573-9948CEA49AEE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mailing.Worker", "Workers\Mailing.Worker\Mailing.Worker.csproj", "{DD1D7132-A266-42A2-AC47-CB68CCAEC333}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedEventBus", "Platform\SharedEventBus\SharedEventBus.csproj", "{FB23EE98-644C-480A-BAAE-6D923E2EF841}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence.MongoDb", "Platform\Persistence.MongoDb\Persistence.MongoDb.csproj", "{39D17F00-0214-4F55-A5FA-C555BD7AFD77}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker-compose", "docker-compose", "{43C7E589-A1EA-42EB-8D62-571D2F668AA3}"
-	ProjectSection(SolutionItems) = preProject
-		.dockerignore = .dockerignore
-		docker-compose-infra.dev.yml = docker-compose-infra.dev.yml
-	EndProjectSection
-EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5DFA064C-50DD-4F5D-9C03-4695B6A4D417}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{3DF9AF76-F4A5-465E-95CB-BF1849495C3B}"
+	ProjectSection(SolutionItems) = preProject
+		..\scripts\setup-infra-dev.sh = ..\scripts\setup-infra-dev.sh
+		..\scripts\start-infra.cmd = ..\scripts\start-infra.cmd
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,10 +117,6 @@ Global
 		{DD1D7132-A266-42A2-AC47-CB68CCAEC333}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD1D7132-A266-42A2-AC47-CB68CCAEC333}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD1D7132-A266-42A2-AC47-CB68CCAEC333}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB23EE98-644C-480A-BAAE-6D923E2EF841}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB23EE98-644C-480A-BAAE-6D923E2EF841}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB23EE98-644C-480A-BAAE-6D923E2EF841}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB23EE98-644C-480A-BAAE-6D923E2EF841}.Release|Any CPU.Build.0 = Release|Any CPU
 		{39D17F00-0214-4F55-A5FA-C555BD7AFD77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{39D17F00-0214-4F55-A5FA-C555BD7AFD77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39D17F00-0214-4F55-A5FA-C555BD7AFD77}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -155,9 +149,7 @@ Global
 		{F6843AF5-12E8-4873-A543-5A9A943662F7} = {DED2DB58-B791-462F-B661-8290BA6C6E42}
 		{0D4A9F33-69BF-47B9-9573-9948CEA49AEE} = {15AAC13F-EF49-4D0F-A68E-CE4196BBE2D9}
 		{DD1D7132-A266-42A2-AC47-CB68CCAEC333} = {0D4A9F33-69BF-47B9-9573-9948CEA49AEE}
-		{FB23EE98-644C-480A-BAAE-6D923E2EF841} = {DED2DB58-B791-462F-B661-8290BA6C6E42}
 		{39D17F00-0214-4F55-A5FA-C555BD7AFD77} = {DED2DB58-B791-462F-B661-8290BA6C6E42}
-		{43C7E589-A1EA-42EB-8D62-571D2F668AA3} = {15AAC13F-EF49-4D0F-A68E-CE4196BBE2D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6ADD58E3-1AAA-4D58-9D54-AC20436EBA44}

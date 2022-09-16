@@ -1,11 +1,12 @@
-﻿using Identity.Application.DependencyInjection;
-using Identity.Infrastructure.DependencyInjection;
+﻿using Identity.Application.LayerRegister;
+using Identity.Infrastructure.LayerRegister;
 using Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using SharedCommon.Commons.Middelwares;
-using SharedCommon.RegisterModules;
+using SharedCommon.Modules.LoggerAdapter;
+using SharedCommon.Modules.Middelwares;
+using SharedCommon.Utilities;
 
 namespace Identity.Api.ServiceExtensions;
 
@@ -25,14 +26,14 @@ public static class ApplicationConfigureExtension
 			config.AddSecurityDefinition(jwtSchema.Reference.Id, jwtSchema);
 			config.AddSecurityRequirement(new OpenApiSecurityRequirement
 			{
-				{ jwtSchema, ArraySegment<string>.Empty }
+				{ jwtSchema, Utils.List.Empty<string>() }
 			});
 		});
 
-		services.RegisterLoggerAdapter();
+		services.AddLoggerAdapter();
 
-		services.InjectInfrastructureLayer(configuration);
-		services.InjectApplicationLayer(configuration);
+		services.RegisterLayerInfrastructure(configuration);
+		services.RegisterLayerApplication(configuration);
 		services.InjectAuthentication(configuration);
 
 		services.AddEventBus(configuration);
@@ -57,7 +58,7 @@ public static class ApplicationConfigureExtension
 
 		app.UseHttpsRedirection();
 
-		app.UseMiddleware<HandleExceptionMiddleware>();
+		app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 		app.UseAuthentication();
 		app.UseAuthorization();
@@ -75,7 +76,7 @@ public static class ApplicationConfigureExtension
 	private static void MigrateAppDataContext(this IHost app)
 	{
 		using var scope = app.Services.CreateScope();
-		var dataContext = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
+		var dataContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
 		if (dataContext.Database.CanConnect())
 		{

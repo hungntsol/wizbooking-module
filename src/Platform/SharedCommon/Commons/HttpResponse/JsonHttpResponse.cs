@@ -1,53 +1,43 @@
-﻿namespace SharedCommon.Commons.HttpResponse;
+﻿using MediatR;
 
-public class JsonHttpResponse<T>
+namespace SharedCommon.Commons.HttpResponse;
+
+public class JsonHttpResponse
 {
-    public int Status { get; set; }
-    public bool IsSuccess { get; set; }
-    public T? Data { get; set; }
-    public string? Message { get; set; }
-    public object? Errors { get; set; }
+	public JsonHttpResponse()
+	{
+	}
 
-    public JsonHttpResponse()
-    {
-    }
+	public JsonHttpResponse(int status, bool isSuccess, object? data, string? message = null, object? errors = null)
+	{
+		Status = status;
+		IsSuccess = isSuccess;
+		Data = data;
+		Message = message;
+		Errors = errors;
+	}
 
-    public JsonHttpResponse(int status, bool isSuccess, T? data, string? message = null, object? errors = null)
-    {
-        Status = status;
-        IsSuccess = isSuccess;
-        Data = data;
-        Message = message;
-        Errors = errors;
-    }
+	public int Status { get; set; }
+	public bool IsSuccess { get; set; }
+	public object? Data { get; set; }
+	public string? Message { get; set; }
+	public object? Errors { get; set; }
 
-    public static JsonHttpResponse<T> Ok(T? data, string? message)
-    {
-        return new(200, true, data, message);
-    }
+	public static JsonHttpResponse Success(object? data, string? message)
+	{
+		data ??= Unit.Value;
+		return new JsonHttpResponse(200, true, data, message);
+	}
 
-    public static JsonHttpResponse<T> Ok(T? data)
-    {
-        return new(200, true, data);
-    }
+	public static JsonHttpResponse Success(object? data = default)
+	{
+		data ??= Unit.Value;
+		return new JsonHttpResponse(200, true, data);
+	}
 
-    public static JsonHttpResponse<T> ErrorNotFound(T? data, string? message, object? trace)
-    {
-        return new JsonHttpResponse<T>(404, false, data, message, trace);
-    }
-
-    public static JsonHttpResponse<T> ErrorBadRequest(T? data, string? message, object? trace)
-    {
-        return new JsonHttpResponse<T>(400, false, data, message, trace);
-    }
-
-    public static JsonHttpResponse<T> ErrorBadRequest(string? message, object? trace)
-    {
-        return new JsonHttpResponse<T>(400, false, default, message, trace);
-    }
-
-    public static JsonHttpResponse<T> ErrorBadRequest(string? message)
-    {
-        return new JsonHttpResponse<T>(400, false, default, message, default);
-    }
+	public static JsonHttpResponse Fail(string? message = default)
+	{
+		message ??= "Cannot find anything!";
+		return new JsonHttpResponse(400, false, default, message);
+	}
 }

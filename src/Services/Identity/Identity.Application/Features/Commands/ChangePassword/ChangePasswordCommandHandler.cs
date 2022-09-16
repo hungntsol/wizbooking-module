@@ -1,22 +1,25 @@
-﻿namespace Identity.Application.Features.Commands.ChangePassword;
+﻿using SharedCommon.Modules.JwtAuth.AccountContext;
+using SharedCommon.Modules.LoggerAdapter;
 
-public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, JsonHttpResponse<Unit>>
+namespace Identity.Application.Features.Commands.ChangePassword;
+
+public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, JsonHttpResponse>
 {
 	private readonly IAccountAccessorContextService _accountAccessorContextService;
-	private readonly ILoggerAdapter<ChangePasswordCommandHandler> _loggerAdapter;
+	private readonly ILoggerAdapter<ChangePasswordCommandHandler> _logger;
 	private readonly IUserAccountRepository _userAccountRepository;
 
 	public ChangePasswordCommandHandler(IUserAccountRepository userAccountRepository,
 		IAccountAccessorContextService accountAccessorContextService,
-		ILoggerAdapter<ChangePasswordCommandHandler> loggerAdapter)
+		ILoggerAdapter<ChangePasswordCommandHandler> logger)
 	{
 		_userAccountRepository = userAccountRepository;
 		_accountAccessorContextService = accountAccessorContextService;
-		_loggerAdapter = loggerAdapter;
+		_logger = logger;
 	}
 
 
-	public async Task<JsonHttpResponse<Unit>> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
+	public async Task<JsonHttpResponse> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
 	{
 		var account = await _userAccountRepository.FindOneAsync(q =>
 			q.Email.Equals(_accountAccessorContextService.GetEmail()), cancellationToken);
@@ -30,6 +33,6 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
 		account.SetPassword(request.NewPassword);
 		await _userAccountRepository.UpdateAsync(account, cancellationToken: cancellationToken);
 
-		return JsonHttpResponse<Unit>.Ok(Unit.Value);
+		return JsonHttpResponse.Success(Unit.Value);
 	}
 }

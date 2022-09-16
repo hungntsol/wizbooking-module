@@ -3,7 +3,7 @@ using MongoDB.Driver;
 
 namespace Persistence.MongoDb.Abstract;
 
-public interface IMongoRepository<TDocument> : IMongoReadOnlyRepository<TDocument> where TDocument : IDocument
+public interface IMongoRepository<TDocument> : IMongoReadOnlyRepository<TDocument> where TDocument : IDocumentEntity
 {
 	#region Upsert
 

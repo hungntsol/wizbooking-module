@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Query;
-using SharedCommon.Commons.Domain;
+using SharedCommon.Commons.Entity;
 
 namespace SharedCommon.Commons.PredicateBuilder;
 

@@ -14,9 +14,7 @@
 
   <ItemGroup>
     <Folder Include="DependencyInjection\" />
-    <Folder Include="Features\Commands\GenerateNewInviteUrl\" />
     <Folder Include="Features\HostUserSupply\Commands\" />
-    <Folder Include="Features\Queries\" />
     <Folder Include="MappingProfile\" />
     <Folder Include="InternalNotifications\" />
   </ItemGroup>

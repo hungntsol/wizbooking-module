@@ -1,10 +1,9 @@
-﻿using MediatR;
-using SharedCommon.Commons.HttpResponse;
-using SharedCommon.Commons.Mediator.Command;
+﻿using SharedCommon.Commons.HttpResponse;
+using SharedCommon.Modules.Mediator.Command;
 
 namespace Meeting.Application.Features.HostUserSupply.Commands;
 
-public class CreateNewHostUserSupplyingCommand : PlatformCommand<JsonHttpResponse<Unit>>
+public class CreateNewHostUserSupplyingCommand : CqrsCommand<JsonHttpResponse>
 {
 	public CreateNewHostUserSupplyingCommand(string name, string description, List<string> tags)
 	{

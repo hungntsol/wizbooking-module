@@ -1,5 +1,4 @@
 using Identity.Api.ServiceExtensions;
-using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 

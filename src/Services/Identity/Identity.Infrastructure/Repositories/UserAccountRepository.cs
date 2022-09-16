@@ -5,10 +5,10 @@ using Persistence.EfCore.Data;
 
 namespace Identity.Infrastructure.Repositories;
 
-public class UserAccountRepository : EfCoreRepository<UserAccount, ulong, IdentityDataContext>,
+public class UserAccountRepository : EfCoreRepository<UserAccount, ulong, AppDbContext>,
 	IUserAccountRepository
 {
-	public UserAccountRepository(IdentityDataContext context, IMediator mediator) : base(context, mediator)
+	public UserAccountRepository(AppDbContext context, IMediator mediator) : base(context, mediator)
 	{
 	}
 }

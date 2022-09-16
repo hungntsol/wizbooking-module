@@ -1,40 +1,42 @@
 ﻿using System.Text.Json;
 using EventBusMessage.Abstracts;
+using EventBusMessage.Events;
 using Identity.Domain.Common;
 using Identity.Infrastructure.SettingOptions;
 using Microsoft.Extensions.Options;
-using SharedCommon.Commons.JsonSerialization;
-using SharedCommon.Commons.MailingConstants;
-using SharedCommon.Commons.MailingConstants.Models;
-using SharedEventBus.Events;
+using SharedCommon.Commons.Exceptions.StatusCodes._500;
+using SharedCommon.MailingConstants;
+using SharedCommon.MailingConstants.Models;
+using SharedCommon.Modules.LoggerAdapter;
+using JsonSerializerOptions = SharedCommon.Commons.JsonSerialization.JsonSerializerOptions;
 
 namespace Identity.Application.Features.Commands.ForgetPassword;
 
-public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswordCommand, JsonHttpResponse<Unit>>
+public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswordCommand, JsonHttpResponse>
 {
 	private readonly AuthAppSetting _authAppSetting;
 	private readonly DomainClientAppSetting _domainClientAppSetting;
-	private readonly ILoggerAdapter<ForgetPasswordCommandCommandHandler> _loggerAdapter;
+	private readonly ILoggerAdapter<ForgetPasswordCommandCommandHandler> _logger;
 	private readonly IMessageProducer _messageProducer;
 	private readonly IUserAccountRepository _userAccountRepository;
-	private readonly IVerifiedUrlRepository _verifiedUrlRepository;
+	private readonly IVerifiedUrlRepository _verifiedUrlOnlyRepository;
 
 	public ForgetPasswordCommandCommandHandler(IUserAccountRepository userAccountRepository,
 		IVerifiedUrlRepository verifiedUrlRepository,
-		ILoggerAdapter<ForgetPasswordCommandCommandHandler> loggerAdapter,
+		ILoggerAdapter<ForgetPasswordCommandCommandHandler> logger,
 		IMessageProducer messageProducer,
 		IOptions<DomainClientAppSetting> domainClientAppSettingOptions,
 		IOptions<AuthAppSetting> authAppSettingOption)
 	{
 		_userAccountRepository = userAccountRepository;
-		_verifiedUrlRepository = verifiedUrlRepository;
-		_loggerAdapter = loggerAdapter;
+		_verifiedUrlOnlyRepository = verifiedUrlRepository;
+		_logger = logger;
 		_messageProducer = messageProducer;
 		_domainClientAppSetting = domainClientAppSettingOptions.Value;
 		_authAppSetting = authAppSettingOption.Value;
 	}
 
-	public async Task<JsonHttpResponse<Unit>> Handle(ForgetPasswordCommand request,
+	public async Task<JsonHttpResponse> Handle(ForgetPasswordCommand request,
 		CancellationToken cancellationToken)
 	{
 		var existingAccount =
@@ -48,23 +50,31 @@ public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswor
 		try
 		{
 			var addVerifyUrl =
-				await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken: cancellationToken);
+				await _verifiedUrlOnlyRepository.InsertAsync(newVerifyUrl, cancellationToken: cancellationToken);
 
 			// send event to send email
-			var resetAccountMailModel = NewResetAccountMailModel(newVerifyUrl);
-			var recoverPasswordEventBusMessage = NewRecoverPasswordEventBusMessage(addVerifyUrl, resetAccountMailModel);
+			var resetAccountMailModel = CreateResetAccountMailModel(newVerifyUrl);
+			var recoverPasswordEventBusMessage =
+				CreateRecoverPasswordEventBusMessage(addVerifyUrl, resetAccountMailModel);
+
 			await _messageProducer.PublishAsync(recoverPasswordEventBusMessage, "Worker.Mailing.Send");
 
-			return JsonHttpResponse<Unit>.Ok(Unit.Value, "Please check your email for recover key");
+			return JsonHttpResponse.Success(Unit.Value, "Please check your email for recover key");
 		}
 		catch (Exception e)
 		{
-			_loggerAdapter.LogCritical(e, "{Message}", e.Message);
+			_logger.LogCritical(e, "{Message}", e.Message);
 			throw new InternalServerException();
 		}
 	}
 
-	private ResetAccountMailModel NewResetAccountMailModel(VerifiedUrl newVerifyUrl)
+	/// <summary>
+	/// Create reset account model for mail worker
+	/// Contains reset url
+	/// </summary>
+	/// <param name="newVerifyUrl"></param>
+	/// <returns></returns>
+	private ResetAccountMailModel CreateResetAccountMailModel(VerifiedUrl newVerifyUrl)
 	{
 		var resetAccountMailModel =
 			new ResetAccountMailModel(
@@ -72,7 +82,13 @@ public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswor
 		return resetAccountMailModel;
 	}
 
-	private static SendMailEventBusMessage NewRecoverPasswordEventBusMessage(VerifiedUrl? addVerifyUrl,
+	/// <summary>
+	/// Create recover event for reset account action
+	/// </summary>
+	/// <param name="addVerifyUrl"></param>
+	/// <param name="resetAccountMailModel"></param>
+	/// <returns></returns>
+	private static SendMailEventBusMessage CreateRecoverPasswordEventBusMessage(VerifiedUrl? addVerifyUrl,
 		ResetAccountMailModel resetAccountMailModel)
 	{
 		var recoverPasswordEventBusMessage = new SendMailEventBusMessage
@@ -82,7 +98,7 @@ public class ForgetPasswordCommandCommandHandler : IRequestHandler<ForgetPasswor
 			Subject = "Recovery password",
 			TemplateName = EmailTemplateConstants.ResetAccountMail,
 			TemplateModel =
-				JsonSerializer.Serialize(resetAccountMailModel, PlatformJsonSerializerOptions.DefaultOptions),
+				JsonSerializer.Serialize(resetAccountMailModel, JsonSerializerOptions.DefaultOptions),
 			Attachments = default
 		};
 		return recoverPasswordEventBusMessage;

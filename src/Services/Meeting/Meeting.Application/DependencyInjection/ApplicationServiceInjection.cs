@@ -4,7 +4,8 @@ using Meeting.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.MongoDb.DependencyInjection;
-using SharedCommon.RegisterModules;
+using SharedCommon.Modules.Middelwares;
+using SharedCommon.Modules.PipelineBehaviours;
 
 namespace Meeting.Application.DependencyInjection;
 
@@ -14,7 +15,7 @@ public static class ApplicationServiceInjection
 		IConfiguration configuration)
 	{
 		services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-		services.RegisterMongoDbModule<ScheduleMeetingDbContext>(
+		services.AddMongoDbContext<ScheduleMeetingDbContext>(
 			assembly: Assembly.GetExecutingAssembly(),
 			contextConfiguration: cof =>
 			{
@@ -22,8 +23,8 @@ public static class ApplicationServiceInjection
 				cof.DatabaseName = configuration.GetValue<string>("MeetingDataContext:Database");
 			});
 
-		services.RegisterHandleExceptionMiddlewareModule();
-		services.RegisterPipelineValidationBehaviorModule();
+		services.AddDefaultHandleExceptionMiddleware();
+		services.AddDefaultPipelineBehaviorValidation();
 
 		return services;
 	}
