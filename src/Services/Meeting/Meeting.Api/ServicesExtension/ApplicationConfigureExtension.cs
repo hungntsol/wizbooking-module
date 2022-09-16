@@ -2,7 +2,9 @@
 using Meeting.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
-using SharedCommon.RegisterModules;
+using SharedCommon.Modules.JwtAuth;
+using SharedCommon.Modules.LoggerAdapter;
+using SharedCommon.Utilities;
 
 namespace Meeting.Api.ServicesExtension;
 
@@ -22,13 +24,13 @@ public static class ApplicationConfigureExtension
 			conf.AddSecurityDefinition(jwtSchema.Reference.Id, jwtSchema);
 			conf.AddSecurityRequirement(new OpenApiSecurityRequirement
 			{
-				{ jwtSchema, ArraySegment<string>.Empty }
+				{ jwtSchema, Utils.List.Empty<string>() }
 			});
 		});
 
-		services.RegisterLoggerAdapter();
+		services.AddLoggerAdapter();
 
-		services.RegisterAuthModule(configuration);
+		services.AddJwtAuthModule(configuration);
 
 		services.InjectApplicationLayer(configuration);
 		services.InjectInfrastructureLayer(configuration);

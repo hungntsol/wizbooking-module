@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Identity.Infrastructure.Migrations
 {
-    [DbContext(typeof(IdentityDataContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20220807154952_v1.0")]
     partial class v10
     {

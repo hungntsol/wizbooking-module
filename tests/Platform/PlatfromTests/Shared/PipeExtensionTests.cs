@@ -1,4 +1,4 @@
-﻿using SharedCommon.Utils;
+﻿using SharedCommon.Utilities.Extensions;
 
 namespace PlatformTests.Shared;
 

@@ -1,52 +1,94 @@
 version: '3.4'
 
 services:
-    # eventbus (rabbitmq)
-    eventbus:
-        image: rabbitmq:3.10-management
-        ports:
-            - 15672:15672
-            - 5672:5672
-        restart: always
-        volumes:
-            - eventbus_data:/var/lib/rabbitmq
+  # eventbus (rabbitmq)
+  eventbus:
+    image: rabbitmq:3.10-management
+    ports:
+      - 15672:15672
+      - 5672:5672
+    restart: always
+    volumes:
+      - eventbus_data:/var/lib/rabbitmq
+    networks:
+      - default
 
-    # identity db (mysql)
-    identity_db:
-        image: mysql
-        ports:
-            - "3306:3306"
-        environment:
-            - MYSQL_ROOT_PASSWORD=RootWiz@123
-        volumes:
-            - identity_data:/var/lib/mysql
-        networks:
-            - wizbooking_infra
+  # identity db (mysql)
+  identity_db:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=RootWiz@123
+    volumes:
+      - identity_data:/var/lib/mysql
+    networks:
+      - default
 
-    # meeting db (mongodb)
-    meeting_db_rs0:
-        image: bitnami/mongodb
-        extra_hosts:
-            - "localhost:0.0.0.0"
-        ports:
-            - 27017:27017
-        restart: always
-        environment:
-            - MONGODB_ADVERTISED_HOSTNAME=meeting_db_rs0
-            - MONGODB_REPLICA_SET_MODE=primary
-            - MONGODB_REPLICA_SET_NAME=meeting_cluster
-            - MONGODB_REPLICA_SET_KEY=abc123
-            - MONGODB_ROOT_USER=root
-            - MONGODB_ROOT_PASSWORD=rootDbForDev123
-        volumes:
-            - meeting_data:/data/db
-        networks:
-            - wizbooking_infra
+  # meeting db (mongodb)
+  wiz_meetingdb_rs0:
+    image: bitnami/mongodb
+    extra_hosts:
+      - "localhost:0.0.0.0"
+    ports:
+      - 27017:27017
+    restart: always
+    environment:
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ADVERTISED_HOSTNAME=wiz_meetingdb_rs0
+      - MONGODB_REPLICA_SET_NAME=meetingdb_cluster
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_ROOT_PASSWORD=rootLocal
+    volumes:
+      - meeting_data:/data/db
+    networks:
+      - default
+
+  wiz_meetingdb_rs1:
+    image: bitnami/mongodb
+    depends_on:
+      - wiz_meetingdb_rs0
+    extra_hosts:
+      - "localhost:0.0.0.0"
+    restart: always
+    ports:
+      - 27018:27017
+    environment:
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_ADVERTISED_HOSTNAME=wiz_meetingdb_rs1
+      - MONGODB_REPLICA_SET_NAME=meetingdb_cluster
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_INITIAL_PRIMARY_HOST=wiz_meetingdb_rs0
+      - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=rootLocal
+    networks:
+      - default
+
+  wiz_meetingdb_rs2:
+    image: bitnami/mongodb
+    depends_on:
+      - wiz_meetingdb_rs0
+    extra_hosts:
+      - "localhost:0.0.0.0"
+    restart: always
+    ports:
+      - 27019:27017
+    environment:
+      - MONGODB_REPLICA_SET_MODE=arbiter
+      - MONGODB_ADVERTISED_HOSTNAME=wiz_meetingdb_rs2
+      - MONGODB_REPLICA_SET_NAME=meetingdb_cluster
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_INITIAL_PRIMARY_HOST=wiz_meetingdb_rs0
+      - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=rootLocal
+    networks:
+      - default
 
 volumes:
-    identity_data:
-    meeting_data:
-    eventbus_data:
+  identity_data:
+  meeting_data:
+  eventbus_data:
+
 
 networks:
-    wizbooking_infra:
+  default:

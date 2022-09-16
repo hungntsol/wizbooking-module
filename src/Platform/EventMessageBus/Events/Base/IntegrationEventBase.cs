@@ -1,18 +1,13 @@
 ﻿namespace EventBusMessage.Events.Base;
+
 public abstract class IntegrationEventBase
 {
-    public Guid Id { get; set; }
-    public DateTime CreatedAt { get; set; }
+	protected IntegrationEventBase()
+	{
+		Id = Guid.NewGuid();
+		CreatedAt = DateTime.UtcNow;
+	}
 
-    protected IntegrationEventBase()
-    {
-        Id = Guid.NewGuid();
-        CreatedAt = DateTime.UtcNow;
-    }
-
-    protected IntegrationEventBase(Guid id)
-    {
-        Id = id;
-        CreatedAt = DateTime.UtcNow;
-    }
+	public Guid Id { get; init; }
+	public DateTime CreatedAt { get; init; }
 }

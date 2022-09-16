@@ -9,7 +9,7 @@ namespace Persistence.MongoDb.Abstract;
 ///     All of method here is only use for READ data from MongoDb
 /// </summary>
 /// <typeparam name="TDocument"></typeparam>
-public interface IMongoReadOnlyRepository<TDocument> : IDisposable where TDocument : IDocument
+public interface IMongoReadOnlyRepository<TDocument> : IDisposable where TDocument : IDocumentEntity
 {
 	#region Queryable & Aggregation
 

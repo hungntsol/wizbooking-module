@@ -1,17 +1,15 @@
-﻿using SharedCommon.Commons.HttpResponse;
+﻿namespace Identity.Application.Features.Queries.ConfirmAccount;
 
-namespace Identity.Application.Features.Queries.ConfirmAccount;
-
-public class ConfirmAccountQuery : IRequest<JsonHttpResponse<Unit>>
+public class ConfirmAccountQuery : IRequest<JsonHttpResponse>
 {
-    public string AppCode { get; set; } = null!;
+	public string AppCode { get; set; } = null!;
 }
 
 public class ConfirmAccountQueryValidation : AbstractValidator<ConfirmAccountQuery>
 {
-    public ConfirmAccountQueryValidation()
-    {
-        RuleFor(q => q.AppCode)
-            .NotEmpty().WithMessage("AppCode is required");
-    }
+	public ConfirmAccountQueryValidation()
+	{
+		RuleFor(q => q.AppCode)
+			.NotEmpty().WithMessage("AppCode is required");
+	}
 }

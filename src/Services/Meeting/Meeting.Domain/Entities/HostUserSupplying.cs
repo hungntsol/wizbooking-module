@@ -1,7 +1,9 @@
-﻿namespace Meeting.Domain.Entities;
+﻿using SharedCommon.Utilities;
+
+namespace Meeting.Domain.Entities;
 
 [BsonCollection("userHostSupply")]
-public class HostUserSupplying : DocumentBase<string>
+public class HostUserSupplying : DocumentEntityBase<string>
 {
 	public HostUserSupplying(ulong hostId, string name, string? description, bool isActive)
 	{
@@ -15,7 +17,7 @@ public class HostUserSupplying : DocumentBase<string>
 	public string Name { get; set; }
 	public string? Description { get; set; }
 	public bool IsActive { get; set; }
-	public List<string> Tags { get; set; } = Array.Empty<string>().ToList();
+	public List<string> Tags { get; set; } = Utils.List.Empty<string>();
 
 	public bool IsValid()
 	{

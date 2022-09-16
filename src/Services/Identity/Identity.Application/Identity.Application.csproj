@@ -7,14 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Platform\EventMessageBus\EventBusMessage.csproj" />
     <ProjectReference Include="..\..\..\Platform\Persistence.EfCore\Persistence.EfCore.csproj" />
-    <ProjectReference Include="..\..\..\Platform\SharedEventBus\SharedEventBus.csproj" />
     <ProjectReference Include="..\Identity.Infrastructure\Identity.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>	  <PackageReference Include="FluentValidation" Version="11.2.0" />	  <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.2.0" />
-    <PackageReference Include="Mapster" Version="7.3.0" />
-    <PackageReference Include="Mapster.DependencyInjection" Version="1.0.0" />
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 

@@ -2,7 +2,7 @@
 
 namespace Persistence.MongoDb.Abstract;
 
-public interface IMongoDbContext : IDisposable
+public interface IMongoDbContext
 {
 	/// <summary>
 	/// Add command to transaction scope
@@ -23,7 +23,7 @@ public interface IMongoDbContext : IDisposable
 	/// </summary>
 	/// <typeparam name="TDocument"></typeparam>
 	/// <returns></returns>
-	IMongoCollection<TDocument> GetCollection<TDocument>() where TDocument : class, IDocument;
+	IMongoCollection<TDocument> GetCollection<TDocument>() where TDocument : class, IDocumentEntity;
 
 	/// <summary>
 	/// Get current database

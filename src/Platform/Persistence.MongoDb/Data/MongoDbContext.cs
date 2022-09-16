@@ -5,7 +5,7 @@ using Persistence.MongoDb.Attribute;
 using Persistence.MongoDb.Internal;
 using Polly;
 using Polly.Retry;
-using SharedCommon.Commons.LoggerAdapter;
+using SharedCommon.Modules.LoggerAdapter;
 
 namespace Persistence.MongoDb.Data;
 
@@ -14,21 +14,21 @@ public abstract class MongoDbContext : IMongoDbContext
 	private readonly List<Func<Task>> _commands;
 	private readonly MongoContextConfiguration _contextConfiguration;
 	private readonly object _lock = new();
-	private readonly ILoggerAdapter<MongoDbContext> _loggerAdapter;
+	private readonly ILoggerAdapter<MongoDbContext> _logger;
 	private readonly RetryPolicy _retryPolicy;
 
 	protected MongoDbContext(MongoContextConfiguration contextConfiguration,
-		ILoggerAdapter<MongoDbContext> loggerAdapter)
+		ILoggerAdapter<MongoDbContext> logger)
 	{
 		_contextConfiguration = contextConfiguration;
-		_loggerAdapter = loggerAdapter;
+		_logger = logger;
 		_commands = new List<Func<Task>>();
 
 		_retryPolicy = Policy.Handle<SocketException>()
 			.Or<Exception>()
 			.WaitAndRetry(5, count => TimeSpan.FromSeconds(Math.Pow(2, count)), (ex, time) =>
 			{
-				_loggerAdapter.LogWarning(ex, "MongoDbContext cannot be reached after {TimeOut}s ({ExceptionMessage})",
+				_logger.LogWarning(ex, "MongoDbContext cannot be reached after {TimeOut}s ({ExceptionMessage})",
 					$"{time.TotalSeconds:n1}", ex.Message);
 			});
 	}
@@ -36,13 +36,6 @@ public abstract class MongoDbContext : IMongoDbContext
 	private IMongoDatabase? MongoDatabase { get; set; }
 	public IClientSessionHandle? SessionHandle { get; set; }
 	public MongoClient? Client { get; set; }
-
-
-	public void Dispose()
-	{
-		SessionHandle?.Dispose();
-		GC.SuppressFinalize(this);
-	}
 
 	public void AddCommand(Func<Task> func)
 	{
@@ -73,7 +66,7 @@ public abstract class MongoDbContext : IMongoDbContext
 			}
 			catch (Exception e)
 			{
-				_loggerAdapter.LogCritical(e, "{Message}", e.Message);
+				_logger.LogCritical(e, "{Message}", e.Message);
 				await SessionHandle.AbortTransactionAsync();
 			}
 		}
@@ -81,11 +74,11 @@ public abstract class MongoDbContext : IMongoDbContext
 		return _commands.Count;
 	}
 
-	public IMongoCollection<TDocument> GetCollection<TDocument>() where TDocument : class, IDocument
+	public IMongoCollection<TDocument> GetCollection<TDocument>() where TDocument : class, IDocumentEntity
 	{
 		OnConnect();
 
-		return MongoDatabase!.GetCollection<TDocument>(GetCollectionName<TDocument>());
+		return MongoDatabase!.GetCollection<TDocument>(Bson.CollectionName<TDocument>());
 	}
 
 	public IMongoDatabase GetDatabase()
@@ -100,6 +93,9 @@ public abstract class MongoDbContext : IMongoDbContext
 		return Task.CompletedTask;
 	}
 
+	/// <summary>
+	/// Turn on connection
+	/// </summary>
 	private void OnConnect()
 	{
 		if (Client is not null)
@@ -110,22 +106,25 @@ public abstract class MongoDbContext : IMongoDbContext
 		Connect();
 	}
 
+	/// <summary>
+	/// Execute connect to MongoDB
+	/// </summary>
 	private void Connect()
 	{
 		lock (_lock)
 		{
-			_retryPolicy.Execute(() =>
-			{
-				Client = _contextConfiguration.ClientSettings is not null
-					? new MongoClient(_contextConfiguration.ClientSettings)
-					: new MongoClient(_contextConfiguration.Connection);
-				MongoDatabase = Client.GetDatabase(_contextConfiguration.DatabaseName);
-			});
+			_retryPolicy.Execute(ConfigureDbContext);
 		}
 	}
 
-	private static string GetCollectionName<TDocument>() where TDocument : class, IDocument
+	/// <summary>
+	/// Configure Client and MongoDatabase from setting
+	/// </summary>
+	private void ConfigureDbContext()
 	{
-		return Bson.CollectionName<TDocument>();
+		Client = _contextConfiguration.ClientSettings is not null
+			? new MongoClient(_contextConfiguration.ClientSettings)
+			: new MongoClient(_contextConfiguration.Connection);
+		MongoDatabase = Client.GetDatabase(_contextConfiguration.DatabaseName);
 	}
 }

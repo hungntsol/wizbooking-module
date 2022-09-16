@@ -1,45 +1,47 @@
 ﻿using System.Text.Json;
 using EventBusMessage.Abstracts;
+using EventBusMessage.Events;
 using Identity.Domain.Common;
 using Identity.Infrastructure.SettingOptions;
 using Microsoft.Extensions.Options;
-using SharedCommon.Commons.JsonSerialization;
-using SharedCommon.Commons.MailingConstants;
-using SharedCommon.Commons.MailingConstants.Models;
-using SharedEventBus.Events;
+using SharedCommon.Commons.Exceptions.StatusCodes._500;
+using SharedCommon.MailingConstants;
+using SharedCommon.MailingConstants.Models;
+using SharedCommon.Modules.LoggerAdapter;
+using JsonSerializerOptions = SharedCommon.Commons.JsonSerialization.JsonSerializerOptions;
 
 namespace Identity.Application.Features.Queries.ResendConfirm;
 
 public class
-	ResendMailConfirmAccountQueryHandler : IRequestHandler<ResendMailConfirmAccountQuery, JsonHttpResponse<Unit>>
+	ResendMailConfirmAccountQueryHandler : IRequestHandler<ResendMailConfirmAccountQuery, JsonHttpResponse>
 {
 	private readonly AuthAppSetting _authAppSetting;
 	private readonly DomainClientAppSetting _domainClientAppSetting;
-	private readonly ILoggerAdapter<ResendMailConfirmAccountQueryHandler> _loggerAdapter;
+	private readonly IEfCoreAtomicWork _efCoreAtomicWork;
+	private readonly ILoggerAdapter<ResendMailConfirmAccountQueryHandler> _logger;
 	private readonly IMessageProducer _messageProducer;
-	private readonly IUnitOfWork _unitOfWork;
 	private readonly IUserAccountRepository _userAccountRepository;
-	private readonly IVerifiedUrlRepository _verifiedUrlRepository;
+	private readonly IVerifiedUrlRepository _verifiedUrlOnlyRepository;
 
 	public ResendMailConfirmAccountQueryHandler(IUserAccountRepository userAccountRepository,
 		IVerifiedUrlRepository verifiedUrlRepository,
-		ILoggerAdapter<ResendMailConfirmAccountQueryHandler> loggerAdapter,
+		ILoggerAdapter<ResendMailConfirmAccountQueryHandler> logger,
 		IOptions<DomainClientAppSetting> domainClientAppSettingOptions,
 		IOptions<AuthAppSetting> authAppSettingOptions,
 		IMessageProducer messageProducer,
-		IUnitOfWork unitOfWork)
+		IEfCoreAtomicWork efCoreAtomicWork)
 
 	{
 		_userAccountRepository = userAccountRepository;
-		_verifiedUrlRepository = verifiedUrlRepository;
-		_loggerAdapter = loggerAdapter;
+		_verifiedUrlOnlyRepository = verifiedUrlRepository;
+		_logger = logger;
 		_messageProducer = messageProducer;
-		_unitOfWork = unitOfWork;
+		_efCoreAtomicWork = efCoreAtomicWork;
 		_domainClientAppSetting = domainClientAppSettingOptions.Value;
 		_authAppSetting = authAppSettingOptions.Value;
 	}
 
-	public async Task<JsonHttpResponse<Unit>> Handle(ResendMailConfirmAccountQuery request,
+	public async Task<JsonHttpResponse> Handle(ResendMailConfirmAccountQuery request,
 		CancellationToken cancellationToken)
 	{
 		var account = await _userAccountRepository.FindOneAsync(q => q.Email.Equals(request.Email), cancellationToken);
@@ -50,8 +52,8 @@ public class
 			VerifiedUrlTargetConstant.ConfirmEmail,
 			TimeSpan.FromMinutes(_authAppSetting.ConfirmLinkExpiredMinutes));
 
-		await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
-		var added = await _verifiedUrlRepository.InsertAsync(newVerifyUrl, cancellationToken: cancellationToken);
+		await using var transaction = await _efCoreAtomicWork.BeginTransactionAsync(cancellationToken);
+		var added = await _verifiedUrlOnlyRepository.InsertAsync(newVerifyUrl, cancellationToken: cancellationToken);
 
 		try
 		{
@@ -60,13 +62,13 @@ public class
 		}
 		catch (Exception e)
 		{
-			_loggerAdapter.LogError(e, "{Message}", e.Message);
+			_logger.LogError(e, "{Message}", e.Message);
 			await transaction.RollbackAsync(cancellationToken);
 
 			throw new InternalServerException();
 		}
 
-		return JsonHttpResponse<Unit>.Ok(Unit.Value);
+		return JsonHttpResponse.Success(Unit.Value);
 	}
 
 	private async Task ProduceConfirmAccountMailEvent(UserAccount newUser, string verifyAppCode)
@@ -89,7 +91,7 @@ public class
 			From = "WizBooking <noreply-auth@wizbooking.com>",
 			Subject = "Verify Email",
 			TemplateName = EmailTemplateConstants.ConfirmAccountMail,
-			TemplateModel = JsonSerializer.Serialize(eventModel, PlatformJsonSerializerOptions.DefaultOptions),
+			TemplateModel = JsonSerializer.Serialize(eventModel, JsonSerializerOptions.DefaultOptions),
 			Attachments = default
 		};
 	}

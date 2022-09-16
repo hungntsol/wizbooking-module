@@ -15,7 +15,7 @@ public abstract class ApiV1ControllerBase : ControllerBase
 		Mediator = mediator;
 	}
 
-	protected IActionResult JsonResponse<T>(JsonHttpResponse<T> response)
+	protected IActionResult JsonResponse(JsonHttpResponse response)
 	{
 		return StatusCode(response.Status, response);
 	}

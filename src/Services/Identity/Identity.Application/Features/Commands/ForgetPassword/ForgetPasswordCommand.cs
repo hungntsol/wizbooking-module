@@ -1,18 +1,16 @@
-﻿using SharedCommon.Commons.HttpResponse;
+﻿namespace Identity.Application.Features.Commands.ForgetPassword;
 
-namespace Identity.Application.Features.Commands.ForgetPassword;
-
-public class ForgetPasswordCommand : IRequest<JsonHttpResponse<Unit>>
+public class ForgetPasswordCommand : IRequest<JsonHttpResponse>
 {
-    public string Email { get; init; } = null!;
+	public string Email { get; init; } = null!;
 }
 
 public class ForgetPasswordCommandCommandValidation : AbstractValidator<ForgetPasswordCommand>
 {
-    public ForgetPasswordCommandCommandValidation()
-    {
-        RuleFor(q => q.Email)
-            .EmailAddress().WithMessage("Email is not valid")
-            .NotEmpty().WithMessage("Email is required");
-    }
+	public ForgetPasswordCommandCommandValidation()
+	{
+		RuleFor(q => q.Email)
+			.EmailAddress().WithMessage("Email is not valid")
+			.NotEmpty().WithMessage("Email is required");
+	}
 }

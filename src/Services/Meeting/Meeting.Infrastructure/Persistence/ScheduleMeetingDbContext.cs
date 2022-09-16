@@ -1,9 +1,11 @@
-﻿namespace Meeting.Infrastructure.Persistence;
+﻿using SharedCommon.Modules.LoggerAdapter;
+
+namespace Meeting.Infrastructure.Persistence;
 
 public class ScheduleMeetingDbContext : MongoDbContext
 {
 	public ScheduleMeetingDbContext(MongoContextConfiguration contextConfiguration,
-		ILoggerAdapter<MongoDbContext> loggerAdapter) : base(contextConfiguration, loggerAdapter)
+		ILoggerAdapter<MongoDbContext> logger) : base(contextConfiguration, logger)
 	{
 	}
 

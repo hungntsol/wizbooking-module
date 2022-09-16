@@ -1,7 +1,7 @@
 ﻿namespace Meeting.Domain.Entities;
 
 [BsonCollection("scheduleMeeting")]
-public class ScheduleMeeting : DocumentBase<string>
+public class ScheduleMeeting : DocumentEntityBase<string>
 {
 	public ScheduleMeeting(
 		string title,

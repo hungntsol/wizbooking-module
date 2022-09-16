@@ -1,19 +1,15 @@
 ﻿using System.Linq.Expressions;
-using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Persistence.EfCore.Abstracts;
-using SharedCommon.Commons.Domain;
-using SharedCommon.Exceptions;
-using SharedCommon.PredicateBuilder;
-using SharedCommon.Utils;
+using SharedCommon.Commons.Entity;
+using SharedCommon.Commons.Exceptions;
+using SharedCommon.Commons.PredicateBuilder;
 
 namespace Persistence.EfCore.Data;
 
-public class EfCoreRepository<TEntity, TKey, TContext> :
-	EfCoreSupportEvent,
-	IEfCoreRepository<TEntity, TKey>
+public class EfCoreRepository<TEntity, TKey, TContext> : IEfCoreRepository<TEntity, TKey>
 	where TContext : DbContext
 	where TEntity : class, IEntityBase<TKey>
 {
@@ -26,12 +22,6 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 		DbContext = context;
 		_mediator = mediator;
 		DbSet = DbContext.Set<TEntity>();
-	}
-
-	public IEfCoreRepository<TEntity, TKey> DispatchEvent(bool enable)
-	{
-		EnableEvent(enable);
-		return this;
 	}
 
 	private static IQueryable<TEntity> BuildIQueryable(
@@ -65,6 +55,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 	#region Delete
 
 	public async Task<bool> DeleteAsync(TEntity entity,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default)
 	{
 		DbSet.Attach(entity).State = EntityState.Deleted;
@@ -75,13 +66,17 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 			return false;
 		}
 
-		_mediator.PipeIf(CanPublish(),
-			mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Deleted, entity),
-				cancellationToken)));
+		if (sendEvent)
+		{
+			await _mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Deleted, entity),
+				cancellationToken);
+		}
+
 		return true;
 	}
 
 	public async Task<bool> DeleteBatchAsync(PredicateBuilder<TEntity> predicateBuilder,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default)
 	{
 		DbSet.RemoveRange(DbSet.Where(predicateBuilder.Statement).ToList());
@@ -92,18 +87,22 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 			return false;
 		}
 
-		_mediator.PipeIf(CanPublish(),
-			mediator => Task.FromResult(mediator.Publish(
+		if (sendEvent)
+		{
+			await _mediator.Publish(
 				DomainEvent<TEntity>.New($"Batch{nameof(TEntity)}", DomainEventAction.Deleted),
-				cancellationToken)));
+				cancellationToken);
+		}
+
 		return true;
 	}
 
 	#endregion
 
-	#region Find
+	#region Find and delete
 
 	public async Task<TEntity?> FindAndDelete(PredicateBuilder<TEntity> predicateBuilder,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default)
 	{
 		var entry = await FindOneAsync(predicateBuilder, cancellationToken);
@@ -112,7 +111,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 			return null;
 		}
 
-		await DeleteAsync(entry, cancellationToken);
+		await DeleteAsync(entry, sendEvent, cancellationToken);
 
 		return entry;
 	}
@@ -121,11 +120,6 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 	{
 		var entity = await DbSet.FindAsync(keyValues, cancellationToken)
 			.ConfigureAwait(false);
-
-		if (CanPublish())
-		{
-			await _mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Queried, entity), cancellationToken);
-		}
 
 		return entity;
 	}
@@ -184,6 +178,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 	#region Insert
 
 	public async Task<TEntity?> InsertAsync(TEntity entity,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default)
 	{
 		await DbSet.AddAsync(entity, cancellationToken);
@@ -194,31 +189,17 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 			return null;
 		}
 
-		_mediator.PipeIf(CanPublish(),
-			mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Created, entity),
-				cancellationToken)));
+		if (sendEvent)
+		{
+			await _mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Created, entity),
+				cancellationToken);
+		}
+
 		return entity;
 	}
 
-	public async Task<TProject?> InsertAsync<TProject>(TEntity entity,
-		CancellationToken cancellationToken = default)
-		where TProject : class
-	{
-		await DbSet.AddAsync(entity, cancellationToken);
-		var saves = await DbContext.SaveChangesAsync(cancellationToken);
-
-		if (saves <= 0)
-		{
-			return null;
-		}
-
-		_mediator.PipeIf(CanPublish(),
-			mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Created, entity),
-				cancellationToken)));
-		return entity.Adapt<TProject>();
-	}
-
-	public async Task<bool> InsertBatchAsync(IList<TEntity> entities)
+	public async Task<bool> InsertBatchAsync(IList<TEntity> entities,
+		bool sendEvent = true)
 	{
 		NullOrEmptyArrayException.ThrowIfNullOrEmpty(entities);
 
@@ -230,11 +211,13 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 			return false;
 		}
 
-		_mediator.PipeIf(CanPublish(),
-			mediator => Task.FromResult(
-				mediator.Publish(DomainEvent<TEntity>.New($"Batch{nameof(TEntity)}",
-					DomainEventAction.Created,
-					entities.ToList()))));
+		if (sendEvent)
+		{
+			await _mediator.Publish(DomainEvent<TEntity>.New($"Batch{nameof(TEntity)}",
+				DomainEventAction.Created,
+				entities.ToList()));
+		}
+
 		return true;
 	}
 
@@ -243,6 +226,7 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 	#region Update
 
 	public async Task<bool> UpdateAsync(TEntity entity,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default)
 	{
 		DbSet.Attach(entity).State = EntityState.Modified;
@@ -253,14 +237,18 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 			return false;
 		}
 
-		_mediator.PipeIf(CanPublish(),
-			mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Updated, entity),
-				cancellationToken)));
+		if (sendEvent)
+		{
+			await _mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Updated, entity),
+				cancellationToken);
+		}
 
 		return true;
 	}
 
-	public async Task<bool> UpdateOneFieldAsync(TEntity entity, Expression<Func<TEntity, object>> update,
+	public async Task<bool> UpdateOneFieldAsync(TEntity entity,
+		Expression<Func<TEntity, object>> update,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default)
 	{
 		DbSet.Attach(entity).Property(update).IsModified = true;
@@ -271,13 +259,17 @@ public class EfCoreRepository<TEntity, TKey, TContext> :
 			return false;
 		}
 
-		_mediator.PipeIf(CanPublish(),
-			mediator => Task.FromResult(mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Updated, entity),
-				cancellationToken)));
+		if (sendEvent)
+		{
+			await _mediator.Publish(DomainEvent<TEntity>.New(DomainEventAction.Updated, entity),
+				cancellationToken);
+		}
+
 		return true;
 	}
 
 	public Task<bool> Upsert(TEntity? entity,
+		bool sendEvent = true,
 		CancellationToken cancellationToken = default)
 	{
 		throw new NotImplementedException();

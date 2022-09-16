@@ -1,8 +1,10 @@
 ﻿using MapsterMapper;
+using SharedCommon.Commons.Exceptions.StatusCodes._500;
+using SharedCommon.Modules.JwtAuth.AccountContext;
 
 namespace Identity.Application.Features.Commands.UpdateProfile;
 
-internal class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, JsonHttpResponse<Unit>>
+internal class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, JsonHttpResponse>
 {
 	private readonly IAccountAccessorContextService _accountAccessorContextService;
 	private readonly IMapper _mapper;
@@ -16,7 +18,7 @@ internal class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileComman
 		_mapper = mapper;
 	}
 
-	public async Task<JsonHttpResponse<Unit>> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
+	public async Task<JsonHttpResponse> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
 	{
 		var account = await _userAccountRepository.FindOneAsync(
 			q => q.Email.Equals(_accountAccessorContextService.GetEmail()),
@@ -30,8 +32,8 @@ internal class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileComman
 
 		try
 		{
-			var updated = await _userAccountRepository.UpdateAsync(account, cancellationToken: cancellationToken);
-			return JsonHttpResponse<Unit>.Ok(Unit.Value);
+			await _userAccountRepository.UpdateAsync(account, cancellationToken: cancellationToken);
+			return JsonHttpResponse.Success(Unit.Value);
 		}
 		catch (Exception)
 		{

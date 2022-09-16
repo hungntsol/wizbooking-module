@@ -1,7 +1,9 @@
 ﻿using EventBusMessage.Abstracts;
+using EventBusMessage.Events;
 using Mailing.Worker.Abstracts;
-using SharedCommon.Commons.MailingConstants;
-using SharedCommon.Commons.MailingConstants.Models;
+using SharedCommon.MailingConstants;
+using SharedCommon.MailingConstants.Models;
+using SharedCommon.Modules.LoggerAdapter;
 
 namespace Mailing.Worker.BackgroundWorkers;
 

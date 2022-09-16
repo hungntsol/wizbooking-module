@@ -7,15 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Commons\JsonSerialization\" />
-    <Folder Include="Commons\Builder\" />
-    <Folder Include="Commons\SettingOptions\" />
-    <Folder Include="UnitOfWork\" />
-    <Folder Include="RegisterModules\" />
+    <Folder Include="Modules\Mapping\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.2.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.2.0" />
     <PackageReference Include="Mapster" Version="7.3.0" />
     <PackageReference Include="Mapster.DependencyInjection" Version="1.0.0" />
     <PackageReference Include="MediatR" Version="10.0.1" />

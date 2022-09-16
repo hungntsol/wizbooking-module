@@ -1,7 +1,7 @@
 ﻿namespace Meeting.Domain.Entities;
 
 [BsonCollection("scheduleInviteUrl")]
-public class ScheduleInviteUrl : DocumentBase<string>
+public class ScheduleInviteUrl : DocumentEntityBase<string>
 {
 	public ScheduleInviteUrl(string generatedUrl,
 		ulong creatorId,

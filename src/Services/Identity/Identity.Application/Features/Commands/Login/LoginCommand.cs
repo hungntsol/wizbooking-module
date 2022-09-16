@@ -1,29 +1,27 @@
-﻿using SharedCommon.Commons.HttpResponse;
+﻿namespace Identity.Application.Features.Commands.Login;
 
-namespace Identity.Application.Features.Commands.Login;
-
-public class LoginCommand : IRequest<JsonHttpResponse<LoginCommandViewResult>>
+public class LoginCommand : IRequest<JsonHttpResponse>
 {
-    public string Email { get; init; }
-    public string Password { get; init; }
+	public LoginCommand(string email, string password)
+	{
+		Email = email;
+		Password = password;
+	}
 
-    public LoginCommand(string email, string password)
-    {
-        Email = email;
-        Password = password;
-    }
+	public string Email { get; init; }
+	public string Password { get; init; }
 }
 
 public sealed class LoginCommandValidation : AbstractValidator<LoginCommand>
 {
-    public LoginCommandValidation()
-    {
-        RuleFor(q => q.Email)
-            .EmailAddress().WithMessage("Email is not valid")
-            .NotEmpty().WithMessage("Email is required");
+	public LoginCommandValidation()
+	{
+		RuleFor(q => q.Email)
+			.EmailAddress().WithMessage("Email is not valid")
+			.NotEmpty().WithMessage("Email is required");
 
-        RuleFor(q => q.Password)
-            .MinimumLength(6).WithMessage("Password must longer than 6 characters")
-            .NotEmpty().WithMessage("Password is required");
-    }
+		RuleFor(q => q.Password)
+			.MinimumLength(6).WithMessage("Password must longer than 6 characters")
+			.NotEmpty().WithMessage("Password is required");
+	}
 }
