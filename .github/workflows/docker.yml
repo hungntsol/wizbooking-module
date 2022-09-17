@@ -16,6 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Infra dev
+        working-directory: ${{ secrets.WORKING_DIR }}
         run: |
           chmod +x ./scripts/workflows-infra-dev.sh
           ./scripts/workflows-infra-dev.sh

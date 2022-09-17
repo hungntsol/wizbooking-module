@@ -29,13 +29,13 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        working-directory: ${{ secrets.WORKINGDIR }}
+        working-directory: ${{ secrets.WORKING_DIR }}
         run: dotnet restore WizBooking.sln
 
       - name: Build
-        working-directory: ${{ secrets.WORKINGDIR }}
+        working-directory: ${{ secrets.WORKING_DIR }}
         run: dotnet build --no-restore WizBooking.sln
 
       - name: Test
-        working-directory: ${{ secrets.WORKINGDIR }}
+        working-directory: ${{ secrets.WORKING_DIR }}
         run: dotnet test --no-build --verbosity normal WizBooking.sln

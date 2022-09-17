@@ -1,6 +1,6 @@
 title 'wizbooking-infra'
 
-cd ../src
+cd ../
 
 docker-compose -f docker-compose-infra.dev.yml -p wizbooking-infra down
 docker-compose -f docker-compose-infra.dev.yml -p wizbooking-infra up -d
