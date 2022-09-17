@@ -18,6 +18,6 @@ jobs:
       - name: Infra dev
         working-directory: ${{ secrets.WORKING_DIR }}
         run: |
-          chmod +x ./scripts/workflows-infra-dev.sh
-          ./scripts/workflows-infra-dev.sh
+          chmod +x ./scripts/workflows/github-infra-dev.sh
+          ./scripts/workflows/github-infra-dev.sh
         shell: bash
